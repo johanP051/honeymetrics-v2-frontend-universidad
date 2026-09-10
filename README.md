@@ -2,91 +2,143 @@
 
 > **Cátedra de Ingeniería de Software — Universidad de Cundinamarca (UDEC Facatativá)**  
 > **Integrantes:** Johan Sebastián Posada Beltrán & Juan Pablo Fonseca Celis  
-> **Tecnología:** React 18 + Vite (SWC) + Dark CTI Theme + Mocks Offline  
+> **Tecnología:** React 18 + Vite (SWC) + Tailwind CSS + Mocks Offline + Nginx Multi-Etapa  
 
 ---
 
-## 📑 Tabla de Contenido (Índice de Navegación)
+## 📑 Tabla de Contenido
 1. [Visión General del Frontend](#-visión-general-del-frontend)
-2. [Puesta en Marcha Rápida (Node.js & Vite)](#-puesta-en-marcha-rápida-nodejs--vite)
-3. [Variables de Entorno y Conexión con el Backend](#-variables-de-entorno-y-conexión-con-el-backend)
-4. [Sistema de Mocks y Modo de Contingencia Offline](#-sistema-de-mocks-y-modo-de-contingencia-offline)
-5. [Ejecución en Docker (Nginx SPA Proxy)](#-ejecución-en-docker-nginx-spa-proxy)
-6. [Enlaces a Documentación de Contratos y Scrum](#-enlaces-a-documentación-de-contratos-y-scrum)
+2. [Arquitectura de Carpetas y Componentes](#-arquitectura-de-carpetas-y-componentes)
+3. [Guía de Puesta en Marcha con Docker Compose](#-guía-de-puesta-en-marcha-con-docker-compose)
+   - [Modo Desarrollo (Vite Live Reload)](#modo-desarrollo-vite-live-reload)
+   - [Modo Producción Endurecida (Nginx Runner)](#modo-producción-endurecida-nginx-runner)
+4. [Ejecución en Host con Node.js & Vite](#-ejecución-en-host-con-nodejs--vite)
+5. [Configuración de Entorno y Variables (.env)](#-configuración-de-entorno-y-variables-env)
+6. [Sistema de Mocks Offline y Fallback Automático](#-sistema-de-mocks-offline-y-fallback-automático)
+7. [Integración con el Backend (Contratos API)](#-integración-con-el-backend-contratos-api)
+8. [Biblioteca de Documentación Técnica Avanzada (docs/)](#-biblioteca-de-documentación-técnica-avanzada-docs)
 
 ---
 
 ## 📖 Visión General del Frontend
 
-HoneyMetrics Frontend es una **Single Page Application (SPA)** desacoplada, diseñada para la visualización en tiempo real de eventos de seguridad y métricas de Honeypots.
+HoneyMetrics Frontend v2 es la Single Page Application (SPA) para la consola visual de **Cyber Threat Intelligence (CTI)**. Desarrollada con **React 18** y compilada a ultra-alta velocidad con **Vite + SWC (Rust)**, ofrece una estética profesional *Dark Cybersecurity* inspirada en plataformas como CrowdStrike y SentinelOne.
 
-### Principios de Diseño
-- **Dark Cybersecurity UI:** Paleta de colores oscuros inspirada en centros de operaciones de seguridad (SOC).
-- **Contratos Fuertes (API-First):** Consume estrictamente los contratos JSON tipados expuestos por los DTOs de FastAPI.
-- **Client-Side Offloading:** Tareas pesadas de renderizado y exportación de reportes se procesan directamente en el navegador.
+### Capacidades Destacadas
+- **Renderizado Ultrarrápido:** Arranques locales en <300 ms y HMR instantáneo con SWC.
+- **Desacoplamiento Absoluto (Contract-First):** Consume estrictamente los contratos DTO en JSON del backend.
+- **Resiliencia con Mocks Offline:** Si el backend no está disponible o la red Wi-Fi universitaria presenta aislamiento, conmuta de forma transparente al catálogo de datos de prueba, mostrando un banner dorado informativo.
+- **Offloading al Navegador:** Exportación de reportes PDF forenses generados client-side mediante `jsPDF`.
 
 ---
 
-## 🚀 Puesta en Marcha Rápida (Node.js & Vite)
+## 🗺️ Arquitectura de Carpetas y Componentes
 
-### Requisitos Previos
-- Node.js 18+ o 20+
-- Gestor de paquetes `npm` (o `pnpm`)
+```text
+honeymetrics-v2-frontend-universidad/
+├── src/
+│   ├── api/             # Cliente Axios con interceptores JWT y baseUrl dinámica
+│   ├── components/      # Componentes atómicos organizados por dominio
+│   │   ├── auth/        # Modales de autenticación, cambio de contraseña y 2FA
+│   │   ├── layout/      # Topbar, Sidebar corporativo, StatusBanner
+│   │   ├── settings/    # Formularios y tablas del panel de administración RBAC
+│   │   └── threats/     # Métricas CTI, Threat Score y gráficos reactivos
+│   ├── context/         # Contexto global de sesión y perfil de usuario
+│   ├── hooks/           # Custom Hooks con fallback automático a Mocks (useThreats, useAuth)
+│   ├── mocks/           # Datasets sintéticos offline para desarrollo desacoplado
+│   ├── pages/           # Vistas enrutadas (Overview, Threats, Logs, Settings)
+│   ├── utils/           # Generador jsPDF de evidencias y formateadores de fecha
+│   ├── App.jsx          # Enrutador principal de la SPA
+│   ├── main.jsx         # Punto de entrada de React 18
+│   └── index.css        # Estilos globales y utilidades Tailwind CSS
+├── public/              # Favicon y assets estáticos públicos
+├── docs/                # Documentación técnica modular (wiki navegable)
+├── Dockerfile           # Multi-etapa: Base -> Dev (Vite) -> Builder -> Runner (Nginx)
+├── docker-compose.yml   # Servicio hm_v2_frontend en red compartida hm_v2_network
+├── docker-compose.override.yml # Dev: puerto host 5174:5173 con Live Reload
+├── docker-compose.prod.yml     # Prod: servidor Nginx optimizado en puerto host 8081
+├── nginx.conf           # Configuración Nginx (Gzip, caché inmutable, proxy /api/)
+├── .env.example         # Plantilla documentada de variables de entorno
+└── package.json         # Dependencias React, Lucide, Tailwind, Vite SWC
+```
 
-### Comandos de Ejecución
+---
+
+## 🐳 Guía de Puesta en Marcha con Docker Compose
+
+### Modo Desarrollo (Vite Live Reload)
+Ideal para desarrollo cotidiano con recarga instantánea:
+
+```bash
+# 1. Asegurar archivo de variables
+cp .env.example .env
+
+# 2. Levantar el contenedor frontend (puerto 5174 en host para no colisionar)
+docker compose up -d
+
+# 3. Ver logs en tiempo real
+docker compose logs -f frontend
+```
+- **Frontend disponible en:** [http://localhost:5174](http://localhost:5174)
+
+---
+
+### Modo Producción Endurecida (Nginx Runner)
+Compila la aplicación con el builder multi-etapa y levanta un servidor Nginx con compresión Gzip:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+- **Frontend Nginx en:** [http://localhost:8081](http://localhost:8081)
+
+---
+
+## 💻 Ejecución en Host con Node.js & Vite
+
+Si no deseas utilizar Docker:
+
 ```bash
 # 1. Instalar dependencias
 npm install
 
-# 2. Configurar variables de entorno
+# 2. Configurar entorno
 cp .env.example .env.local
 
-# 3. Iniciar servidor de desarrollo con Live-Reload (SWC)
+# 3. Iniciar servidor Vite
 npm run dev
 ```
-La aplicación abrirá por defecto en: [http://localhost:5173](http://localhost:5173)
+- **Frontend en host:** [http://localhost:5173](http://localhost:5173)
 
 ---
 
-## ⚙️ Variables de Entorno y Conexión con el Backend
+## ⚙️ Configuración de Entorno y Variables (.env)
 
-Crea un archivo `.env.local` en la raíz del frontend para definir hacia dónde apunta la API:
-
-```bash
-# Archivo: .env.local
-
-# URL Base de la API de Backend (en desarrollo apunta al puerto 8001 de HoneyMetrics v2)
-VITE_API_BASE_URL="http://localhost:8001/api/v1"
-
-# Modo de datos ("live" para consultar backend, "mock" para datos simulados offline)
-VITE_DATA_MODE="live"
-```
+| Variable | Propósito | Valor por Defecto |
+| :--- | :--- | :--- |
+| `VITE_API_URL` | URL base de la API Backend universitaria | `http://localhost:8001/api/v1` |
+| `VITE_DATA_MODE` | Modo de datos: `live` (consulta backend) o `mock` (datos simulados) | `live` |
 
 ---
 
-## 🛡️ Sistema de Mocks y Modo de Contingencia Offline
+## 🛡️ Sistema de Mocks Offline y Fallback Automático
 
-Para evitar el temido error de *"Network Error"* durante una sustentación universitaria o cuando la red Wi-Fi de la universidad aísla los puertos locales:
-1. **Fallback Automático:** Si una petición `fetch` hacia el backend falla por timeout o error de red, el hook de datos conmuta automáticamente al catálogo de **Mocks JSON**.
-2. **Banner Dorado Informativo:** La interfaz no se congela ni muestra contadores en cero; muestra un banner superior informando que los datos mostrados son de contingencia CTI.
-3. **Desarrollo Paralelo:** Permite que Juan Pablo avance en la construcción de componentes visuales en React antes de que Johan termine de exponer el endpoint real en FastAPI.
-
----
-
-## 🐳 Ejecución en Docker (Nginx SPA Proxy)
-
-Para simular un entorno de producción idéntico al de despliegue en la nube:
-
-```bash
-# Construir y levantar con Docker Compose
-docker compose up -d
-```
-Nginx compilará los estáticos de React con el builder multi-etapa y los servirá en el puerto `80` (o `3000`), haciendo proxy reverso seguro hacia las rutas `/api/` del backend.
+Para garantizar que **nunca aparezca una pantalla rota de "Network Error"** en clase:
+1. Si el backend en `http://localhost:8001` no responde, los Custom Hooks (`useThreats`, `useAuth`) conmutan automáticamente a `src/mocks/`.
+2. Se despliega un **StatusBanner dorado** en la cabecera informando que la plataforma está operando en contingencia de datos forenses.
+3. Permite a Juan Pablo programar interfaces completas antes de que Johan despliegue el endpoint real.
 
 ---
 
-## 🔗 Enlaces a Documentación de Contratos y Scrum
+## 🤝 Integración con el Backend (Contratos API)
 
-- 🤝 [Coordinación de Contratos API y Formato JSON (docs/arquitectura/contratos-api-y-json.md)](../honeymetrics-v2-backend-universidad/docs/arquitectura/contratos-api-y-json.md)
-- 📋 [Backlog del Sprint 1 para Trello](../honeymetrics-v2-documentacion-universidad/docs/sprints/sprint_1_backlog.md)
-- 🎓 [Guía de Aprendizaje Guiado con IA](../honeymetrics-v2-backend-universidad/docs/metodologia/aprendizaje-guiado-ia.md)
+- Consulta la guía de coordinación de variables JSON: [Contratos API y Formato JSON](docs/arquitectura/contratos-api-y-json.md).
+- El backend expone su documentación interactiva Swagger en: `http://localhost:8001/docs`.
+
+---
+
+## 📚 Biblioteca de Documentación Técnica Avanzada (docs/)
+
+- 📖 [Índice Central de Documentación](docs/README.md)
+- 🤝 [Coordinación de Contratos API y JSON](docs/arquitectura/contratos-api-y-json.md)
+- 📋 [Guía de Trello y Dailies de Slack](docs/guias/puesta-en-marcha-trello-slack.md)
+- 🎓 [Protocolo Socrático con IA](docs/metodologia/aprendizaje-guiado-ia.md)
