@@ -1,0 +1,14 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hm_v2_frontend
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+    networks:
+      - hm_v2_network
+
+networks:
+  hm_v2_network:
+    external: true

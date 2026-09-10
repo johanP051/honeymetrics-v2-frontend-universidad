@@ -1,0 +1,16 @@
+# Dependencias y compilación
+node_modules/
+dist/
+build/
+.next/
+
+# Git y CI
+.git/
+.github/
+.agents/
+
+# Logs y variables de entorno locales
+*.log
+.env.local
+.env.*.local
+docs/
