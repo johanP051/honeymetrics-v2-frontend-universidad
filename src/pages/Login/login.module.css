@@ -1,0 +1,25 @@
+.ContenedorLogin{
+    background-color: #d4af37;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 25vh auto 0 auto;
+    width: 60vh;              /* proporcional al alto para que sea un hexágono real */
+    height: 60vh;
+    clip-path: polygon(0% 50%, 20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%);
+}
+
+.contenidoPanal{
+    display: flex;
+    position: absolute;
+    width: 98%;
+    height: 98%;
+    justify-content: center;
+    align-items: center;
+    background-color: #161b22;
+    clip-path: polygon(1.5% 50%, 21% 1%, 79% 1%, 98.5% 50%, 79% 99%, 21% 99%);
+
+}
+
+
