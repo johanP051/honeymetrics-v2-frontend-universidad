@@ -11,11 +11,11 @@ export default function Login() {
                     <object data={animation} type="image/svg+xml" aria-label="Gota de Miel" />
                 </div>
                 <form>
-                    <label className={styles.labels}> usuario</label> <br/><br/>
-                    <input className={styles.ejemplo} placeholder="Digite su correo electronico"></input> <br/>
-                    <input placeholder="Digite su contraseña"></input>
-                    <Button variant="contained"></Button>
-                    <h1 className={styles.hola}>hola</h1>
+                    <label className={styles.labels}> Email</label> <br/>
+                    <input className={styles.inputs} placeholder="Digite su correo electronico" type='email'></input> <br/>
+                    <label className={styles.labels}> Password</label>
+                    <input className={styles.inputs} placeholder="Digite su contraseña" type='password'></input>
+                    <Button variant="contained">Sign in</Button>
                 </form>
             </Container>
         </Container>
