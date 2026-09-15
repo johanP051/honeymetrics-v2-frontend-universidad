@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build:
+      context: .
+      target: dev
+    container_name: hm_v2_frontend_dev
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    ports:
+      - "5174:5173" # Puerto 5174 en host para desarrollo local sin colisionar con 5173 de v1
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: "no"

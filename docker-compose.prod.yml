@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build:
+      context: .
+      target: runner
+    container_name: hm_v2_frontend_prod
+    ports:
+      - "8081:80" # Puerto 8081 en host para evitar colisiones con puerto 80
+    restart: unless-stopped
