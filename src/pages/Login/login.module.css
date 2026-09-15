@@ -1,16 +1,21 @@
-.ContenedorLogin{
+
+/*Contenedores*/
+
+
+
+.ContenedorLogin{ /*Configuracion de contenedor del fomulario*/
     background-color: transparent;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 25vh auto 0 auto;
-    width: 60vh;              /* proporcional al alto para que sea un hexágono real */
+    width: 60vh;              
     height: 60vh;
     overflow: visible;
 }
 
-.ContenedorLogin::before{
+.ContenedorLogin::before{ /*Diseño de contenedor hexagonal*/
     content: "";
     position: absolute;
     inset: 0;
@@ -19,7 +24,7 @@
     z-index: 0;
 }
 
-.contenidoPanal{
+.contenidoPanal{ /*Configuracion de truco*/
     display: flex;
     position: absolute;
     width: 98%;
@@ -31,7 +36,7 @@
     z-index: 1;
 }
 
-.contenidoPanal::before{
+.contenidoPanal::before{ /*Truco para colorear el fondo del contenedor de un color distinto al del borde*/
     content: "";
     position: absolute;
     inset: 0;
@@ -40,11 +45,6 @@
     z-index: -1;
 }
 
-.gotaMiel,
-.contenidoPanal form{
-    position: relative;
-    z-index: 1;
-}
 
 .gotaMiel{
     position: absolute;
@@ -52,7 +52,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1;
     pointer-events: none;
 }
 
@@ -65,6 +64,7 @@
 }
 
 .contenidoPanal form{
+    position: relative;
     z-index: 2;
 }
 
