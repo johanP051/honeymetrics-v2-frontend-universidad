@@ -13,8 +13,9 @@ services:
       - .:/app              
       - /app/node_modules    
     networks:
-      - hm_v2_network
+      - hm_v2_frontend_net
 
 networks:
-  hm_v2_network:
-    external: true
+  hm_v2_frontend_net:
+    name: hm_v2_frontend_net
+    driver: bridge
