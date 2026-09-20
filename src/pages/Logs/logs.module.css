@@ -1,14 +1,16 @@
 .body{
-    background-color: #141A21;
+    background: linear-gradient(top left #1E1C19 to bottom right #0D1117);
 }
 
 .headerBarra{
+    display: flex;
+    justify-self: center;
+    justify-content: flex-start;
     background-color: #141A21;
     border: 2px solid #2A3440;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    
-    
+    min-width: 90vw;
 }
 
 
@@ -17,4 +19,38 @@
     font-weight: 700 !important;
     font-size: 20px !important;
     color: #e6edf3;
+}
+
+.tabla{
+    display: flex;
+    justify-self: center;
+    max-width: 90vw;
+}
+
+#subcolumnasLayout{
+    background-color: #1B212B;
+    border: 2px solid #2A3440;
+    border-top: 2px;
+    border-radius: 0px;
+}
+
+#subcolumnasLayout > th{
+    color: #8B949E;
+}
+
+#tuplas{
+    background-color: #191F27;    
+    border: 2px solid #2A3440;
+}
+
+#tuplas > th{
+    color: #D4AF37;
+}
+
+#tuplas > rango{
+    color: #E3EAF1;
+}
+
+#tuplas > ctfc{
+    color: #959DA7;
 }
