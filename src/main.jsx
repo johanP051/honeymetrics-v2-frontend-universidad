@@ -6,6 +6,7 @@ import Blacklist from "./pages/Blacklist/blacklist.jsx";
 import Dashboard from "./pages/Dashboard/dashboard.jsx";
 import LandingPage from "./pages/LandingPage/landingPage.jsx";
 import Login from "./pages/Login/login.jsx";
+import Logs from "./pages/Logs/logs.jsx";
 import ProtectedRoute from "./pages/ProtectedRoute.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: "/Home",
     element: <LandingPage />,
+  },
+  {
+    path: "/logs",
+    element: <Logs />,
   },
   {
     path: "/Login",
