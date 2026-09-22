@@ -15,6 +15,7 @@ import Paper from '@mui/material/Paper';
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Estado from "../../components/common/estadoLogs";
+import SpeedDial from "../../components/common/speedDial";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import TextSnippetOutlinedIcon from '@mui/icons-material/TextSnippetOutlined';
 import ScheduleSendOutlinedIcon from '@mui/icons-material/ScheduleSendOutlined';
@@ -23,7 +24,6 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-
 
 
 
@@ -245,6 +245,7 @@ export default function logs() {
         </TableFooter>
       </Table>
     </TableContainer>
+    <SpeedDial/>
     </>
   );
 }
