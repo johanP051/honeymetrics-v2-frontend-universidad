@@ -1,31 +1,63 @@
-# Logs
+# ==========================================
+# HONEYMETRICS V2 FRONTEND - ROBUST .GITIGNORE
+# ==========================================
+
+# 1. Dependencias y Caché de Compiladores / Bundlers
+node_modules/
+.pnp
+.pnp.js
+.vite/
+.turbo/
+.parcel-cache/
+
+# 2. Salidas de Compilación y Distribución
+dist/
+dist-ssr/
+build/
+out/
+*.local
+
+# 3. Logs y Debugging
+logs/
 /logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Dependencies and Build Outputs
-node_modules/
-dist/
-dist-ssr/
-*.local
+# 4. Variables de Entorno y Secretos (Mantener .env.example intacto)
+.env
+.env.*
+!.env.example
 
-# Editor directories and files
+# 5. IDEs, Editores y Entornos de Sistema
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea/
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.bak
+*~
 
-# Environment Variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# 6. Archivos del Sistema Operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 7. Cobertura de Código y Testing
+coverage/
+.nyc_output/
+.coverage
+
+# 8. Archivos Temporales y Caché de Docker
+.docker/
