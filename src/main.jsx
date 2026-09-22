@@ -16,17 +16,17 @@ const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: "Dashboard",
+        path: "dashboard",
         element: <Dashboard />,
       },
       {
-        path: "Blacklist",
+        path: "blacklist",
         element: <Blacklist />,
       },
     ],
   },
   {
-    path: "/Home",
+    path: "/home",
     element: <LandingPage />,
   },
   {
@@ -34,13 +34,9 @@ const router = createBrowserRouter([
     element: <Logs />,
   },
   {
-    path: "/Login",
+    path: "/login",
     element: <Login />,
-  },
-  {
-    path: "*",
-    element: <LandingPage />,
-  },
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

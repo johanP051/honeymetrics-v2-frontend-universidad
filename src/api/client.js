@@ -46,8 +46,8 @@ api.interceptors.response.use(
         localStorage.removeItem("access_token");
         localStorage.removeItem("user_data");
         // Opcional: Redirigir a login si la sesión caducó
-        if (window.location.pathname !== "/Login" && window.location.pathname !== "/login") {
-          window.location.href = "/Login";
+        if (window.location.pathname !== "/login" && window.location.pathname !== "/login") {
+          window.location.href = "/login";
         }
       }
     }
