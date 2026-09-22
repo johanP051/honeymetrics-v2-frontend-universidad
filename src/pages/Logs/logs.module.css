@@ -30,7 +30,6 @@
 #subcolumnasLayout{
     background-color: #1B212B;
     border: 2px solid #2A3440;
-    border-top: 2px;
     border-radius: 0px;
 }
 
@@ -54,6 +53,19 @@
 #tuplas > ctfc{
     color: #959DA7;
 }
+
+.paginacion{
+    display: flex;
+    justify-content: flex-end;
+    color: #959DA7 !important;
+}
+
+.filaVacia,
+.celdaVacia{
+    background-color: #191F27 !important;
+    border: 2px solid #2A3440;
+}
+
 
 
 .botonesAccion{
