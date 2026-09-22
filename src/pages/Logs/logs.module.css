@@ -54,3 +54,94 @@
 #tuplas > ctfc{
     color: #959DA7;
 }
+
+
+.botonesAccion{
+    display: inline-flex;
+}
+.botonDescarga{
+    display: flex;
+    color: #48d38e;
+    justify-self: flex-end;
+    transition: 0.5s ease-in-out;
+    padding: 5px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    margin-right: 5px;
+}
+
+
+.botonDescarga:hover{
+    background-color: #1E2E30;
+    border-color: #338A5E;
+}
+
+.iconoPdf{
+    transform: scaleX(0.95);
+    transform-origin: center;
+}
+
+
+.botonPdf{
+    margin-left: 5px;
+    display: flex;
+    color: #cca129;
+    justify-self: flex-end;
+    transition: 0.5s ease-in-out;
+    padding: 5px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+}
+
+.botonPdf:hover{
+    background-color: #493706;
+    border-color: #cca129;
+}
+
+.iconoSend{
+    color: #EDC217;
+    transform: scale(0.8);
+    margin-right: 10px;
+}
+
+.textoTelegram{
+    color: #EDC217;
+    font-size: 13px;
+}
+
+#telegramContainer{
+    display: flex;
+    justify-self: flex-end;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #EDC217;
+    border-radius: 50px;
+    padding: 5px 10px 5px 10px;
+    background-color: #323227;
+    width: 200px;
+}
+.textoCelery{
+    color: gray;
+}
+
+.textoCelery span{
+    display: inline-block;
+    color: gray;
+    animation: colorCelery 2s linear infinite;
+    animation-delay: calc(var(--i) * 0.1s);
+}
+
+@keyframes colorCelery {
+    0% {
+        color: gray;
+    }
+    10% {
+        color: #b4b4b4; 
+    }
+    20% {
+        color: gray;
+    }
+    100% {
+        color: gray;
+    }
+}

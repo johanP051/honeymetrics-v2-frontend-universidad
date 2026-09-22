@@ -9,10 +9,67 @@ import Paper from '@mui/material/Paper';
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Estado from "../../components/common/estadoLogs";
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import TextSnippetOutlinedIcon from '@mui/icons-material/TextSnippetOutlined';
+import ScheduleSendOutlinedIcon from '@mui/icons-material/ScheduleSendOutlined';
 
 function createData(id, rangelogs, cuantity, date_request, state, action) {
   return {id, rangelogs, cuantity, date_request, state, action};
 }
+
+
+function CreateButtons ({texto}){
+  if (texto === "Listo"){
+    return (
+      <div className={styles.botonesAccion}>
+        <button type="button" className={styles.botonDescarga}>
+          <FileDownloadOutlinedIcon/>
+        </button>
+        <button type="button" className={styles.botonPdf}>
+          <TextSnippetOutlinedIcon className={styles.iconoPdf}/>
+        </button>
+      </div>
+    );
+  }else if (texto == "Pendiente"){
+    return(
+      <div className={styles.botonesAccion} id={styles.telegramContainer}>
+        <ScheduleSendOutlinedIcon className={styles.iconoSend}/>
+        <p className={styles.textoTelegram}>Esperando Telegram</p>
+      </div>
+    )
+  }else if (texto == "Procesando"){
+    return(
+      <p className={styles.textoCelery}>
+        <span style={{ '--i':1}}>E</span>
+        <span style={{ '--i':2}}>n</span>
+        <span style={{ '--i':3}}>&nbsp;</span>
+        <span style={{ '--i':4}}>c</span>
+        <span style={{ '--i':5}}>o</span>
+        <span style={{ '--i':6}}>l</span>
+        <span style={{ '--i':7}}>a</span>
+        <span style={{ '--i':8}}>&nbsp;</span>
+        <span style={{ '--i':9}}>C</span>
+        <span style={{ '--i':10}}>e</span>
+        <span style={{ '--i':11}}>l</span>
+        <span style={{ '--i':12}}>e</span>
+        <span style={{ '--i':13}}>r</span>
+        <span style={{ '--i':14}}>y</span>
+        <span style={{ '--i':15}}>&nbsp;</span>
+        <span style={{ '--i':16}}>.</span>
+        <span style={{ '--i':17}}>.</span>
+        <span style={{ '--i':18}}>.</span>
+        </p>
+    );
+  }else if(texto == "Rechazada"){
+    return(
+      <p style={{color: '#b4b4b4'}}>-</p>
+    );
+  }else{
+    return null;
+  }
+}
+
+
 
 const TablaHeaderToolbar = () =>  {
     return(
@@ -52,14 +109,13 @@ export default function logs() {
           {rows.map((row) => (
             <TableRow id={styles.tuplas}
               key={row.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell component="th" scope="row">{row.id}</TableCell>
               <TableCell component="rango" align="right">{row.rangelogs}</TableCell>
               <TableCell component="ctfc" align="right">{row.cuantity}</TableCell>
               <TableCell component="ctfc" align="right">{row.date_request}</TableCell>
               <TableCell align="right"><Estado texto={row.state}/></TableCell>
-              <TableCell align="right">{row.action}</TableCell>
+              <TableCell align="right"><CreateButtons texto={row.state}/></TableCell>
             </TableRow>
           ))}
         </TableBody>
