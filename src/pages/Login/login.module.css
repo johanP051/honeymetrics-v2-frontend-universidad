@@ -1,0 +1,480 @@
+.body{
+    min-height: 100vh;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(72, 62, 4);
+}
+
+.body::before{
+    content: "";
+    position: absolute;
+    inset: -100%;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        135deg,
+        transparent 42%,
+        rgba(255, 221, 58, 0.08) 47%,
+        rgba(255, 239, 125, 0.5) 50%,
+        rgba(255, 221, 58, 0.08) 53%,
+        transparent 58%
+    );
+    background-size: 100% 100%;
+    transform: translate(-20%, -20%);
+    animation: brilloDiagonal 5s linear infinite;
+    will-change: transform;
+}
+
+.body::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: url("../../assets/Hexagonos.svg");
+    background-size: 208px 180px;
+    background-position: center;
+    background-repeat: repeat;
+}
+
+.ContenedorLogin{ /*Configuracion de contenedor del fomulario*/
+    background-color: transparent;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    margin: 25vh auto 0 auto;
+    width: 60vh;              
+    height: 60vh;
+    overflow: visible;
+}
+
+.ContenedorLogin::before{ /*Diseño de contenedor hexagonal*/
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #d4af37;
+    clip-path: polygon(0% 50%, 20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%);
+    z-index: 0;
+}
+
+.contenidoPanal{ /*Configuracion de truco*/
+    display: flex;
+    position: absolute;
+    width: 98%;
+    height: 98%;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    overflow: visible;
+    z-index: 1;
+}
+
+.contenidoPanal::before{ /*Truco para colorear el fondo del contenedor de un color distinto al del borde*/
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #161b22;
+    clip-path: polygon(1.5% 50%, 21% 1%, 79% 1%, 98.5% 50%, 79% 99%, 21% 99%);
+    z-index: -1;
+}
+
+
+.gotaMiel,
+.gotaMielDerecha,
+.gotaMielIzquierda{
+    position: absolute;
+    width: 30%;
+    height: 128%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.gotaMiel{
+    top: -4%;
+    left: 11%;
+}
+
+.gotaMielDerecha{
+    right: -10%;
+    bottom: -85%;
+}
+
+.gotaMielIzquierda{
+    left: -2%;
+    bottom: -109%;
+}
+
+.gotaMiel object,
+.gotaMielDerecha object,
+.gotaMielIzquierda object{
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.contenidoPanal form{
+    position: relative;
+    z-index: 2;
+}
+
+
+.inputs{
+    display: flex;
+    justify-self: center;
+    box-sizing: border-box;
+    border: 1px #4D535D solid;
+    margin: 20px 0px 20px 0px;
+    max-width: 400px;
+    padding: 5px 20px 5px 20px;
+    width: 25vw;
+    background-color: #0d1015;
+    border-radius: 5px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.inputs:focus{
+    box-shadow: 0 0 10px rgba(129, 141, 30, 0.5); 
+    transition: 1s;
+    border-color: rgb(255, 255, 68);
+    outline: none;
+}
+
+.inputs::placeholder{
+    color: #4D535D;
+}
+
+.labels{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.1rem;
+}
+/* Botón de Submit y Mensajes de Feedback */
+.btnSubmit {
+    display: flex;
+    justify-self: center;
+    justify-content: center;
+    margin-top: 70px;
+    max-width: 300px;
+    width: 20vw;
+    padding: 10px 5px 10px 5px;
+    background: linear-gradient(135deg, #e5a910 0%, #b8860b 100%);
+    color: #121212;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 12px rgba(229, 169, 16, 0.25);
+}
+
+.btnSubmit:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ffc125 0%, #d49b13 100%);
+    box-shadow: 0 6px 16px rgba(229, 169, 16, 0.4);
+    transform: translateY(-1px);
+}
+
+.btnSubmit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.errorMessage {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 6px;
+    color: #f87171;
+    font-size: 0.82rem;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+
+
+/*Tamaño de un celular */
+@media (max-width: 500px){
+    .ContenedorLogin{
+        width: min(60vh, 92vw);
+        height: min(60vh, 92vw);
+        margin: 0 auto;
+    }
+    
+    .contenidoPanal{
+        width: 98%;
+        height: 98%;
+    }
+    
+    .gotaMiel,
+    .gotaMielDerecha,
+    .gotaMielIzquierda{
+        top: -10%;
+        width: 22%;
+        height: 112%;
+    }
+    
+    .gotaMiel{
+        left: 15%;
+    }
+    
+    .gotaMielDerecha{
+        top: auto;
+        right: -4%;
+        bottom: -68%;
+    }
+    
+    .gotaMielIzquierda{
+        top: auto;
+        left: 9%;
+        bottom: -102%;
+    }
+    
+    .contenidoPanal form{
+        width: min(78%, 360px);
+    }
+    
+    .inputs{
+        width: 50vw;
+        font-size: 3vw;
+    }
+
+    .inputs::placeholder{
+        font-size: 3vw;
+    }
+    
+    .btnSubmit{
+        margin-top: 10vw;
+        width: 40vw;
+        font-size: 3vw;
+    }
+
+    .labels{
+        font-size: 3vw;
+    }
+}
+
+
+/*Tamaño de tablet-pc */
+@media (500px < width <= 1000px){
+    .ContenedorLogin {
+        min-width: 70vw;
+        max-width: 800px !important;
+        width: min(85vh, 45vw, 1000px) !important;
+        height: min(85vh, 70vw, 1000px);
+        margin: 0 auto;
+    }
+    
+    .contenidoPanal{
+        width: 98%;
+        height: 98%;
+    }
+    
+    .gotaMiel,
+    .gotaMielDerecha,
+    .gotaMielIzquierda{
+        top: -10%;
+        width: 22%;
+        height: 112%;
+    }
+    
+    .gotaMiel{
+        left: 15%;
+        top: -14%;
+    }
+    
+    .gotaMielDerecha{
+        top: auto;
+        right: -4%;
+        bottom: -65%;
+    }
+    
+    .gotaMielIzquierda{
+        top: auto;
+        left: 9%;
+        bottom: -98%;
+    }
+    
+    .contenidoPanal form{
+        width: min(78%, 360px);
+    }
+    
+    .inputs{
+        width: 40vw;
+        font-size: 2vw;
+    }
+
+    .inputs::placeholder{
+        font-size: 2vw;
+    }
+    
+    .btnSubmit{
+        margin-top: 5vw;
+        width: 22vw;
+        font-size: 1.8vw;
+    }
+
+    .labels{
+        font-size: 2vw;
+    }
+}
+
+
+
+
+/*Tamaño de un PC */
+@media (1000px < width <= 1439px){
+    .ContenedorLogin {
+        max-width: 50vw !important;
+        max-height: 50vw;
+        width: max(85vh, 45vw, 1000px) !important;
+        height: max(85vh, 55vw, 1000px);
+        margin: 0 auto;
+    }
+    
+    .contenidoPanal{
+        width: 98%;
+        height: 98%;
+    }
+    
+    .gotaMiel,
+    .gotaMielDerecha,
+    .gotaMielIzquierda{
+        top: -10%;
+        width: 22%;
+        height: 112%;
+    }
+    
+    .gotaMiel{
+        left: 15%;
+        top: -14%;
+    }
+    
+    .gotaMielDerecha{
+        top: auto;
+        right: -4%;
+        bottom: -65%;
+    }
+    
+    .gotaMielIzquierda{
+        top: auto;
+        left: 9%;
+        bottom: -98%;
+    }
+    
+    .contenidoPanal form{
+        width: min(78%, 360px);
+    }
+    
+    .inputs{
+        max-width: 30vw;
+        width: 30vw;
+        font-size: max(1.5vw);
+        
+    }
+
+    .inputs::placeholder{
+        font-size: 1.6vw;
+    }
+    
+    .btnSubmit{
+        margin-top: 5vw;
+        width: 22vw;
+        font-size: 1.5vw;
+    }
+
+    .labels{
+        font-size: 1.6vw;
+    }
+}
+
+
+/*Tamaño de un PC de alta definición */
+@media (width > 1439px){
+    .ContenedorLogin {
+        max-width: 35vw !important;
+        max-height: 32vw;
+        width: max(85vh, 45vw, 1000px) !important;
+        height: max(85vh, 55vw, 1000px);
+        margin: 0 auto;
+    }
+    
+    .contenidoPanal{
+        width: 98%;
+        height: 98%;
+    }
+    
+    .gotaMiel,
+    .gotaMielDerecha,
+    .gotaMielIzquierda{
+        width: 22%;
+        height: 112%;
+    }
+    
+    .gotaMiel{
+        left: 15%;
+        top: -10%;
+    }
+    
+    .gotaMielDerecha{
+        top: auto;
+        right: -3.6%;
+        bottom: -70%;
+    }
+    
+    .gotaMielIzquierda{
+        top: auto;
+        left: 7%;
+        bottom: -99%;
+    }
+    
+    .contenidoPanal form{
+        width: min(78%, 360px);
+    }
+    
+    .inputs{
+        max-width: 20vw;
+        font-size: max(1vw);
+        
+    }
+
+    .inputs::placeholder{
+        font-size: 1vw;
+    }
+    
+    .btnSubmit{
+        margin-top: 5vw;
+        width: 20vw;
+        font-size: 1.1vw;
+    }
+
+    .labels{
+        font-size: 1.2vw;
+    }
+}
+
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes brilloDiagonal{
+    0%{
+        transform: translate(-20%, -20%);
+    }
+    100%{
+        transform: translate(20%, 20%);
+    }
+}

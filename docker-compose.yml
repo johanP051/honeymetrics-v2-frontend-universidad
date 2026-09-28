@@ -1,0 +1,21 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev          
+    container_name: hm_v2_frontend
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app              
+      - /app/node_modules    
+    networks:
+      - hm_v2_frontend_net
+
+networks:
+  hm_v2_frontend_net:
+    name: hm_v2_frontend_net
+    driver: bridge
