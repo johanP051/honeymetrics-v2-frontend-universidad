@@ -27,7 +27,7 @@ export default function Login() {
       setIsSubmitting(true);
       await login(email, password);
       // Redirigir al panel principal tras login exitoso
-      navigate("/Dashboard");
+      navigate("/dashboard");
     } catch (err) {
       const detail =
         err.response?.data?.detail ||
