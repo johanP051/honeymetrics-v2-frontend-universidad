@@ -16,22 +16,22 @@ const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: "dashboard",
-        element: <Dashboard />,
-      },
-      {
         path: "blacklist",
         element: <Blacklist />,
+      },
+      {
+        path: "logs",
+        element: <Logs />,
       },
     ],
   },
   {
-    path: "/home",
-    element: <LandingPage />,
+    path: "/dashboard",
+    element: <Dashboard />,
   },
   {
-    path: "/logs",
-    element: <Logs />,
+    path: "/home",
+    element: <LandingPage />,
   },
   {
     path: "/login",
