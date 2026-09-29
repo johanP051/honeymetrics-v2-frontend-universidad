@@ -13,9 +13,11 @@ export function AuthProvider({ children }) {
     const storedToken = authService.getToken();
     const storedUser = authService.getCurrentUser();
 
-    if (storedToken && storedUser) {
+    if (storedToken) {
       setToken(storedToken);
-      setUser(storedUser);
+      if (storedUser) {
+        setUser(storedUser);
+      }
     }
     setLoading(false);
   }, []);
@@ -26,11 +28,19 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     const data = await authService.login(email, password);
     // data: { access_token, token_type, user }
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("user_data", JSON.stringify(data.user));
+    if (data.access_token) {
+      localStorage.setItem("access_token", data.access_token);
+      setToken(data.access_token);
+    }
 
-    setToken(data.access_token);
-    setUser(data.user);
+    if (data.user) {
+      localStorage.setItem("user_data", JSON.stringify(data.user));
+      setUser(data.user);
+    } else {
+      localStorage.removeItem("user_data");
+      setUser(null);
+    }
+
     return data;
   };
 

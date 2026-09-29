@@ -39,9 +39,13 @@ export const authService = {
    */
   getCurrentUser() {
     const userStr = localStorage.getItem("user_data");
+    if (!userStr || userStr === "undefined" || userStr === "null") {
+      return null;
+    }
     try {
-      return userStr ? JSON.parse(userStr) : null;
+      return JSON.parse(userStr);
     } catch {
+      localStorage.removeItem("user_data");
       return null;
     }
   },
