@@ -27,9 +27,9 @@ function Estado({texto}){
     }
     else if (texto == "Rechazada"){
         icono = <HighlightOffOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>
-        colorBorde = "#C4665E";
-        color = "#C4665E";
-        fondo = "#2C272D";
+        colorBorde = "#E07A72";
+        color = "#E07A72";
+        fondo = "#2B1719";
     }
 
 

@@ -94,14 +94,14 @@ function createData(id, rangelogs, cuantity, date_request, state, action) {
 }
 
 
-function CreateButtons ({texto}){
+function CreateButtons ({texto, id}){
   if (texto === "Listo"){
     return (
       <div className={styles.botonesAccion}>
-        <button type="button" className={styles.botonDescarga}>
+        <button type="button" className={styles.botonDescarga} aria-label={`Descargar registro ${id}`}>
           <FileDownloadOutlinedIcon/>
         </button>
-        <button type="button" className={styles.botonPdf}>
+        <button type="button" className={styles.botonPdf} aria-label={`Exportar registro ${id}`}>
           <TextSnippetOutlinedIcon className={styles.iconoPdf}/>
         </button>
       </div>
@@ -212,7 +212,7 @@ export default function logs() {
               <TableCell component="ctfc" align="right">{row.cuantity}</TableCell>
               <TableCell component="ctfc" align="right">{row.date_request}</TableCell>
               <TableCell align="right"><Estado texto={row.state}/></TableCell>
-              <TableCell align="right"><CreateButtons texto={row.state}/></TableCell>
+              <TableCell align="right"><CreateButtons texto={row.state} id={row.id}/></TableCell>
             </TableRow>
           ))}
           {emptyRows > 0 && (
