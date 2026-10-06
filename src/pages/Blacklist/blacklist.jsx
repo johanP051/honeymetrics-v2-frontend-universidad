@@ -1,8 +1,8 @@
 import * as React from 'react';
+import api from '../../api/client';
 import PropTypes from 'prop-types';
 import styles from "./blacklist.module.css"
 import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -22,13 +22,14 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-import Estado from '../../components/common/estados';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import CloseIcon from '@mui/icons-material/Close';
-
-
 import { BorderLinearProgress } from '../../components/common/linearProgress';
+import Estado from '../../components/common/estados';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+
 
 
 
@@ -60,20 +61,14 @@ function getIpType(ip) {
   return null;
 }
 
-function createData(id, country, category, threat_score) {
-  const ipType = getIpType(id);
+function createData({ ip, country, category, threat_score }) {
+  const ipType = getIpType(ip);
   if (!ipType) {
-    throw new Error(`IP inválida: ${id}. Solo se permiten IPv4 o IPv6.`);
+    throw new Error(`IP inválida: ${ip}. Solo se permiten IPv4 o IPv6.`);
   }
 
-  return { id, ipType, country, category, threat_score };
+  return { ip, ipType, country, category, threat_score };
 }
-const initialRows = [
-  createData('203.0.113.42', 'Estados Unidos', 'Botnet', 30),
-  createData('2001:db8:85a3::8a2e:370:7334', 'Alemania', 'APT', 37),
-  createData('198.51.100.77', 'Rusia', 'Malware', 24),
-];
-const categoryOptions = [...new Set(initialRows.map((row) => row.category))];
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -105,18 +100,37 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-
 export default function Blacklist() {
-
-
     const [page, setPage] = React.useState(0);
-    const [rows, setRows] = React.useState(initialRows);
+    const [rows, setRows] = React.useState([]);
+    const [cargando, setCargando] = React.useState(true);
+    const [error, setError] = React.useState('');
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [modalAbierto, setModalAbierto] = React.useState(false);
     const [modalCerrando, setModalCerrando] = React.useState(false);
     const [modalVersion, setModalVersion] = React.useState(0);
     const [threatScore, setThreatScore] = React.useState(0);
     const [category, setCategory] = React.useState('');
+    const categoryOptions = [...new Set(rows.map((row) => row.category))];
+
+    React.useEffect(() => {
+      async function cargarBlacklist() {
+        try {
+          setCargando(true);
+          setError('');
+
+          const respuesta = await api.get('/blacklist/');
+
+          setRows(respuesta.data);
+        } catch (err) {
+          setError('No fue posible cargar la blacklist.');
+        } finally {
+          setCargando(false);
+        }
+      }
+
+      cargarBlacklist();
+    }, []);
 
     const abrirModal = () => {
       setModalCerrando(false);
@@ -160,7 +174,12 @@ export default function Blacklist() {
 
       form.ip.setCustomValidity('');
       setRows((currentRows) => [
-        createData(ip, country, category, threatScore),
+        createData({
+          ip: ip,
+          country,
+          category,
+          threat_score: threatScore,
+        }),
         ...currentRows,
       ]);
       setThreatScore(0);
@@ -172,6 +191,12 @@ export default function Blacklist() {
 
   return (
     <>
+    {cargando ? (
+      <div className={styles.loadingOverlay} role="status" aria-label="Cargando blacklist">
+        <CircularProgress aria-label="Cargando" />
+      </div>
+    ) : null}
+
     <div className={styles.encabezado}>
       <div className={styles.tituloFila}>
         <GppMaybeOutlinedIcon className={styles.tituloIcono}/>
@@ -192,15 +217,33 @@ export default function Blacklist() {
           </TableRow>
         </TableHead>
         <TableBody>
-
-          {(rowsPerPage > 0 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage): rows)
+          {error ? (
+            <TableRow>
+              <TableCell className={styles.errorCell} colSpan={6}>
+                <p className={styles.errorText} role="alert">
+                  {'No fue posible cargar las IPs de la blacklist.'.split('').map((caracter, indice) => (
+                    <span key={`${caracter}-${indice}`} style={{ '--i': indice + 1 }}>
+                      {caracter === ' ' ? '\u00a0' : caracter}
+                    </span>
+                  ))}
+                </p>
+              </TableCell>
+            </TableRow>
+          ) : (rowsPerPage > 0 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage): rows)
           .map((row) => (
             <TableRow id={styles.tuplas}
-              key={row.id}
+              key={row.ip}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell component="th" scope="row" className={styles.ipCell}>
-                <span>{row.id}</span>
-                <small>{row.ipType}</small>
+                <span>
+                  {row.ip.split(':').map((parte, indice, partes) => (
+                    <React.Fragment key={`${parte}-${indice}`}>
+                      {parte}
+                      {indice < partes.length - 1 ? <>{':'}<wbr /></> : null}
+                    </React.Fragment>
+                  ))}
+                </span>
+                <small>{row.ip_type}</small>
               </TableCell>
               <TableCell component="ths">{row.country}</TableCell>
               <TableCell component="ths">{row.category}</TableCell>
@@ -222,10 +265,7 @@ export default function Blacklist() {
                 </div>
               </TableCell>
               <TableCell component="ths" className={styles.estadoCell}>
-                <Estado
-                  texto={row.threat_score > 70 ? 'Bloqueado' : 'Monitoreada'}
-                  mostrarIcono={false}
-                />
+                <Estado texto={row.status} mostrarIcono={false} />
               </TableCell>
               <TableCell component="ths" className={styles.accionesCell}>
                 <div className={styles.accionesBotones}>

@@ -7,6 +7,20 @@
     overflow: hidden;
 }
 
+.loadingOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.loadingOverlay :global(.MuiCircularProgress-root) {
+    color: #D4AF37;
+}
+
 .tabla table {
     border-collapse: separate;
     border-spacing: 0;
@@ -285,6 +299,8 @@
 
 .ipCell span {
     font-family: monospace;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .ipCell small {
@@ -404,6 +420,39 @@
 .celdaVacia{
     background-color: #191F27 !important;
     border: 0;
+}
+
+.errorCell {
+    background-color: #191F27 !important;
+    border-bottom: 0 !important;
+    text-align: center !important;
+}
+
+.errorText {
+    margin: 0;
+    color: gray;
+}
+
+.errorText span {
+    display: inline-block;
+    color: gray;
+    animation: colorError 2s linear infinite;
+    animation-delay: calc(var(--i) * 0.1s);
+}
+
+@keyframes colorError {
+    0% {
+        color: gray;
+    }
+    10% {
+        color: #b4b4b4;
+    }
+    20% {
+        color: gray;
+    }
+    100% {
+        color: gray;
+    }
 }
 
 

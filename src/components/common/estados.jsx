@@ -24,7 +24,7 @@ function Estado({ texto, mostrarIcono = true }) {
         colorBorde = "#D2AE19";
         color = "#D2AE19";
         fondo = "#2D2D29";
-    } else if (texto === "Rechazada" || texto === "Bloqueado") {
+    } else if (texto === "Rechazada" || texto === "Bloqueada") {
         icono = <HighlightOffOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>;
         colorBorde = "#E07A72";
         color = "#E07A72";
