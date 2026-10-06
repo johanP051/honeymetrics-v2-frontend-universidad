@@ -1,0 +1,438 @@
+.tabla{
+    display: flex;
+    justify-self: center;
+    max-width: 90vw;
+    border: 1px solid #2A3440;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tabla table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.encabezado {
+    margin-bottom: 20px;
+}
+
+.tituloFila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tituloFila h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.tituloModal{
+    font-size: 24px;
+    margin: 10px;
+    margin-left: 20px;
+}
+
+.tituloIcono {
+    font-size: 40px !important;
+    color: #D4AF37;
+}
+
+.encabezado p {
+    margin: 6px 0 0;
+    color: #8B949E;
+}
+
+.anadirAmenaza {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #D4AF37;
+    border-radius: 50%;
+    background: transparent;
+    color: #D4AF37;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.6s ease;
+}
+
+.anadirAmenaza:hover {
+    transform: rotate(360deg);
+}
+
+.anadirAmenaza::after {
+    position: absolute;
+    left: calc(100% + 8px);
+    bottom: 50%;
+    padding: 4px 7px;
+    border-radius: 3px;
+    background: #000;
+    color: #FFF;
+    content: 'añadir amenazas';
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(50%);
+    transition: opacity 0.2s ease 0.6s;
+    white-space: nowrap;
+}
+
+.anadirAmenaza:hover::after,
+.anadirAmenaza:focus-visible::after {
+    opacity: 1;
+}
+
+.anadirAmenazaTexto {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    padding: 8px 14px;
+    border: 1px solid #D4AF37;
+    border-radius: 4px;
+    background: transparent;
+    color: #D4AF37;
+    font: inherit;
+    cursor: pointer;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.cancelarModal {
+    border: 0;
+    background: transparent;
+    color: #959DA7;
+    font: inherit;
+    cursor: pointer;
+}
+
+.guardarModal {
+    position: static;
+}
+
+.modalAmenaza {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(90vw, 520px);
+    height: auto;
+    max-height: 70vh;
+    border: 2px solid #8F7416;
+    border-radius: 10px;
+    background: #191F27;
+    padding: 0 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transform: translate(-50%, -50%);
+    outline: none;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.modalAmenaza h2,
+.modalAmenaza form {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.ipLabel,
+.paisLabel {
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.categoriaLabel {
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.modalAmenazaEntrada {
+    animation: modalEntrada 0.3s ease-out forwards;
+}
+
+.modalAmenazaSalida {
+    animation: modalSalida 0.3s ease-in forwards;
+}
+
+.cerrarModal {
+    position: absolute !important;
+    top: 4px;
+    right: 4px;
+    color: #D4AF37 !important;
+}
+
+.threatScoreForm {
+    margin-top: 18px;
+}
+
+.threatScoreFormLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.threatScoreFormLabel p {
+    margin: 0;
+    color: #E3EAF1;
+}
+
+.threatScoreFormLabel input {
+    width: 64px;
+    text-align: center;
+}
+
+.modalAmenaza form > input,
+.threatScoreFormLabel input {
+    border: 1px solid #2A3440;
+    background: #0D1117;
+}
+
+.modalAmenaza form > input {
+    color: #FFFFFF;
+}
+
+.modalAmenaza form > input {
+    margin-top: 15px;
+    border-radius: 9px;
+    width: 85%;
+    padding: 11px 8px 11px 15px;
+    box-sizing: border-box;
+}
+
+.modalAmenaza form > input::placeholder {
+    color: #2A3440;
+    opacity: 1;
+}
+
+.threatScoreSlider {
+    width: 85% !important;
+    color: #D4AF37 !important;
+}
+
+.threatScoreSlider :global(.MuiSlider-rail) {
+    border: 1px solid #FFFFFF;
+    background-color: #5B6470;
+    opacity: 1;
+}
+
+.threatScoreSlider :global(.MuiSlider-track) {
+    background-color: #D4AF37;
+    border: 0;
+}
+
+.threatScoreSlider :global(.MuiSlider-thumb) {
+    background-color: #D4AF37;
+}
+
+.categorySelect {
+    min-width: 220px;
+    border: 1px solid #FFFFFF;
+    border-radius: 4px;
+    color: #FFFFFF !important;
+    margin-bottom: 30px;
+}
+
+.categorySelect::before,
+.categorySelect::after {
+    display: none;
+}
+
+.categorySelect :global(.MuiSelect-select) {
+    color: #FFFFFF !important;
+}
+
+.categorySelect :global(.MuiSelect-icon) {
+    color: #FFFFFF !important;
+}
+
+.categoryPlaceholder {
+    color: #FFFFFF !important;
+}
+
+@keyframes modalEntrada {
+    from {
+        transform: translate(-50%, 100vh);
+    }
+    to {
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes modalSalida {
+    from {
+        transform: translate(-50%, -50%);
+    }
+    to {
+        transform: translate(-50%, 100vh);
+    }
+}
+
+.ipCell span,
+.ipCell small {
+    display: block;
+}
+
+.ipCell span {
+    font-family: monospace;
+}
+
+.ipCell small {
+    margin-top: 3px;
+    color: #959DA7;
+    font-size: 11px;
+}
+
+.tabla th{
+    text-align: left;
+    border: 0 !important;
+    border-bottom: 1px solid #2A3440 !important;
+}
+
+.tabla th:nth-child(1),
+.tabla td:nth-child(1),
+.tabla th:nth-child(2),
+.tabla td:nth-child(2),
+.tabla th:nth-child(3),
+.tabla td:nth-child(3),
+.tabla th:nth-child(5),
+.tabla td:nth-child(5),
+.tabla th:nth-child(6),
+.tabla td:nth-child(6) {
+    width: 15%;
+}
+
+.threatScoreCell {
+    width: 25%;
+    text-align: center !important;
+}
+
+.threatScoreBar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0 auto;
+    
+}
+
+.threatScoreBar span {
+    flex: 0 0 24px;
+    text-align: right;
+    font-weight: 700;
+}
+
+.threatScoreSafe {
+    color: #D4AF37;
+}
+
+.threatScoreDanger {
+    color: #F44336;
+}
+
+.threatScoreBar :global(.MuiLinearProgress-root) {
+    flex: 0 0 80%;
+}
+#subcolumnasLayout{
+    background-color: #1B212B;
+    border: 0;
+    border-radius: 0px;
+}
+
+#subcolumnasLayout > th{
+    color: #8B949E;
+}
+
+#tuplas{
+    background-color: #191F27;    
+    border: 0;
+}
+
+#tuplas > th{
+    color: #D4AF37;
+}
+
+#tuplas > ths{
+    color: #E3EAF1;
+    border-bottom: 1px solid #2A3440 !important;
+}
+
+.accionesCell {
+    text-align: right !important;
+}
+
+.accionesHeader {
+    text-align: right !important;
+}
+
+.estadoCell {
+    text-align: center !important;
+}
+
+.accionesBotones {
+    display: inline-flex;
+    justify-content: flex-end;
+}
+
+.accionesBotones button {
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    margin-left: 7px;
+    margin-right: 7px;
+}
+
+.editarButton {
+    color: #5DA9E9 !important;
+}
+
+.eliminarButton {
+    color: #B30C00 !important;
+}
+
+.celdaVacia{
+    background-color: #191F27 !important;
+    border: 0;
+}
+
+
+.paginacion{
+    display: flex;
+    justify-content: flex-end;
+    color: #959DA7 !important;
+}
+
+.paginacion button,
+.paginacion button svg {
+    color: #FFFFFF !important;
+}
+
+.paginacion :global(.MuiSelect-icon) {
+    color: #FFFFFF !important;
+}
+
+.rowsPerPageMenu {
+    background-color: #191F27 !important;
+    color: #E3EAF1 !important;
+}
+
+.rowsPerPageMenu :global(.MuiMenuItem-root) {
+    color: #E3EAF1 !important;
+}
+
+.rowsPerPageMenu :global(.MuiMenuItem-root:hover),
+.rowsPerPageMenu :global(.Mui-selected),
+.rowsPerPageMenu :global(.Mui-selected:hover) {
+    background-color: #2A3440 !important;
+}

@@ -12,27 +12,68 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
 import TableFooter from '@mui/material/TableFooter';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import Slider from '@mui/material/Slider';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import GppMaybeOutlinedIcon from '@mui/icons-material/GppMaybeOutlined';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
+import Estado from '../../components/common/estados';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+
+
+import { BorderLinearProgress } from '../../components/common/linearProgress';
 
 
 
-function createData(id, country, category, threat_score, state, action) {
-  return {id, country, category, threat_score, state, action};
+function getIpType(ip) {
+  if (typeof ip !== 'string') {
+    return null;
+  }
+
+  const ipv4Parts = ip.split('.');
+  if (
+    ipv4Parts.length === 4 &&
+    ipv4Parts.every((part) => /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255)
+  ) {
+    return 'IPv4';
+  }
+
+  const compressionCount = (ip.match(/::/g) || []).length;
+  const ipv6Parts = ip.split(':');
+  const hextets = ipv6Parts.filter(Boolean);
+  if (
+    compressionCount <= 1 &&
+    hextets.length <= 8 &&
+    (compressionCount === 1 || hextets.length === 8) &&
+    hextets.every((part) => /^[0-9a-fA-F]{1,4}$/.test(part))
+  ) {
+    return 'IPv6';
+  }
+
+  return null;
 }
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0, 5),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3, 6),
-  createData('Eclair', 262, 16.0, 24, 6.0, 2),
-  createData('Cupcake', 305, 3.7, 67, 4.3, 1),
-  createData('Gingerbread', 356, 16.0, 49, 3.9, 0),
+
+function createData(id, country, category, threat_score) {
+  const ipType = getIpType(id);
+  if (!ipType) {
+    throw new Error(`IP inválida: ${id}. Solo se permiten IPv4 o IPv6.`);
+  }
+
+  return { id, ipType, country, category, threat_score };
+}
+const initialRows = [
+  createData('203.0.113.42', 'Estados Unidos', 'Botnet', 30),
+  createData('2001:db8:85a3::8a2e:370:7334', 'Alemania', 'APT', 37),
+  createData('198.51.100.77', 'Rusia', 'Malware', 24),
 ];
+const categoryOptions = [...new Set(initialRows.map((row) => row.category))];
 
 function TablePaginationActions(props) {
   const theme = useTheme();
@@ -65,21 +106,31 @@ TablePaginationActions.propTypes = {
 };
 
 
-const TablaHeaderToolbar = () =>  {
-    return(
-        <Toolbar className={styles.headerBarra}>
-            <Typography className={styles.titulo}>
-                Historial de exportaciones
-            </Typography>
-        </Toolbar>
-    );
-};
-
 export default function Blacklist() {
 
 
     const [page, setPage] = React.useState(0);
+    const [rows, setRows] = React.useState(initialRows);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [modalAbierto, setModalAbierto] = React.useState(false);
+    const [modalCerrando, setModalCerrando] = React.useState(false);
+    const [modalVersion, setModalVersion] = React.useState(0);
+    const [threatScore, setThreatScore] = React.useState(0);
+    const [category, setCategory] = React.useState('');
+
+    const abrirModal = () => {
+      setModalCerrando(false);
+      setModalVersion((version) => version + 1);
+      setModalAbierto(true);
+    };
+
+    const cerrarModal = () => {
+      setModalCerrando(true);
+      window.setTimeout(() => {
+        setModalAbierto(false);
+        setModalCerrando(false);
+      }, 300);
+    };
   
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
@@ -93,25 +144,51 @@ export default function Blacklist() {
       setRowsPerPage(parseInt(event.target.value, 10));
       setPage(0);
     };
+
+    const handleSubmit = (event) => {
+      event.preventDefault();
+
+      const form = event.currentTarget;
+      const ip = form.ip.value.trim();
+      const country = form.country.value.trim();
+
+      if (!getIpType(ip)) {
+        form.ip.setCustomValidity('Introduce una dirección IPv4 o IPv6 válida.');
+        form.ip.reportValidity();
+        return;
+      }
+
+      form.ip.setCustomValidity('');
+      setRows((currentRows) => [
+        createData(ip, country, category, threatScore),
+        ...currentRows,
+      ]);
+      setThreatScore(0);
+      setCategory('');
+      form.reset();
+      cerrarModal();
+    };
   
 
   return (
     <>
-    <div>
-    <GppMaybeOutlinedIcon/>
-    <h1>Threat Intelligence Center</h1>
+    <div className={styles.encabezado}>
+      <div className={styles.tituloFila}>
+        <GppMaybeOutlinedIcon className={styles.tituloIcono}/>
+        <h1>Threat Intelligence Center</h1>
+      </div>
+      <p>Gestión y análisis de indicadores de compromiso (IoC).</p>
     </div>
-    <TablaHeaderToolbar/>
     <TableContainer className={styles.tabla} component={Paper} elevation={0} square>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: 650, width: '100%', tableLayout: 'fixed' }} aria-label="simple table">
         <TableHead>
           <TableRow id={styles.subcolumnasLayout}>
-            <TableCell>ID</TableCell>
-            <TableCell align="right">PAÍS</TableCell>
-            <TableCell align="right">CATEGORIA</TableCell>
-            <TableCell align="right">THREAT SCORE</TableCell>
-            <TableCell align="right">ESTADO</TableCell>
-            <TableCell align="right">ACCIONES</TableCell>
+            <TableCell>IP / TIPO</TableCell>
+            <TableCell>PAÍS</TableCell>
+            <TableCell>CATEGORIA</TableCell>
+            <TableCell className={styles.threatScoreCell}>THREAT SCORE</TableCell>
+            <TableCell className={styles.estadoCell}>ESTADO</TableCell>
+            <TableCell className={styles.accionesHeader}>ACCIONES</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -121,16 +198,49 @@ export default function Blacklist() {
             <TableRow id={styles.tuplas}
               key={row.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              <TableCell component="th" scope="row">{row.id}</TableCell>
-              <TableCell align="right">{row.country}</TableCell>
-              <TableCell align="right">{row.category}</TableCell>
-              <TableCell align="right">{row.threat_score}</TableCell>
-              <TableCell align="right">{row.state}</TableCell>
-              <TableCell align="right">{row.action}</TableCell>
+              <TableCell component="th" scope="row" className={styles.ipCell}>
+                <span>{row.id}</span>
+                <small>{row.ipType}</small>
+              </TableCell>
+              <TableCell component="ths">{row.country}</TableCell>
+              <TableCell component="ths">{row.category}</TableCell>
+              <TableCell component="ths" className={styles.threatScoreCell}>
+                <div className={styles.threatScoreBar}>
+                  <span className={row.threat_score <= 70 ? styles.threatScoreSafe : styles.threatScoreDanger}>
+                    {row.threat_score}
+                  </span>
+                  <BorderLinearProgress
+                    variant="determinate"
+                    value={row.threat_score}
+                    sx={{
+                      backgroundColor: '#2A3440 !important',
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: row.threat_score <= 70 ? '#B89A2E' : '#b30c00',
+                      },
+                    }}
+                  />
+                </div>
+              </TableCell>
+              <TableCell component="ths" className={styles.estadoCell}>
+                <Estado
+                  texto={row.threat_score > 70 ? 'Bloqueado' : 'Monitoreada'}
+                  mostrarIcono={false}
+                />
+              </TableCell>
+              <TableCell component="ths" className={styles.accionesCell}>
+                <div className={styles.accionesBotones}>
+                  <IconButton className={styles.editarButton} aria-label="editar registro">
+                    <EditOutlinedIcon />
+                  </IconButton>
+                  <IconButton className={styles.eliminarButton} aria-label="eliminar registro">
+                    <DeleteForeverOutlinedIcon />
+                  </IconButton>
+                </div>
+              </TableCell>
             </TableRow>
           ))}
           {emptyRows > 0 && (
-            <TableRow className={styles.filaVacia} style={{ height: 53 * emptyRows }}>
+            <TableRow className={styles.celdaVacia} style={{ height: 53 * emptyRows }}>
               <TableCell className={styles.celdaVacia} colSpan={6} />
             </TableRow>
           )}
@@ -148,7 +258,11 @@ export default function Blacklist() {
                   inputProps: {
                     'aria-label': 'rows per page',
                   },
-                  native: true,
+                  MenuProps: {
+                    PaperProps: {
+                      className: styles.rowsPerPageMenu,
+                    },
+                  },
                 },
               }}
               onPageChange={handleChangePage}
@@ -159,6 +273,107 @@ export default function Blacklist() {
         </TableFooter>
       </Table>
     </TableContainer>
+    {rowsPerPage > 5 ? (
+      <button type="button" className={styles.anadirAmenaza} aria-label="añadir amenazas" onClick={abrirModal}>
+        +
+      </button>
+    ) : (
+      <button type="button" className={styles.anadirAmenazaTexto} onClick={abrirModal}>
+        + Añadir amenaza
+      </button>
+    )}
+    <Modal open={modalAbierto} keepMounted onClose={cerrarModal}>
+      <div key={modalVersion} className={`${styles.modalAmenaza} ${modalCerrando ? styles.modalAmenazaSalida : styles.modalAmenazaEntrada}`}>
+        <h2 className={styles.tituloModal}>Nueva amenaza</h2>
+        <IconButton className={styles.cerrarModal} aria-label="cerrar modal" onClick={cerrarModal}>
+          <CloseIcon />
+        </IconButton>
+        <form id="amenaza-form" onSubmit={handleSubmit}>
+
+      
+          <label className={styles.ipLabel} htmlFor="ip">Dirección IP:</label>
+          <br />
+          <input 
+            id="ip"
+            name="ip"
+            type="text"
+            required
+            autoComplete="off"
+            placeholder="Ej. 192.160.10.1"
+            onInput={(event) => event.currentTarget.setCustomValidity('')}
+          />
+          <br />
+          <label className={styles.paisLabel} htmlFor="country">País</label>
+          <br />
+          <input
+            id="country"
+            name="country"
+            required
+            type="text"
+            placeholder="Ej. Japón"
+          />
+
+          <div className={styles.threatScoreForm}>
+            <div className={styles.threatScoreFormLabel}>
+              <p>Threat score:</p>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={threatScore}
+                onChange={(event) => {
+                  const value = Math.min(100, Math.max(0, Number(event.target.value)));
+                  setThreatScore(value);
+                }}
+                aria-label="valor del threat score"
+              />
+            </div>
+            <Slider
+              value={threatScore}
+              min={0}
+              max={100}
+              onChange={(_, value) => setThreatScore(value)}
+              aria-label="threat score"
+              className={styles.threatScoreSlider}
+            />
+          </div>
+
+          <br />
+          <label className={styles.categoriaLabel} htmlFor="category">Categoría</label>
+          <br />
+          <Select
+            id="category"
+            name="category"
+            value={category}
+            required
+            displayEmpty
+            onChange={(event) => setCategory(event.target.value)}
+            className={styles.categorySelect}
+            inputProps={{ 'aria-label': 'categoría' }}
+          >
+            <MenuItem value="" disabled className={styles.categoryPlaceholder}>
+              Selecciona una categoría
+            </MenuItem>
+            {categoryOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
+
+          
+
+        </form>
+        <div className={styles.modalActions}>
+          <button type="button" className={styles.cancelarModal} onClick={cerrarModal}>
+            Cancelar
+          </button>
+          <button type="submit" form="amenaza-form" className={`${styles.anadirAmenazaTexto} ${styles.guardarModal}`}>
+            Guardar
+          </button>
+        </div>
+      </div>
+    </Modal>
     </>
   );
 }

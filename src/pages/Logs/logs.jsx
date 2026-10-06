@@ -14,7 +14,7 @@ import TableFooter from '@mui/material/TableFooter';
 import Paper from '@mui/material/Paper';
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Estado from "../../components/common/estadoLogs";
+import Estado from "../../components/common/estados";
 import SpeedDial from "../../components/common/speedDial";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import TextSnippetOutlinedIcon from '@mui/icons-material/TextSnippetOutlined';

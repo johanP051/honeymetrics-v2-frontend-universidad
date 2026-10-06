@@ -3,40 +3,37 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 
-function Estado({texto}){
+function Estado({ texto, mostrarIcono = true }) {
     let color = "";
     let colorBorde = "";
     let fondo = "";
     let icono = null;
-    if (texto == "Listo"){
+
+    if (texto === "Listo") {
         icono = <TaskAltIcon style={{fontSize: '16px', marginLeft: '2px', marginRight: '8px', color: '#48d38e'}}/>;
         colorBorde = "#338A5E";
         color = "#48d38e";
         fondo = "#1E2E30";
-        
-    }else if (texto == "Pendiente"){
+    } else if (texto === "Pendiente" || texto === "Monitoreada") {
         icono = <WarningAmberIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>;
         colorBorde = "#EDC217";
         color = "#EDC217";
         fondo = "#323227";
-    }else if (texto == "Procesando"){
-        icono = <AccessTimeOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px', color: "#bd9b15"}}/>
+    } else if (texto === "Procesando") {
+        icono = <AccessTimeOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px', color: "#bd9b15"}}/>;
         colorBorde = "#D2AE19";
         color = "#D2AE19";
         fondo = "#2D2D29";
+    } else if (texto === "Rechazada" || texto === "Bloqueado") {
+        icono = <HighlightOffOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>;
+        colorBorde = "#E07A72";
+        color = "#E07A72";
+        fondo = "#2B1719";
     }
-    else if (texto == "Rechazada"){
-        icono = <HighlightOffOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>
-        colorBorde = "#C4665E";
-        color = "#C4665E";
-        fondo = "#2C272D";
-    }
-
 
     return(
-        <div style={{border: '1px solid', borderColor: colorBorde, backgroundColor: fondo, display: 'inline-flex', padding: '4px 8px',
-      borderRadius: '4px' }} >
-            <p style={{color: color}}>{icono}{texto}</p>
+        <div style={{border: '1px solid', borderColor: colorBorde, backgroundColor: fondo, display: 'inline-flex', padding: '4px 8px', borderRadius: '4px'}}>
+            <p style={{color: color}}>{mostrarIcono ? icono : null}{texto}</p>
         </div>
     );
 }
