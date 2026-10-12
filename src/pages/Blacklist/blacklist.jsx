@@ -29,6 +29,7 @@ import { BorderLinearProgress } from '../../components/common/linearProgress';
 import Estado from '../../components/common/estados';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import Navbar from '../../components/layout/Navbar';
 
 
 
@@ -191,6 +192,7 @@ export default function Blacklist() {
 
   return (
     <>
+    <Navbar/>
     {cargando ? (
       <div className={styles.loadingOverlay} role="status" aria-label="Cargando blacklist">
         <CircularProgress aria-label="Cargando" />

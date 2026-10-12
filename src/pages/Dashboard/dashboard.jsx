@@ -15,6 +15,7 @@ import GppMaybeOutlinedIcon from '@mui/icons-material/GppMaybeOutlined';
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
+import Navbar from '../../components/layout/Navbar';
 
 const advisorItems = [
     { name: 'root', type: 'System', attempts: '98.450', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
@@ -28,6 +29,7 @@ const advisorItems = [
 export default function Dashboard(){
     return (
         <>
+        <Navbar/>
         <div className={styles.headerContent}>
             <div className={styles.textHeader}>
                 <DashboardIcon className={styles.icon} sx={{ fontSize: '30px' }}/>

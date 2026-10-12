@@ -1,0 +1,9 @@
+
+.contenedorNavbar{
+    display: flex;
+    position: fixed;
+    flex-direction: column;
+    width: 120px !important;
+    height: 100%;
+    border: 3px solid red;
+}
