@@ -129,7 +129,6 @@ export default function Blacklist() {
           setCargando(false);
         }
       }
-
       cargarBlacklist();
     }, []);
 

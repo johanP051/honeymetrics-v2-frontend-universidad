@@ -1,5 +1,7 @@
 import Navbar from "../../components/layout/Navbar";
 import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
+import styles from "./landingPage.module.css"
 
 
 export default function LandingPage(){
@@ -16,7 +18,7 @@ export default function LandingPage(){
 
     return(
         <>
-            {isAuthenticated ? <Navbar/> : <button >Login</button>}
+            {isAuthenticated ? <Navbar/> : <Link to="/login" className={styles.botonLogin}>Sign In</Link>}
             <h1>This is the landing Page</h1>
         </>
     );
