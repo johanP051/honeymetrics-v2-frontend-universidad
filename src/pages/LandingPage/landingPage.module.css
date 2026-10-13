@@ -1,3 +1,49 @@
 .botonLogin{
-    border: 2px solid yellow;
+    position: fixed;
+    top: 24px;
+    right: 32px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 22px;
+    border: 1px solid #ffc125;
+    border-radius: 7px;
+    background: linear-gradient(135deg, #e5a910 0%, #b8860b 100%);
+    box-shadow: 0 4px 12px rgba(229, 169, 16, 0.28);
+    color: #121212;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.botonLogin:hover{
+    background: linear-gradient(135deg, #ffc125 0%, #d49b13 100%);
+    box-shadow: 0 6px 16px rgba(229, 169, 16, 0.42);
+    transform: translateY(-2px);
+}
+
+.botonLogin:focus-visible{
+    outline: 3px solid rgba(255, 193, 37, 0.45);
+    outline-offset: 3px;
+}
+
+.botonLogin:active{
+    transform: translateY(0);
+}
+
+@media (max-width: 500px){
+    .botonLogin{
+        top: 16px;
+        right: 16px;
+        min-height: 40px;
+        padding: 0 18px;
+    }
+}
+
+.landingPage{
+    margin-left: 450px;
 }

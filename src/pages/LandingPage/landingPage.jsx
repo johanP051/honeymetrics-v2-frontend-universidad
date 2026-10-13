@@ -19,7 +19,7 @@ export default function LandingPage(){
     return(
         <>
             {isAuthenticated ? <Navbar/> : <Link to="/login" className={styles.botonLogin}>Sign In</Link>}
-            <h1>This is the landing Page</h1>
+            <h1 className={styles.landingPage}>This is the landing Page</h1>
         </>
     );
 }
