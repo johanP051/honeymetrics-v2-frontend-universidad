@@ -1,0 +1,253 @@
+
+
+.contenedorNavbar{
+    display: flex;
+    position: fixed;
+    flex-direction: column;
+    width: 120px !important;
+    height: 100%;
+    z-index: 999;
+    box-sizing: border-box;
+    align-items: flex-start;
+    max-width: none !important;
+    padding: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow: visible;
+}
+
+.capaOscura{
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+    border: 0;
+    background: rgba(13, 17, 23, 0.52);
+    cursor: default;
+    animation: aparecerCapa 0.2s ease-out;
+}
+
+@keyframes aparecerCapa{
+    from{
+        opacity: 0;
+    }
+
+    to{
+        opacity: 1;
+    }
+}
+
+.contenedorNavbar::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 44px;
+    height: 100%;
+    background-color: #161b22;
+    border-right: 1px solid #2a3440;
+    box-shadow: 5px 0 18px rgba(0, 0, 0, 0.2);
+    z-index: 0;
+    pointer-events: none;
+    transition: width 220ms ease-in-out;
+    
+}
+
+.contenedorNavbar.abierto::before{
+    width: 300px;                      
+}
+
+
+.accionInferior,
+.accionMedia{
+    display: flex;
+    flex-direction: column;
+    width: 100% !important;
+    padding: 0px !important;
+    transform-origin: left center;
+    
+    
+}
+
+
+.botonMenu{
+    position: absolute;
+    top: 24px;
+    left: 20px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 2px solid #2a3440;
+    border-radius: 50%;
+    background: #161b22;
+    color: #d4af37;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: left 220ms ease-in-out, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.botonMenu:hover{
+    border-color: #66551a;
+    background: #202733;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.42);
+}
+
+.botonMenu:focus-visible{
+    outline: 3px solid rgba(245, 200, 66, 0.5);
+    outline-offset: 3px;
+}
+
+.botonMenu > svg{
+    transition: transform 220ms ease-in-out;
+}
+
+.abierto .botonMenu{
+    left: 276px;
+}
+
+.abierto .botonMenu > svg{
+    transform: rotate(180deg);
+}
+
+.accionMedia{
+    display: flex;
+    justify-content: center;
+    flex: 1;
+    margin-top: 0;
+    gap: 80px;
+    align-items: stretch;
+    position: relative;
+    transition: width 220ms ease-in-out;
+}
+
+.accionMedia > a,
+.accionInferior > a,
+.accionInferior > button{
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 44px;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+
+.accionInferior{
+    margin-top: auto;
+    gap: 50px;
+    margin-bottom: 50px;
+    align-items: stretch;
+    transition: width 220ms ease-in-out;
+}
+
+.iconoActivo{
+    color: #d4af37;
+    transition: 0.5s ease-in-out;
+}
+
+.iconoInactivo{
+    color: #8b949e;
+    
+}
+
+.textoEnlace{
+    position: absolute;
+    top: 50%;
+    left: 74px;
+    color: #e3eaf1;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-8px, -50%);
+    transition: opacity 160ms ease, transform 220ms ease;
+}
+
+.abierto .textoEnlace{
+    opacity: 1;
+    transform: translate(0, -50%);
+}
+
+.abierto .accionMedia,
+.abierto .accionInferior{
+    width: 300px !important;
+}
+
+.abierto .accionMedia > a,
+.abierto .accionInferior > a,
+.abierto .accionInferior > button{
+    width: calc(100% - 32px);
+    margin: 0 16px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 7px;
+    background: #1b212b;
+    transition: background-color 180ms ease;
+}
+
+.abierto .accionMedia > a:hover,
+.abierto .accionInferior > a:hover,
+.abierto .accionInferior > button:hover{
+    background: #202833;
+}
+
+.abierto .accionMedia > a.iconoActivo,
+.abierto .accionInferior > button.iconoActivo{
+    background: transparent;
+}
+
+.abierto .iconoInactivo > svg{
+    transform: scale(1);
+    transform: translateX(20px);
+}
+.iconoActivo > svg{
+    transform: translateX(25px) scale(1.15);
+    transform-origin: left center;
+    transition: transform 220ms ease;
+}
+
+.contenedorNavbar:not(.abierto) .iconoActivo > svg{
+    transform: translateX(30px) scale(1.15);
+}
+
+.iconoInactivo > svg{
+    transform: scale(0.5);
+    transform-origin: left center;
+    transition: transform 220ms ease;
+}
+
+.indicadorActivo{
+    position: absolute;
+    left: 10px;
+    width: 68px;
+    height: 68px;
+    border: 1px solid #66551a;
+    background-color: #292719 !important;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: top 220ms ease, opacity 160ms ease;
+    z-index: 0;
+}
+
+.abierto .indicadorActivo{
+    opacity: 0;
+}
+
+.accionMedia > a{
+    z-index: 1;
+}
+
+.contenedorNavbar > .accionInferior,
+.contenedorNavbar > .accionMedia{
+    position: relative;
+    z-index: 1;
+}
