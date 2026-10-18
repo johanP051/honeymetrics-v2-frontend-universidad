@@ -13,6 +13,7 @@ export default function Login() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const isSessionExpired = new URLSearchParams(window.location.search).get("expired") === "1";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,6 +76,12 @@ export default function Login() {
               disabled={isSubmitting}
               required
             />
+
+            {isSessionExpired && !errorMsg && (
+              <div style={{ color: "#d4af37", backgroundColor: "rgba(212, 175, 55, 0.1)", border: "1px solid rgba(212, 175, 55, 0.3)", borderRadius: "6px", padding: "10px", marginBottom: "14px", fontSize: "13px", textAlign: "center" }} role="status">
+                Su sesión ha caducado por límite de tiempo. Inicie sesión nuevamente para continuar.
+              </div>
+            )}
 
             {errorMsg && (
               <div className={styles.errorMessage} role="alert">
