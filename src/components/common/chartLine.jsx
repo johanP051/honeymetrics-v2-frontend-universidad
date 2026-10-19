@@ -4,7 +4,15 @@ import Box from '@mui/material/Box';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { dataset } from '../dataset/weather';
 
-function LineMarkShape() {
+function LineMarkShape({ totalEvents = 165247 }) {
+  const scaledDataset = React.useMemo(() => {
+    const baseSum = dataset.reduce((acc, row) => acc + (row.london || 0), 0) || 1;
+    return dataset.map(row => ({
+      ...row,
+      london: Math.round(((row.london || 0) / baseSum) * (totalEvents || 165247)),
+    }));
+  }, [totalEvents]);
+
   return (
     <Stack
       direction={{ xs: 'column', md: 'row' }}
@@ -14,7 +22,7 @@ function LineMarkShape() {
       <Box sx={{ flexGrow: 1, minWidth: 0, width: '100%', overflow: 'hidden' }}>
         <LineChart
           height={250}
-          dataset={dataset}
+          dataset={scaledDataset}
           series={[
             {
               dataKey: 'london',
