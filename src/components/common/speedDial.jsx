@@ -25,7 +25,7 @@ function SpeedDialComponent({ onExportSubmit, onExportSuccess }) {
     <>
       <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1 }}>
         <SpeedDial
-          ariaLabel="SpeedDial basic example"
+          ariaLabel="Acciones de exportación y utilidades de logs"
           sx={{
             position: 'absolute',
             bottom: 16,
@@ -37,17 +37,24 @@ function SpeedDialComponent({ onExportSubmit, onExportSuccess }) {
               '&:hover': {
                 backgroundColor: '#584b13',
               },
+              '&:focus-visible': {
+                outline: '3px solid #EDC217',
+                outlineOffset: '3px',
+              },
             },
           }}
-          icon={<SpeedDialIcon />}
+          icon={<SpeedDialIcon aria-hidden="true" />}
         >
           {actions.map((action) => (
             <SpeedDialAction
               key={action.name}
               icon={action.icon}
+              tooltipTitle={action.name}
+              aria-label={action.name}
               onClick={() => handleActionClick(action.key)}
               slotProps={{
                 fab: {
+                  'aria-label': action.name,
                   sx: {
                     width: 56,
                     height: 56,
@@ -57,6 +64,10 @@ function SpeedDialComponent({ onExportSubmit, onExportSuccess }) {
                     border: '2px solid #EDC217',
                     '&:hover': {
                       backgroundColor: '#584b13',
+                    },
+                    '&:focus-visible': {
+                      outline: '3px solid #EDC217',
+                      outlineOffset: '3px',
                     },
                   },
                 },

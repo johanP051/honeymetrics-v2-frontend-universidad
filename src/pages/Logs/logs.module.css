@@ -1,4 +1,34 @@
-.headerBarra{
+/* Skip to main content link for keyboard navigation (WCAG 2.4.1) */
+.skipLink {
+    position: absolute;
+    top: -60px;
+    left: 16px;
+    background-color: #ECC236;
+    color: #12151B;
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 6px;
+    z-index: 10000;
+    text-decoration: none;
+    transition: top 0.18s ease-in-out;
+}
+
+.skipLink:focus {
+    top: 16px;
+    outline: 3px solid #FFFFFF;
+    outline-offset: 2px;
+}
+
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    outline: none;
+}
+
+.headerBarra {
     display: flex;
     justify-self: center;
     justify-content: flex-start;
@@ -6,15 +36,16 @@
     border: 2px solid #2A3440;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    min-width: 90vw;
+    width: 90vw;
+    box-sizing: border-box;
 }
 
-
-.titulo{
+.titulo {
     font-family: "Space Grotesk", sans-serif !important;
     font-weight: 700 !important;
     font-size: 20px !important;
     color: #e6edf3;
+    margin: 0 !important;
 }
 
 .toolbarActions {
@@ -34,16 +65,22 @@
     top: calc(100% + 8px);
     right: 0;
     min-width: 235px;
-    padding: 10px;
+    padding: 12px;
     background-color: #141A21;
     border: 1px solid #3B4655;
     border-radius: 8px;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
 }
 
-.filterMenu > p {
-    margin: 2px 4px 8px;
-    color: #959DA7;
+.filterFieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.filterLegend {
+    margin: 2px 4px 10px;
+    color: #CBD5E1;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -88,7 +125,7 @@
 }
 
 .filterOption input:focus-visible + .statusCheck {
-    outline: 2px solid #E3EAF1;
+    outline: 2px solid #ECC236;
     outline-offset: 2px;
 }
 
@@ -105,12 +142,14 @@
     background-color: #0F141B;
     border: 1px solid #3B4655;
     border-radius: 6px;
-    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, outline 0.15s ease;
 }
 
-.searchForm input:focus {
-    border-color: #D4AF37;
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.18);
+.searchForm input:focus-visible {
+    border-color: #ECC236;
+    outline: 2px solid #ECC236;
+    outline-offset: 1px;
+    box-shadow: 0 0 0 3px rgba(236, 194, 54, 0.25);
 }
 
 .searchButton,
@@ -119,23 +158,36 @@
     align-items: center;
     gap: 6px;
     padding: 8px 10px;
-    color: #D4AF37;
+    color: #ECC236;
     background-color: transparent;
     border: 1px solid #67592B;
     border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.15s ease, border-color 0.15s ease, outline 0.15s ease;
 }
 
 .searchButton:hover,
 .filterButton:hover,
 .filterButtonActive {
     background-color: #323227;
-    border-color: #D4AF37;
+    border-color: #ECC236;
+}
+
+.searchButton:focus-visible,
+.filterButton:focus-visible {
+    outline: 2px solid #ECC236;
+    outline-offset: 2px;
 }
 
 .clearSearch {
-    color: #959DA7 !important;
+    color: #CBD5E1 !important;
     margin-right: -4px !important;
+}
+
+.clearSearch:focus-visible {
+    outline: 2px solid #ECC236 !important;
+    outline-offset: 2px;
 }
 
 .sortButton {
@@ -143,13 +195,15 @@
     align-items: center;
     gap: 6px;
     width: 100%;
-    padding: 0;
+    padding: 4px;
     color: inherit;
     font: inherit;
     text-align: inherit;
     background: transparent;
     border: 0;
     cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.15s ease, outline 0.15s ease;
 }
 
 .sortButtonRight {
@@ -159,13 +213,18 @@
 
 .sortButton:hover,
 .sortButtonActive {
-    color: #D4AF37;
+    color: #ECC236;
+}
+
+.sortButton:focus-visible {
+    outline: 2px solid #ECC236;
+    outline-offset: 2px;
 }
 
 .sortIcon {
     width: 16px !important;
     height: 16px !important;
-    opacity: 0.45;
+    opacity: 0.55;
     transition: transform 160ms ease, opacity 160ms ease;
 }
 
@@ -201,119 +260,165 @@
     }
 }
 
-.tabla{
+.tabla {
     display: flex;
     justify-self: center;
     max-width: 90vw;
+    width: 90vw;
 }
 
-#subcolumnasLayout{
+#subcolumnasLayout {
     background-color: #1B212B;
     border: 2px solid #2A3440;
     border-radius: 0px;
 }
 
-#subcolumnasLayout > th{
-    color: #8B949E;
+#subcolumnasLayout > th {
+    color: #A5B3C2;
+    font-weight: 700;
 }
 
-#tuplas{
+#tuplas {
     background-color: #191F27;    
     border: 2px solid #2A3440;
 }
 
-#tuplas > th{
-    color: #D4AF37;
+#tuplas > th {
+    color: #ECC236;
 }
 
-#tuplas > rango{
-    color: #E3EAF1;
+.rangoCell {
+    color: #E3EAF1 !important;
 }
 
-#tuplas > ctfc{
-    color: #959DA7;
+.ctfcCell {
+    color: #CBD5E1 !important;
 }
 
-.paginacion{
+.sinAcciones {
+    color: #CBD5E1;
+    font-size: 16px;
+    font-weight: bold;
+    display: inline-block;
+    padding: 0 8px;
+}
+
+.paginacion {
     display: flex;
     justify-content: flex-end;
-    color: #959DA7 !important;
+    color: #CBD5E1 !important;
+}
+
+.paginationIconButton {
+    color: #CBD5E1 !important;
+}
+
+.paginationIconButton:focus-visible {
+    outline: 2px solid #ECC236 !important;
+    outline-offset: 2px;
 }
 
 .filaVacia,
-.celdaVacia{
+.celdaVacia {
     background-color: #191F27 !important;
     border: 2px solid #2A3440;
 }
 
-
-
-.botonesAccion{
+.botonesAccion {
     display: inline-flex;
+    align-items: center;
 }
-.botonDescarga{
+
+.botonDescarga {
     display: flex;
+    align-items: center;
+    justify-content: center;
     color: #48d38e;
-    justify-self: flex-end;
-    transition: 0.5s ease-in-out;
+    transition: background-color 0.2s ease, border-color 0.2s ease, outline 0.15s ease;
     padding: 5px;
     border: 1px solid transparent;
-    border-radius: 10px;
+    border-radius: 8px;
     margin-right: 5px;
+    cursor: pointer;
+    background: transparent;
 }
 
-
-.botonDescarga:hover{
+.botonDescarga:hover:not(:disabled) {
     background-color: #1E2E30;
     border-color: #338A5E;
 }
 
-.iconoPdf{
+.botonDescarga:focus-visible {
+    outline: 2px solid #48d38e;
+    outline-offset: 2px;
+}
+
+.botonDescarga:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.iconoPdf {
     transform: scaleX(0.95);
     transform-origin: center;
 }
 
-
-.botonPdf{
+.botonPdf {
     margin-left: 5px;
     display: flex;
-    color: #cca129;
-    justify-self: flex-end;
-    transition: 0.5s ease-in-out;
+    align-items: center;
+    justify-content: center;
+    color: #ECC236;
+    transition: background-color 0.2s ease, border-color 0.2s ease, outline 0.15s ease;
     padding: 5px;
     border: 1px solid transparent;
-    border-radius: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
 }
 
-.botonPdf:hover{
+.botonPdf:hover:not(:disabled) {
     background-color: #493706;
-    border-color: #cca129;
+    border-color: #ECC236;
 }
 
-.iconoSend{
+.botonPdf:focus-visible {
+    outline: 2px solid #ECC236;
+    outline-offset: 2px;
+}
+
+.botonPdf:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.iconoSend {
     color: #EDC217;
     transform: scale(0.8);
     margin-right: 10px;
 }
 
-.textoTelegram{
+.textoTelegram {
     color: #EDC217;
     font-size: 13px;
+    margin: 0;
 }
 
-#telegramContainer{
+#telegramContainer {
     display: flex;
     justify-self: flex-end;
     justify-content: center;
     align-items: center;
     border: 1px solid #EDC217;
     border-radius: 50px;
-    padding: 5px 10px 5px 10px;
+    padding: 5px 12px;
     background-color: #323227;
     width: 200px;
 }
-.textoCelery{
-    color: gray;
+
+.textoCelery {
+    color: #A2B0C0;
+    margin: 0;
 }
 
 .emptyFilterCell {
@@ -326,24 +431,56 @@
     display: inline-block;
 }
 
-.textoCelery span{
+.textoVacio {
+    color: #CBD5E1;
+    font-size: 14px;
+    margin: 0;
+    text-align: center;
+}
+
+.textoCelery span {
     display: inline-block;
-    color: gray;
+    color: #A2B0C0;
     animation: colorCelery 2s linear infinite;
     animation-delay: calc(var(--i) * 0.1s);
 }
 
 @keyframes colorCelery {
     0% {
-        color: gray;
+        color: #A2B0C0;
     }
     10% {
-        color: #b4b4b4; 
+        color: #F1F5F9; 
     }
     20% {
-        color: gray;
+        color: #A2B0C0;
     }
     100% {
-        color: gray;
+        color: #A2B0C0;
     }
+}
+
+.reportError {
+    background-color: #381216;
+    border: 1px solid #EF4444;
+    color: #FECACA;
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin: 12px auto;
+    width: 90vw;
+    box-sizing: border-box;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.errorCell {
+    padding: 24px !important;
+    text-align: center !important;
+}
+
+.errorText {
+    color: #FECACA;
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
 }

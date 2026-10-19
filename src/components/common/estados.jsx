@@ -17,18 +17,18 @@ function Estado({ texto, mostrarIcono = true }) {
     let icono = null;
 
     if (texto === "Listo") {
-        icono = <TaskAltIcon style={{fontSize: '16px', marginLeft: '2px', marginRight: '8px', color: '#48d38e'}}/>;
+        icono = <TaskAltIcon aria-hidden="true" style={{fontSize: '16px', marginLeft: '2px', marginRight: '8px', color: '#48d38e'}}/>;
     } else if (texto === "Pendiente de Aprobación" || texto === "Monitoreada") {
-        icono = <WarningAmberIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>;
+        icono = <WarningAmberIcon aria-hidden="true" style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>;
     } else if (texto === "Procesando") {
-        icono = <AccessTimeOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px', color: "#bd9b15"}}/>;
+        icono = <AccessTimeOutlinedIcon aria-hidden="true" style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px', color: "#bd9b15"}}/>;
     } else if (texto === "Rechazada" || texto === "Bloqueada") {
-        icono = <HighlightOffOutlinedIcon style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>;
+        icono = <HighlightOffOutlinedIcon aria-hidden="true" style={{fontSize: '17px', marginLeft: '2px', marginRight: '8px'}}/>;
     }
 
     return(
         <div style={{border: '1px solid', borderColor: colorBorde, backgroundColor: fondo, display: 'inline-flex', padding: '4px 8px', borderRadius: '4px'}}>
-            <p style={{color: color}}>{mostrarIcono ? icono : null}{texto}</p>
+            <p style={{color: color, margin: 0, display: 'inline-flex', alignItems: 'center'}}>{mostrarIcono ? icono : null}<span>{texto}</span></p>
         </div>
     );
 }
