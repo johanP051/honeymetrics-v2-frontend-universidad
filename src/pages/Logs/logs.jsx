@@ -464,6 +464,31 @@ export default function Logs() {
     }
   };
 
+  const handleDownloadLatestDictionary = async () => {
+    const ultimaExportacion = rows.find(
+      (item) => item.status === 'COMPLETED' || item.status === 'Listo' || item.status === 'completed'
+    ) || rows[0];
+    const exportId = ultimaExportacion?.id || 'EXP-CANONICAL';
+    try {
+      setErrorReporte('');
+      setAnuncioAccesible('Generando Diccionario de Datos y Reporte PDF...');
+      let stats = null;
+      if (ultimaExportacion?.id) {
+        try {
+          const resp = await api.get(`/logs/report-stats/${ultimaExportacion.id}`);
+          stats = resp.data;
+        } catch (e) {
+          console.warn('Usando estadísticas base para diccionario:', e);
+        }
+      }
+      await generarReportePdf(exportId, stats || {});
+      setAnuncioAccesible('Diccionario de Datos generado exitosamente.');
+    } catch (err) {
+      console.error('Error al generar diccionario:', err);
+      setErrorReporte('No fue posible generar el Diccionario PDF.');
+    }
+  };
+
   function CreateButtons({ texto, exportId }) {
     if (texto === "Listo") {
       return (
@@ -671,7 +696,10 @@ export default function Logs() {
         </TableContainer>
       </main>
 
-      <SpeedDial onExportSuccess={handleExportSuccess} />
+      <SpeedDial
+        onExportSuccess={handleExportSuccess}
+        onDownloadDictionary={handleDownloadLatestDictionary}
+      />
     </>
   );
 }
