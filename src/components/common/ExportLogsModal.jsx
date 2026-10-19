@@ -24,9 +24,8 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
     setCargando(true);
     try {
       const datosEnvio = {
-        evento: "Click en botón de prueba",
-        startDate: fechaInicio,
-        endDate: fechaFinal,
+        start_date: fechaInicio,
+        end_date: fechaFinal,
       };
 
       const respuesta = await api.post('/logs/request-export', datosEnvio);
