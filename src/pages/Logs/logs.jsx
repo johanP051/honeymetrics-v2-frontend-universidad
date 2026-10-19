@@ -230,7 +230,7 @@ function parseFechaSolicitud(fechaStr) {
 }
 
 export default function logs() {
-
+  const [rows, setRows] = React.useState(initialRows);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [cargando, setCargando] = React.useState(true);
