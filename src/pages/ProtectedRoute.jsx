@@ -1,11 +1,7 @@
 import { Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-/**
- * Guardián de Rutas (Route Guard)
- * Permite el acceso a los componentes hijos (Outlet) si existe sesión válida,
- * o redirige automáticamente a /Login si el usuario no está autenticado.
- */
+
 export default function ProtectedRoute() {
   const { isAuthenticated, loading } = useAuth();
 
