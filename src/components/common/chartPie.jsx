@@ -1,21 +1,39 @@
+import * as React from 'react';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { ChartsTooltip } from '@mui/x-charts/ChartsTooltip';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
-const attackData = [
-  { id: 'Fuerza Bruta', label: 'Fuerza Bruta', value: 528, color: '#e35d61' },
-  { id: 'Scanner', label: 'Scanner', value: 282, color: '#d1b35d' },
-  { id: 'SQLi', label: 'SQLi', value: 148, color: '#00b879' },
-  { id: 'DDoS', label: 'DDoS', value: 35, color: '#4189bc' },
-  { id: 'Malware', label: 'Malware', value: 7, color: '#9da7b5' },
+const attackProportions = [
+  { id: 'Fuerza Bruta', label: 'Fuerza Bruta', ratio: 0.528, color: '#e35d61' },
+  { id: 'Scanner', label: 'Scanner', ratio: 0.282, color: '#d1b35d' },
+  { id: 'SQLi', label: 'SQLi', ratio: 0.148, color: '#00b879' },
+  { id: 'DDoS', label: 'DDoS', ratio: 0.035, color: '#4189bc' },
+  { id: 'Malware', label: 'Malware', ratio: 0.007, color: '#9da7b5' },
 ];
 
-const totalCount = attackData.reduce((acc, item) => acc + item.value, 0);
-
-function TitanicPie() {
+function TitanicPie({ totalEvents = 165247 }) {
   const innerRadius = 60;
   const outerRadius = 125;
+
+  const { attackData, totalCount } = React.useMemo(() => {
+    const total = totalEvents > 0 ? totalEvents : 1000;
+    let running = 0;
+    const data = attackProportions.map((item, idx) => {
+      const val = idx === attackProportions.length - 1
+        ? Math.max(1, total - running)
+        : Math.max(1, Math.round(total * item.ratio));
+      running += val;
+      return {
+        id: item.id,
+        label: item.label,
+        value: val,
+        color: item.color,
+      };
+    });
+    const computedTotal = data.reduce((acc, item) => acc + item.value, 0);
+    return { attackData: data, totalCount: computedTotal };
+  }, [totalEvents]);
 
   return (
     <Box sx={{ width: '100%', textAlign: 'center' }}>
@@ -30,7 +48,7 @@ function TitanicPie() {
               outerRadius,
               data: attackData,
               valueFormatter: ({ value }) =>
-                `${value} (${((value / totalCount) * 100).toFixed(1)}%)`,
+                `${Number(value).toLocaleString('es-CO')} (${((value / totalCount) * 100).toFixed(1)}%)`,
               highlightScope: { fade: 'global', highlight: 'item' },
               highlighted: { additionalRadius: 2 },
               cornerRadius: 3,
