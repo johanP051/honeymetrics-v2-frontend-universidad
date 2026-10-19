@@ -6,18 +6,33 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import Box from '@mui/material/Box';
 import ExportLogsModal from './ExportLogsModal';
+import { generarReportePdf } from '../../pages/Logs/reportPdf';
 
 const actions = [
   { icon: <GetAppOutlinedIcon />, name: 'Exportar logs', key: 'export_logs' },
   { icon: <PictureAsPdfOutlinedIcon />, name: 'Descargar Diccionario', key: 'download_dictionary' },
 ];
 
-function SpeedDialComponent({ onExportSubmit, onExportSuccess }) {
+function SpeedDialComponent({ onExportSubmit, onExportSuccess, onDownloadDictionary }) {
   const [openModal, setOpenModal] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleActionClick = (actionKey) => {
+  const handleActionClick = async (actionKey) => {
     if (actionKey === 'export_logs') {
       setOpenModal(true);
+    } else if (actionKey === 'download_dictionary') {
+      if (typeof onDownloadDictionary === 'function') {
+        onDownloadDictionary();
+      } else {
+        try {
+          setIsDownloading(true);
+          await generarReportePdf('EXP-CANONICAL', {});
+        } catch (err) {
+          console.error('Error al descargar diccionario:', err);
+        } finally {
+          setIsDownloading(false);
+        }
+      }
     }
   };
 

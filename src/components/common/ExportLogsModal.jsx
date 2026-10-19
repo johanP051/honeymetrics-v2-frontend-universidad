@@ -47,15 +47,15 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
       const respuesta = await api.post('/logs/request-export', datosEnvio);
       
       setMensajeExito('Solicitud de exportación registrada exitosamente.');
+      if (onExportSuccess) {
+        onExportSuccess(respuesta.data);
+      }
       setFechaInicio('');
       setFechaFinal('');
 
       setTimeout(() => {
         handleClose();
-        if (onExportSuccess) {
-          onExportSuccess(respuesta.data);
-        }
-      }, 900);
+      }, 500);
     } catch (error) {
       console.error('Error al enviar el log:', error);
       setErrorValidacion('Hubo un error al procesar la exportación. Inténtalo de nuevo más tarde.');

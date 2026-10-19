@@ -464,6 +464,31 @@ export default function Logs() {
     }
   };
 
+  const handleDownloadLatestDictionary = async () => {
+    const ultimaExportacion = rows.find(
+      (item) => item.status === 'COMPLETED' || item.status === 'Listo' || item.status === 'completed'
+    ) || rows[0];
+    const exportId = ultimaExportacion?.id || 'EXP-CANONICAL';
+    try {
+      setErrorReporte('');
+      setAnuncioAccesible('Generando Diccionario de Datos y Reporte PDF...');
+      let stats = null;
+      if (ultimaExportacion?.id) {
+        try {
+          const resp = await api.get(`/logs/report-stats/${ultimaExportacion.id}`);
+          stats = resp.data;
+        } catch (e) {
+          console.warn('Usando estadísticas base para diccionario:', e);
+        }
+      }
+      await generarReportePdf(exportId, stats || {});
+      setAnuncioAccesible('Diccionario de Datos generado exitosamente.');
+    } catch (err) {
+      console.error('Error al generar diccionario:', err);
+      setErrorReporte('No fue posible generar el Diccionario PDF.');
+    }
+  };
+
   function CreateButtons({ texto, exportId }) {
     if (texto === "Listo") {
       return (
@@ -519,7 +544,10 @@ export default function Logs() {
 
       const respuesta = await api.get('/logs/history');
       setRows(respuesta.data);
-      setEstadosSeleccionados([...new Set(respuesta.data.map((row) => row.status))]);
+      setEstadosSeleccionados((prev) => {
+        const nuevos = [...new Set(respuesta.data.map((row) => row.status))];
+        return prev.length === 0 ? nuevos : Array.from(new Set([...prev, ...nuevos]));
+      });
     } catch (err) {
       setError('No fue posible cargar el historial de exportaciones.');
     } finally {
@@ -531,8 +559,37 @@ export default function Logs() {
     cargarLogs();
   }, [cargarLogs]);
 
-  const handleExportSuccess = () => {
+  // Polling automático (PB-HM-38: "La tabla se actualiza automáticamente cada 10 segundos")
+  // Con polling acelerado (3s) si hay alguna tarea en estado "Procesando"
+  React.useEffect(() => {
+    const hayEnProceso = rows.some((row) => row.status === 'Procesando');
+    const intervaloMs = hayEnProceso ? 3000 : 10000;
+
+    const intervalo = setInterval(() => {
+      cargarLogs(false);
+    }, intervaloMs);
+
+    return () => clearInterval(intervalo);
+  }, [rows, cargarLogs]);
+
+  const handleExportSuccess = (nuevoRegistro) => {
     setPage(0);
+    if (nuevoRegistro) {
+      setRows((prev) => {
+        const existe = prev.some((r) => r.id === nuevoRegistro.id);
+        if (existe) return prev;
+        const filaOptimista = {
+          id: nuevoRegistro.id,
+          date_range: nuevoRegistro.date_range || 'En proceso',
+          count: nuevoRegistro.count || 0,
+          status: nuevoRegistro.status,
+          created_at: 'Hace un momento',
+          file_format: 'JSONL',
+        };
+        return [filaOptimista, ...prev];
+      });
+      setEstadosSeleccionados((prev) => Array.from(new Set([...prev, nuevoRegistro.status])));
+    }
     cargarLogs(false);
     setAnuncioAccesible('Nueva exportación solicitada. La lista ha sido actualizada.');
   };
@@ -671,7 +728,10 @@ export default function Logs() {
         </TableContainer>
       </main>
 
-      <SpeedDial onExportSuccess={handleExportSuccess} />
+      <SpeedDial
+        onExportSuccess={handleExportSuccess}
+        onDownloadDictionary={handleDownloadLatestDictionary}
+      />
     </>
   );
 }
