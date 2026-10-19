@@ -544,7 +544,10 @@ export default function Logs() {
 
       const respuesta = await api.get('/logs/history');
       setRows(respuesta.data);
-      setEstadosSeleccionados([...new Set(respuesta.data.map((row) => row.status))]);
+      setEstadosSeleccionados((prev) => {
+        const nuevos = [...new Set(respuesta.data.map((row) => row.status))];
+        return prev.length === 0 ? nuevos : Array.from(new Set([...prev, ...nuevos]));
+      });
     } catch (err) {
       setError('No fue posible cargar el historial de exportaciones.');
     } finally {
@@ -556,8 +559,37 @@ export default function Logs() {
     cargarLogs();
   }, [cargarLogs]);
 
-  const handleExportSuccess = () => {
+  // Polling automático (PB-HM-38: "La tabla se actualiza automáticamente cada 10 segundos")
+  // Con polling acelerado (3s) si hay alguna tarea en estado "Procesando"
+  React.useEffect(() => {
+    const hayEnProceso = rows.some((row) => row.status === 'Procesando');
+    const intervaloMs = hayEnProceso ? 3000 : 10000;
+
+    const intervalo = setInterval(() => {
+      cargarLogs(false);
+    }, intervaloMs);
+
+    return () => clearInterval(intervalo);
+  }, [rows, cargarLogs]);
+
+  const handleExportSuccess = (nuevoRegistro) => {
     setPage(0);
+    if (nuevoRegistro) {
+      setRows((prev) => {
+        const existe = prev.some((r) => r.id === nuevoRegistro.id);
+        if (existe) return prev;
+        const filaOptimista = {
+          id: nuevoRegistro.id,
+          date_range: nuevoRegistro.date_range || 'En proceso',
+          count: nuevoRegistro.count || 0,
+          status: nuevoRegistro.status,
+          created_at: 'Hace un momento',
+          file_format: 'JSONL',
+        };
+        return [filaOptimista, ...prev];
+      });
+      setEstadosSeleccionados((prev) => Array.from(new Set([...prev, nuevoRegistro.status])));
+    }
     cargarLogs(false);
     setAnuncioAccesible('Nueva exportación solicitada. La lista ha sido actualizada.');
   };
