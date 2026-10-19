@@ -53,10 +53,10 @@ function interpolateColor(normalizedValue) {
 function ColorConfig() {
   return (
     <Stack className="heatmapContainer" sx={{ width: '100%', color: '#D7DCE5' }}>
-      <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: 0.3 }}>
+      <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: 0.3, alignSelf: 'center'}}>
         Mapa de Calor Predictivo (Horarios Críticos)
       </Typography>
-      <Typography variant="body2" sx={{ color: '#8E98A8', mb: 2 }}>
+      <Typography variant="body2" sx={{ color: '#8E98A8', mb: 2, alignSelf: 'center' }}>
         Probabilidad y volumen estimado de ataque basado en la telemetría histórica del Honeypot (UTC).
       </Typography>
       <Heatmap

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import Blacklist from "./pages/Blacklist/blacklist.jsx";
 import Dashboard from "./pages/Dashboard/dashboard.jsx";
 import LandingPage from "./pages/LandingPage/landingPage.jsx";
@@ -13,6 +13,9 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
+    element: <Navigate to="/home" replace />,
+  },
+  {
     element: <ProtectedRoute />,
     children: [
       {
@@ -24,7 +27,7 @@ const router = createBrowserRouter([
         element: <Logs />,
       },
       {
-        path: "/dashboard",
+        path: "dashboard",
         element: <Dashboard />,
       },
     ],
