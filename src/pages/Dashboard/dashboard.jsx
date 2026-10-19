@@ -10,7 +10,6 @@ import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import ColorConfig from '../../components/common/heatMap';
 import TerminalOutlinedIcon from '@mui/icons-material/TerminalOutlined';
-import { GoDatabase } from "react-icons/go";
 import GppMaybeOutlinedIcon from '@mui/icons-material/GppMaybeOutlined';
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
@@ -20,7 +19,7 @@ import Navbar from '../../components/layout/Navbar';
 const advisorItems = [
     { name: 'root', type: 'System', attempts: '98.450', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
     { name: 'admin', type: 'System', attempts: '28.410', percentage: 17.2, icon: TerminalOutlinedIcon, color: 'yellow' },
-    { name: 'postgres', type: 'Database', attempts: '14.220', percentage: 8.6, icon: GoDatabase, color: 'teal' },
+    { name: 'postgres', type: 'Database', attempts: '14.220', percentage: 8.6, icon: StorageOutlinedIcon, color: 'teal' },
     { name: 'odoo', type: 'ERP', attempts: '9840', percentage: 6, icon: GppMaybeOutlinedIcon, color: 'red' },
     { name: 'jenkins', type: 'DevOps', attempts: '5310', percentage: 3.2, icon: StorageOutlinedIcon, color: 'yellow' },
     { name: 'Ubuntu', type: 'System', attempts: '3820', percentage: 2.3, icon: TerminalOutlinedIcon, color: 'yellow' },
