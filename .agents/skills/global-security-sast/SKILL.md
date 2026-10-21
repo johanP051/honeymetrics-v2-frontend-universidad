@@ -23,3 +23,6 @@ Esta Skill aplica a **todos** los proyectos de desarrollo para garantizar están
 - [ ] `.env` está incluido en `.gitignore`.
 - [ ] CORS no expone métodos inseguros a dominios desconocidos.
 - [ ] Los errores devueltos al cliente no filtran trazas internas (*stack traces*) ni detalles de la infraestructura.
+- [ ] Los secretos de infraestructura no aparecen en argumentos de procesos, `docker inspect`, imágenes, logs ni archivos de contexto.
+- [ ] Cloudflare Tunnel usa `TUNNEL_TOKEN_FILE` con un archivo montado en solo lectura, permisos de host restrictivos o un mecanismo equivalente de secretos.
+- [ ] La auditoría distingue evidencia local, evidencia remota, evidencia HTTP y afirmaciones no verificadas.
