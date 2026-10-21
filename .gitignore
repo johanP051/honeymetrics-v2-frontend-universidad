@@ -29,7 +29,10 @@ lerna-debug.log*
 
 # 4. Variables de Entorno y Secretos (Mantener .env.example intacto)
 .env
-.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 !.env.example
 
 # 5. IDEs, Editores y Entornos de Sistema
