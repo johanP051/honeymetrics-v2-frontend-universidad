@@ -77,7 +77,7 @@ export default function Dashboard(){
                 </div>
             </div>
             <div className={styles.buttons}>
-                <button className={styles.restart}><RestartAltIcon/></button>
+                
                 <div className={styles.contenedorBotones}>
                     <button onClick={() => {
                         
@@ -91,13 +91,14 @@ export default function Dashboard(){
                         <span>Personalizado</span>
                         <KeyboardArrowDownOutlinedIcon className={styles.arrowButton}/>
                     </button>
-
+                    
                 </div>
+                <button className={styles.restart}><RestartAltIcon/></button>
             </div>
         </div>
 
         <div className={styles.datos}>
-            <Container maxWidth={false} sx={{maxWidth: "20vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>Eventos analizados</h3>
                     <AssessmentOutlinedIcon className={`${styles.metricIcon} ${styles.metricBlue}`}/>
@@ -105,7 +106,7 @@ export default function Dashboard(){
                 <h2 className={styles.metricBlue}>{eventos}</h2>
             </Container>
 
-            <Container maxWidth={false} sx={{maxWidth: "20vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>IPs Atacantes</h3>
                     <ReportGmailerrorredIcon className={`${styles.metricIcon} ${styles.metricRed}`}/>
@@ -113,14 +114,14 @@ export default function Dashboard(){
                 <h2 className={styles.metricRed}>{atacantes}</h2>
             </Container>
             
-            <Container maxWidth={false} sx={{maxWidth: "20vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>Amenazas Persistentes</h3>
                     <TrendingUpIcon className={`${styles.metricIcon} ${styles.metricYellow}`}/>
                 </div>
                 <h2 className={styles.metricYellow}>{persistentes}</h2>
             </Container>
-            <Container maxWidth={false} sx={{maxWidth: "20vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>CVEs Activos</h3>
                     <VerifiedUserOutlinedIcon className={`${styles.metricIcon} ${styles.metricGreen}`}/>

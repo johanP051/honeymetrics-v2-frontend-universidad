@@ -1,8 +1,11 @@
 .datos{
     display: flex;
     flex-wrap: wrap;
-    flex-direction: row;
-    gap: 0px !important;
+    gap: 16px !important;
+    padding: 0 2.5vw;   
+    box-sizing: border-box;
+    margin-left: 40px;
+    margin-bottom: 40px;
 }
 
 .contenedor{
@@ -10,6 +13,8 @@
     border: 1px solid #29323E;
     border-radius: 20px;
     background: linear-gradient(to bottom,  #1D2229 , #161B22);
+    max-width: none !important;
+    margin: 0 !important;
 }
 
 :global(.heatmapContainer div[style*="z-index: 100000"]),
@@ -18,6 +23,8 @@
 }
 
 #dat{
+    flex: 1 1 220px;
+    min-width: 220px;
     border-top: 2px solid white; 
     width: 100%;
     height: 16vh;   
@@ -74,13 +81,18 @@
 }
 
 .chartContainer{
+    flex: 1 1 420px;
+    min-width: 0px;
     min-height: 500px;
     overflow: visible;
     align-items: flex-start;
     margin-top: 25px;
+
 }
 
 .neighborContainer{
+    flex: 1 1 420px;
+    min-width: 0px;
     min-height: 500px;
     margin-top: 25px;
     overflow: hidden;
@@ -91,7 +103,8 @@
     width: 100%;
     height: 65vh;
     margin-top: 25px;
-    margin-left: 2.5vw;
+    margin-left: 0;
+    flex: 3 1 500px;
 }
 
 .advisorHeader{
@@ -101,6 +114,7 @@
     width: 100%;
     padding: 18px 14px 10px;
     box-sizing: border-box;
+    flex: 0 0 auto;
 }
 
 .advisorContainer{
@@ -112,6 +126,8 @@
     align-items: stretch;
     overflow: hidden;
     box-sizing: border-box;
+    flex: 1 1 320px;
+    min-width: 0;
 }
 
 .advisorHeader h6{
@@ -252,10 +268,13 @@
 .textHeader{
     display: flex;
     align-items: center;
+    justify-content: center;
+    flex: 1 1 auto;
     gap: 8px;
-    width: fit-content;
-    height: 100px;
-    margin: 5px auto 2px;
+    width: auto;
+    height: auto;
+    min-height: 100px;
+    margin: 0;
 }
 
 .textContent{
@@ -278,16 +297,25 @@ h2{
 
 .buttons{
     display: flex;
-    position: absolute;
-    width: 40vw;
-    height: 100px;
+    flex: 0 0 auto;
+    position: static;
+    width: auto;
+    height: auto;
     right: 0px;
     align-items: center;
     justify-content: flex-end;
+    padding-bottom: 8px;
 }
 
 .headerContent{
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 16px;
+    min-height: 107px;
+    padding: 0 16px;
+    box-sizing: border-box;
     position: relative;
     min-height: 107px;
 }
@@ -366,4 +394,55 @@ h2{
 
 .contenedorBotones p{
     margin: 0;
+}
+
+@media (max-width: 768px){
+    #dash2,
+    .advisorContainer{
+        flex: 1 1 100%;
+    }
+}
+@media (max-width: 1024px){
+
+    .headerContent{
+        padding: 0 16px 0 76px;
+    }
+
+    .buttons{
+        flex-wrap: wrap;
+        justify-content: start;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+        padding: 0 8px 8px;
+        box-sizing: border-box;
+    }
+
+    .restart{
+        flex: 0 0 auto;
+        margin: 0;             
+    }
+
+    .contenedorBotones{
+        flex: 0 1 auto;
+        min-width: 0;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+    }
+
+    .contenedorBotones::-webkit-scrollbar{
+        display: none;
+    }
+
+
+    .contenedorBotones > *{
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+    }
 }

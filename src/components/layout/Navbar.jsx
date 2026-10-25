@@ -12,7 +12,7 @@ import AccessibilityIcon from '@mui/icons-material/Accessibility';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import api from '../../api/client';
-
+import logo from '../assets/logo.png';
 
 function Navbar(){
     //Que cerrado este en True, significa que la navbar debe estar cerrada, no debe estar expandida.
@@ -46,20 +46,27 @@ function Navbar(){
         window.requestAnimationFrame(() => moverIndicador(iconoBajoMouse || location.pathname));
     }, [iconoBajoMouse, location.pathname, cerrado]);
 
+    React.useEffect(() => {
+        const actualizar = () => moverIndicador(iconoBajoMouse || location.pathname);
+        window.addEventListener('resize', actualizar);
+        return () => window.removeEventListener('resize', actualizar);
+    }, [iconoBajoMouse, location.pathname]);
+
     function eventosIndicador(ruta) {
-        return {
-            onMouseEnter: () => {
-                window.clearTimeout(temporizadorHover.current);
-                temporizadorHover.current = window.setTimeout(() => {
-                    setIconoBajoMouse(ruta);
-                    moverIndicador(ruta);
-                }, 0);
-            },
-            onMouseLeave: () => {
-                window.clearTimeout(temporizadorHover.current);
-            },
-        };
-    }
+    return {
+        onPointerEnter: (e) => {
+            if (e.pointerType !== 'mouse') return;   // ignora toques
+            window.clearTimeout(temporizadorHover.current);
+            temporizadorHover.current = window.setTimeout(() => {
+                setIconoBajoMouse(ruta);
+                moverIndicador(ruta);
+            }, 0);
+        },
+        onMouseLeave: () => {
+            window.clearTimeout(temporizadorHover.current);
+        },
+    };
+}
 
     function salirDeNavegacion() {
         window.clearTimeout(temporizadorHover.current);
@@ -93,7 +100,14 @@ function Navbar(){
     ref={navbarRef}
     className={`${styles.contenedorNavbar} ${cerrado ? '' : styles.abierto}`}
     onMouseLeave={salirDeNavegacion}
-    >
+    >   
+        <Link to="/home" className={styles.marca} aria-label="HoneyMetrics, ir al inicio">
+                <img src={logo} alt="" className={styles.logo} />
+                <span className={styles.nombreMarca}>
+                    Honey<span>Metrics</span>
+                </span>
+            </Link>
+            
         <button
             type="button"
             className={styles.botonMenu}
@@ -101,6 +115,7 @@ function Navbar(){
             aria-expanded={!cerrado}
             onClick={() => setCerrado(!cerrado)}
         >
+            
             <MenuOpenIcon />
         </button>
 
