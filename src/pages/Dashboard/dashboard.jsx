@@ -1,5 +1,7 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container } from '@mui/material';
 import styles from "./dashboard.module.css"
+import style from "../Blacklist/blacklist.module.css"
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import TitanicPie from '../../components/common/chartPie';
@@ -15,88 +17,132 @@ import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import Navbar from '../../components/layout/Navbar';
+import api from '../../api/client';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const advisorItems = [
-    { name: 'root', type: 'System', attempts: '98.450', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
-    { name: 'admin', type: 'System', attempts: '28.410', percentage: 17.2, icon: TerminalOutlinedIcon, color: 'yellow' },
-    { name: 'postgres', type: 'Database', attempts: '14.220', percentage: 8.6, icon: StorageOutlinedIcon, color: 'teal' },
-    { name: 'odoo', type: 'ERP', attempts: '9840', percentage: 6, icon: GppMaybeOutlinedIcon, color: 'red' },
-    { name: 'jenkins', type: 'DevOps', attempts: '5310', percentage: 3.2, icon: StorageOutlinedIcon, color: 'yellow' },
-    { name: 'Ubuntu', type: 'System', attempts: '3820', percentage: 2.3, icon: TerminalOutlinedIcon, color: 'yellow' },
+
+const advisorTemplates = [
+    { name: 'root', type: 'System', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
+    { name: 'admin', type: 'System', percentage: 17.2, icon: TerminalOutlinedIcon, color: 'yellow' },
+    { name: 'postgres', type: 'Database', percentage: 8.6, icon: StorageOutlinedIcon, color: 'teal' },
+    { name: 'odoo', type: 'ERP', percentage: 6.0, icon: GppMaybeOutlinedIcon, color: 'red' },
+    { name: 'jenkins', type: 'DevOps', percentage: 3.2, icon: StorageOutlinedIcon, color: 'yellow' },
+    { name: 'Ubuntu', type: 'System', percentage: 2.3, icon: TerminalOutlinedIcon, color: 'yellow' },
 ];
 
 export default function Dashboard(){
+    const [error, setError] = useState('');
+    const [cargando, setCargando] = useState(true);
+    const [metrics, setMetrics] = useState({
+        total_analyzed_events: 0,
+        persistent_threats_count: 0,
+        unique_attacker_ips: 0,
+        active_critical_cves_count: 0,
+    });
+
+    useEffect(() => {
+        async function datos() {
+            try{
+                setError('');
+                setCargando(true);
+                const respuesta = await api.get('/threats/summary');
+                setMetrics(prev => ({ ...prev, ...respuesta.data }));
+            }catch(err){
+                setError('No se logro cargar los datos en el dashboard');
+            }finally{
+                setCargando(false);
+            }
+        }
+        datos();
+    }, []);
+
+
     return (
+
+        
         <>
+
+        {cargando ? <div className={style.loadingOverlay} role="status" aria-label="Cargando blacklist">
+                <CircularProgress aria-label="Cargando" />
+              </div> : null}
+
         <Navbar/>
+
+        
         <div className={styles.headerContent}>
             <div className={styles.textHeader}>
-                <DashboardIcon className={styles.icon} sx={{ fontSize: '30px' }}/>
                 <div className={styles.textContent}>
-                    <h2>Dashboard</h2>
+                    <h2><DashboardIcon className={styles.icon} sx={{ fontSize: '30px' }}/>Dashboard</h2>
                     <p>Monitoreo de telemetría e indicadores del Honeypot (CTI).</p>
                 </div>
             </div>
             <div className={styles.buttons}>
-                <button className={styles.restart}><RestartAltIcon/></button>
+                
                 <div className={styles.contenedorBotones}>
-                    <button> Últimas 24h </button>
+                    <button onClick={() => {
+                        
+                    }}> Últimas 24h </button>
                     <button> Últimas 7 días </button>
                     <button> Últimas 30 días </button>
                     <button> Últimos trimestres </button>
                     <p>|</p>
-                    <button className={styles.calendarButton}>
+                    <button type="button" className={styles.calendarButton}>
                         <CalendarMonthOutlinedIcon className={styles.calendarIcon} sx={{ fontSize: '18px' }}/>
                         <span>Personalizado</span>
                         <KeyboardArrowDownOutlinedIcon className={styles.arrowButton}/>
                     </button>
-
+                    
                 </div>
+                <button className={styles.restart}><RestartAltIcon/></button>
             </div>
         </div>
 
         <div className={styles.datos}>
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>Eventos analizados</h3>
                     <AssessmentOutlinedIcon className={`${styles.metricIcon} ${styles.metricBlue}`}/>
                 </div>
-                <h2 className={styles.metricBlue}>0</h2>
+                <h2 className={styles.metricBlue}>{metrics.total_analyzed_events}</h2>
             </Container>
 
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>IPs Atacantes</h3>
                     <ReportGmailerrorredIcon className={`${styles.metricIcon} ${styles.metricRed}`}/>
                 </div>
-                <h2 className={styles.metricRed}>0</h2>
+                <h2 className={styles.metricRed}>{metrics.unique_attacker_ips}</h2>
             </Container>
             
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>Amenazas Persistentes</h3>
                     <TrendingUpIcon className={`${styles.metricIcon} ${styles.metricYellow}`}/>
                 </div>
-                <h2 className={styles.metricYellow}>0</h2>
+                <h2 className={styles.metricYellow}>{metrics.persistent_threats_count}</h2>
             </Container>
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}}className={styles.contenedor} id ={styles.dat}>
+            <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>CVEs Activos</h3>
                     <VerifiedUserOutlinedIcon className={`${styles.metricIcon} ${styles.metricGreen}`}/>
                 </div>
-                <h2 className={styles.metricGreen}>0</h2>
+                <h2 className={styles.metricGreen}>
+                    {Number(metrics.active_critical_cves_count).toLocaleString('es-CO')}
+                </h2>
             </Container>
         </div>
-       <div className={styles.datos}>      
+
+        <div className={styles.datos}>      
             <Container maxWidth={false} sx={{maxWidth: "45vw"}} className={`${styles.contenedor} ${styles.neighborContainer}`}>
-                <LineMarkShape/>
+                <LineMarkShape totalEvents={metrics.total_analyzed_events} />
             </Container>
             <Container maxWidth={false} sx={{maxWidth: "45vw"}} className={`${styles.contenedor} ${styles.chartContainer}`}>
-                <TitanicPie/>
+                <TitanicPie totalEvents={metrics.total_analyzed_events} />
             </Container>
-       </div>
+        </div>
+
         <div className={styles.datos}>      
-            <Container maxWidth={false} sx={{maxWidth: "70vw"}}className={styles.contenedor} id={styles.dash2}>
+            <Container maxWidth={false} sx={{maxWidth: "70vw"}} className={styles.contenedor} id={styles.dash2}>
                 <ColorConfig/>
             </Container>
 
@@ -109,7 +155,9 @@ export default function Dashboard(){
                     <span className={styles.advisorBadge}>CTI RECON</span>
                 </div>
                 <div className={styles.advisorList}>
-                    {advisorItems.map(({ name, type, attempts, percentage, icon: Icon, color }) => (
+                    {advisorTemplates.map(({ name, type, percentage, icon: Icon, color }) => {
+                        const calculatedAttempts = Math.max(1, Math.round((metrics.total_analyzed_events || 0) * (percentage / 100)));
+                        return (
                         <div className={styles.advisorItem} key={name}>
                             <div className={styles.advisorItemHeader}>
                                 <div className={styles.advisorName}>
@@ -120,7 +168,7 @@ export default function Dashboard(){
                                     <small>({type})</small>
                                 </div>
                                 <span className={styles.advisorAttempts}>
-                                    {attempts} <small>intentos</small>
+                                    {calculatedAttempts.toLocaleString('es-CO')} <small>intentos</small>
                                 </span>
                             </div>
                             <div className={styles.advisorProgressRow}>
@@ -133,10 +181,10 @@ export default function Dashboard(){
                                 <small>{percentage}%</small>
                             </div>
                         </div>
-                    ))}
+                    );})}
                 </div>
             </Container>
-       </div>
-       </>
+        </div>
+        </>
     );
 }
