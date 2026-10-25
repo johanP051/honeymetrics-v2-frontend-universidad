@@ -1,10 +1,10 @@
-name: Frontend CI & Build Gate
+name: Frontend CI/CD & Cloudflare Workers Gate
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, QA ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, QA ]
 
 jobs:
   build-and-verify:
@@ -26,3 +26,32 @@ jobs:
 
       - name: 🏗️ Run Production Build (SWC)
         run: npm run build
+
+  deploy-cloudflare:
+    name: ☁️ Deploy to Cloudflare Workers
+    needs: build-and-verify
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/QA')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: 🏗️ Run Production Build (SWC)
+        run: npm run build
+
+      - name: 🚀 Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.151.2"

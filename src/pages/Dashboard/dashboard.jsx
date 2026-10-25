@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useCallback } from 'react';
 import { Container } from '@mui/material';
 import styles from "./dashboard.module.css"
 import style from "../Blacklist/blacklist.module.css"
@@ -11,7 +12,6 @@ import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import ColorConfig from '../../components/common/heatMap';
 import TerminalOutlinedIcon from '@mui/icons-material/TerminalOutlined';
-import { GoDatabase } from "react-icons/go";
 import GppMaybeOutlinedIcon from '@mui/icons-material/GppMaybeOutlined';
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
@@ -22,13 +22,13 @@ import React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 
 
-const advisorItems = [
-    { name: 'root', type: 'System', attempts: '98.450', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
-    { name: 'admin', type: 'System', attempts: '28.410', percentage: 17.2, icon: TerminalOutlinedIcon, color: 'yellow' },
-    { name: 'postgres', type: 'Database', attempts: '14.220', percentage: 8.6, icon: GoDatabase, color: 'teal' },
-    { name: 'odoo', type: 'ERP', attempts: '9840', percentage: 6, icon: GppMaybeOutlinedIcon, color: 'red' },
-    { name: 'jenkins', type: 'DevOps', attempts: '5310', percentage: 3.2, icon: StorageOutlinedIcon, color: 'yellow' },
-    { name: 'Ubuntu', type: 'System', attempts: '3820', percentage: 2.3, icon: TerminalOutlinedIcon, color: 'yellow' },
+const advisorTemplates = [
+    { name: 'root', type: 'System', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
+    { name: 'admin', type: 'System', percentage: 17.2, icon: TerminalOutlinedIcon, color: 'yellow' },
+    { name: 'postgres', type: 'Database', percentage: 8.6, icon: StorageOutlinedIcon, color: 'teal' },
+    { name: 'odoo', type: 'ERP', percentage: 6.0, icon: GppMaybeOutlinedIcon, color: 'red' },
+    { name: 'jenkins', type: 'DevOps', percentage: 3.2, icon: StorageOutlinedIcon, color: 'yellow' },
+    { name: 'Ubuntu', type: 'System', percentage: 2.3, icon: TerminalOutlinedIcon, color: 'yellow' },
 ];
 
 export default function Dashboard(){
@@ -86,7 +86,7 @@ export default function Dashboard(){
                     <button> Últimas 30 días </button>
                     <button> Últimos trimestres </button>
                     <p>|</p>
-                    <button className={styles.calendarButton}>
+                    <button type="button" className={styles.calendarButton}>
                         <CalendarMonthOutlinedIcon className={styles.calendarIcon} sx={{ fontSize: '18px' }}/>
                         <span>Personalizado</span>
                         <KeyboardArrowDownOutlinedIcon className={styles.arrowButton}/>
@@ -126,19 +126,23 @@ export default function Dashboard(){
                     <h3 className={styles.metricTitle}>CVEs Activos</h3>
                     <VerifiedUserOutlinedIcon className={`${styles.metricIcon} ${styles.metricGreen}`}/>
                 </div>
-                <h2 className={styles.metricGreen}>0</h2>
+                <h2 className={styles.metricGreen}>
+                    {Number(metrics.active_critical_cves_count).toLocaleString('es-CO')}
+                </h2>
             </Container>
         </div>
-       <div className={styles.datos}>      
+
+        <div className={styles.datos}>      
             <Container maxWidth={false} sx={{maxWidth: "45vw"}} className={`${styles.contenedor} ${styles.neighborContainer}`}>
-                <LineMarkShape/>
+                <LineMarkShape totalEvents={metrics.total_analyzed_events} />
             </Container>
             <Container maxWidth={false} sx={{maxWidth: "45vw"}} className={`${styles.contenedor} ${styles.chartContainer}`}>
-                <TitanicPie/>
+                <TitanicPie totalEvents={metrics.total_analyzed_events} />
             </Container>
-       </div>
+        </div>
+
         <div className={styles.datos}>      
-            <Container maxWidth={false} sx={{maxWidth: "70vw"}}className={styles.contenedor} id={styles.dash2}>
+            <Container maxWidth={false} sx={{maxWidth: "70vw"}} className={styles.contenedor} id={styles.dash2}>
                 <ColorConfig/>
             </Container>
 
@@ -151,7 +155,9 @@ export default function Dashboard(){
                     <span className={styles.advisorBadge}>CTI RECON</span>
                 </div>
                 <div className={styles.advisorList}>
-                    {advisorItems.map(({ name, type, attempts, percentage, icon: Icon, color }) => (
+                    {advisorTemplates.map(({ name, type, percentage, icon: Icon, color }) => {
+                        const calculatedAttempts = Math.max(1, Math.round((metrics.total_analyzed_events || 0) * (percentage / 100)));
+                        return (
                         <div className={styles.advisorItem} key={name}>
                             <div className={styles.advisorItemHeader}>
                                 <div className={styles.advisorName}>
@@ -162,7 +168,7 @@ export default function Dashboard(){
                                     <small>({type})</small>
                                 </div>
                                 <span className={styles.advisorAttempts}>
-                                    {attempts} <small>intentos</small>
+                                    {calculatedAttempts.toLocaleString('es-CO')} <small>intentos</small>
                                 </span>
                             </div>
                             <div className={styles.advisorProgressRow}>
@@ -175,10 +181,10 @@ export default function Dashboard(){
                                 <small>{percentage}%</small>
                             </div>
                         </div>
-                    ))}
+                    );})}
                 </div>
             </Container>
-       </div>
-       </>
+        </div>
+        </>
     );
 }

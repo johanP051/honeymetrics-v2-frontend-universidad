@@ -81,7 +81,7 @@ EXPOSE 8000
 
 ---
 
-## 3. Despliegue en Servidor Casero (`sebas@192.168.33.2`) con Cloudflare & Hostinger
+## 3. Despliegue en Servidor Casero (HoneyMetrics activo: `jsebas@192.168.31.235`) con Cloudflare
 
 ```mermaid
 graph LR
@@ -100,7 +100,7 @@ graph LR
    - Apuntar los NameServers del dominio a Cloudflare para gestión automática de SSL/TLS y CNAMEs.
 3. **Despliegue en Servidor:**
    ```bash
-   # En tu servidor local (192.168.33.2)
+   # En el Nodo 2 de HoneyMetrics (192.168.31.235)
    cd /ruta/al/proyecto
    docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile tunnel up -d --build
    ```
@@ -122,4 +122,7 @@ graph LR
 - [ ] La base de datos NO expone puertos al exterior en `docker-compose.prod.yml`.
 - [ ] El contenedor corre bajo el usuario `appuser` (non-root).
 - [ ] Nginx tiene configurados límites de tamaño de subida (`client_max_body_size`) y headers de seguridad (`X-Frame-Options`, `X-Content-Type-Options`).
-- [ ] `CLOUDFLARE_TUNNEL_TOKEN` está protegido en `.env` y nunca subido a GitHub.
+- [ ] El token de Cloudflare nunca se pasa en `command: ... --token` ni como valor literal de una variable de entorno.
+- [ ] Preferir un archivo de secreto con permisos `600`, montado como solo lectura, y `TUNNEL_TOKEN_FILE`; Docker Secrets o un gestor externo son alternativas válidas.
+- [ ] Verificar `docker inspect` sin imprimir valores: `Config.Cmd` no contiene tokens y `Config.Env` solo contiene la ruta del secreto.
+- [ ] Los valores de `.env` y del archivo de secreto nunca se incluyen en contextos, logs, capturas ni commits.
