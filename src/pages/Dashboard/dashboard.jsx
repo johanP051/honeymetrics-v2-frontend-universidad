@@ -18,7 +18,6 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import Navbar from '../../components/layout/Navbar';
 import api from '../../api/client';
-import React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 
 
@@ -32,21 +31,22 @@ const advisorTemplates = [
 ];
 
 export default function Dashboard(){
-    const [error, setError] = React.useState('');
-    const [cargando, setCargando] = React.useState(true);
-    const [eventos, setEventos] = React.useState(0);
-    const [persistentes, setPersistentes] = React.useState(0);
-    const [atacantes, setAtacantes] = React.useState(0);
+    const [error, setError] = useState('');
+    const [cargando, setCargando] = useState(true);
+    const [metrics, setMetrics] = useState({
+        total_analyzed_events: 0,
+        persistent_threats_count: 0,
+        unique_attacker_ips: 0,
+        active_critical_cves_count: 0,
+    });
 
-    React.useEffect(() =>{
+    useEffect(() => {
         async function datos() {
             try{
                 setError('');
                 setCargando(true);
                 const respuesta = await api.get('/threats/summary');
-                setEventos(respuesta.data.total_analyzed_events);
-                setPersistentes(respuesta.data.persistent_threats_count);
-                setAtacantes(respuesta.data.unique_attacker_ips);
+                setMetrics(prev => ({ ...prev, ...respuesta.data }));
             }catch(err){
                 setError('No se logro cargar los datos en el dashboard');
             }finally{
@@ -54,7 +54,7 @@ export default function Dashboard(){
             }
         }
         datos();
-    }, [])
+    }, []);
 
 
     return (
@@ -103,7 +103,7 @@ export default function Dashboard(){
                     <h3 className={styles.metricTitle}>Eventos analizados</h3>
                     <AssessmentOutlinedIcon className={`${styles.metricIcon} ${styles.metricBlue}`}/>
                 </div>
-                <h2 className={styles.metricBlue}>{eventos}</h2>
+                <h2 className={styles.metricBlue}>{metrics.total_analyzed_events}</h2>
             </Container>
 
             <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
@@ -111,7 +111,7 @@ export default function Dashboard(){
                     <h3 className={styles.metricTitle}>IPs Atacantes</h3>
                     <ReportGmailerrorredIcon className={`${styles.metricIcon} ${styles.metricRed}`}/>
                 </div>
-                <h2 className={styles.metricRed}>{atacantes}</h2>
+                <h2 className={styles.metricRed}>{metrics.unique_attacker_ips}</h2>
             </Container>
             
             <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
@@ -119,7 +119,7 @@ export default function Dashboard(){
                     <h3 className={styles.metricTitle}>Amenazas Persistentes</h3>
                     <TrendingUpIcon className={`${styles.metricIcon} ${styles.metricYellow}`}/>
                 </div>
-                <h2 className={styles.metricYellow}>{persistentes}</h2>
+                <h2 className={styles.metricYellow}>{metrics.persistent_threats_count}</h2>
             </Container>
             <Container maxWidth={false} sx={{maxWidth: "false"}}className={styles.contenedor} id ={styles.dat}>
                 <div className={styles.metricHeader}>
