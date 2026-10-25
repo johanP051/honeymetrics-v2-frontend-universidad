@@ -114,6 +114,22 @@ export default function Blacklist() {
     const [category, setCategory] = React.useState('');
     const categoryOptions = [...new Set(rows.map((row) => row.category))];
 
+
+
+    const añadirAmenaza = async () => {
+      try {
+        const datosAmenaza = {
+          ip: {},
+          ip_type: a,
+          country: a,
+          threat_score: a,
+          category: a,
+          notes: "string"
+        }
+      } catch (error) {
+        
+      }
+    }
     React.useEffect(() => {
       async function cargarBlacklist() {
         try {
