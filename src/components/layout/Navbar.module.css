@@ -1,5 +1,3 @@
-
-
 .contenedorNavbar{
     display: flex;
     position: fixed;
@@ -26,16 +24,6 @@
     animation: aparecerCapa 0.2s ease-out;
 }
 
-@keyframes aparecerCapa{
-    from{
-        opacity: 0;
-    }
-
-    to{
-        opacity: 1;
-    }
-}
-
 .contenedorNavbar::before{
     content: "";
     position: absolute;
@@ -49,31 +37,49 @@
     z-index: 0;
     pointer-events: none;
     transition: width 220ms ease-in-out;
-    
 }
 
 .contenedorNavbar.abierto::before{
-    width: 300px;                      
+    width: 300px;
 }
 
 
+/* ---------- Bloques del centro y de abajo ---------- */
 .accionInferior,
 .accionMedia{
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     width: 100% !important;
     padding: 0px !important;
     transform-origin: left center;
-    
-    
+    transition: width 220ms ease-in-out;
+}
+
+.accionMedia{
+    justify-content: center;
+    flex: 1;
+    margin-top: 0;
+    gap: 80px;
+}
+
+.accionInferior{
+    margin-top: auto;
+    gap: 50px;
+    margin-bottom: 50px;
 }
 
 
-.botonMenu{
+/* ---------- Botón del menú y marca (misma posición base) ---------- */
+.botonMenu,
+.marca{
     position: absolute;
     top: 24px;
-    left: 20px;
     z-index: 2;
+}
+
+.botonMenu{
+    left: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -112,17 +118,77 @@
     transform: rotate(180deg);
 }
 
-.accionMedia{
+
+/* ---------- Marca: logo + nombre ---------- */
+.marca{
+    width: max-content;
+    left: 5px;
+    height: 48px;
     display: flex;
-    justify-content: center;
-    flex: 1;
-    margin-top: 0;
-    gap: 80px;
-    align-items: stretch;
-    position: relative;
-    transition: width 220ms ease-in-out;
+    align-items: center;
+    gap: 0;                       /* cerrado: sin espacio fantasma a la derecha del logo */
+    text-decoration: none;
+    transition: left 220ms ease-in-out, gap 220ms ease-in-out;
 }
 
+.logo{
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.45));
+    transition: width 220ms ease-in-out, height 220ms ease-in-out, transform 220ms ease;
+}
+
+.marca:hover .logo{
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.nombreMarca{
+    font-family: 'Orbitron', 'Rajdhani', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #e3eaf1;
+
+    /* cerrado: no ocupa espacio */
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: max-width 220ms ease-in-out, opacity 200ms ease, transform 220ms ease;
+}
+
+/* "Metrics" en degradado miel */
+.nombreMarca > span{
+    background: linear-gradient(90deg, #f5c842, #d4af37 55%, #b8860b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.abierto .marca{
+    left: 20px;
+    gap: 12px;
+}
+
+.abierto .logo{
+    width: 40px;
+    height: 40px;
+}
+
+.abierto .nombreMarca{
+    max-width: 180px;
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 60ms;
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.25));
+}
+
+
+/* ---------- Enlaces ---------- */
 .accionMedia > a,
 .accionInferior > a,
 .accionInferior > button{
@@ -137,15 +203,6 @@
     position: relative;
 }
 
-
-.accionInferior{
-    margin-top: auto;
-    gap: 50px;
-    margin-bottom: 50px;
-    align-items: stretch;
-    transition: width 220ms ease-in-out;
-}
-
 .iconoActivo{
     color: #d4af37;
     transition: 0.5s ease-in-out;
@@ -153,7 +210,6 @@
 
 .iconoInactivo{
     color: #8b949e;
-    
 }
 
 .textoEnlace{
@@ -204,24 +260,28 @@
     background: transparent;
 }
 
-.abierto .iconoInactivo > svg{
-    transform: scale(1);
-    transform: translateX(20px);
-}
-.iconoActivo > svg{
-    transform: translateX(25px) scale(1.15);
+
+/* ---------- Íconos ---------- */
+.iconoActivo > svg,
+.iconoInactivo > svg{
     transform-origin: left center;
     transition: transform 220ms ease;
-}
-
-.contenedorNavbar:not(.abierto) .iconoActivo > svg{
-    transform: translateX(30px) scale(1.15);
 }
 
 .iconoInactivo > svg{
     transform: scale(0.5);
-    transform-origin: left center;
-    transition: transform 220ms ease;
+}
+
+.iconoActivo > svg{
+    transform: translateX(25px) scale(1.15);
+}
+
+.abierto .iconoInactivo > svg{
+    transform: translateX(20px);
+}
+
+.contenedorNavbar:not(.abierto) .iconoActivo > svg{
+    transform: translateX(30px) scale(1.15);
 }
 
 .indicadorActivo{
@@ -250,4 +310,62 @@
 .contenedorNavbar > .accionMedia{
     position: relative;
     z-index: 1;
+}
+
+
+/* ---------- Página actual con el menú abierto ---------- */
+.abierto .accionMedia > a[aria-current="page"]{
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.20), rgba(212, 175, 55, 0.05));
+    box-shadow:
+        inset 0 0 0 1px #66551a,
+        0 0 14px rgba(212, 175, 55, 0.12);
+}
+
+/* Barra amarilla en el borde izquierdo */
+.abierto .accionMedia > a[aria-current="page"]::before{
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: #d4af37;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.7);
+}
+
+/* Texto en amarillo */
+.abierto .accionMedia > a[aria-current="page"] .textoEnlace{
+    color: #f5c842;
+}
+
+
+@keyframes aparecerCapa{
+    from{
+        opacity: 0;
+    }
+
+    to{
+        opacity: 1;
+    }
+}
+
+
+/* ---------- Celular ---------- */
+@media (max-width: 768px){
+
+    /* Sin círculo indicador */
+    .indicadorActivo{
+        display: none;
+    }
+
+    /* Cerrada: el activo mide lo mismo que los inactivos */
+    .contenedorNavbar:not(.abierto) .iconoActivo > svg{
+        transform: scale(0.5);
+    }
+
+    /* Abierta: igual que los inactivos */
+    .contenedorNavbar.abierto .iconoActivo > svg{
+        transform: translateX(20px);
+    }
 }

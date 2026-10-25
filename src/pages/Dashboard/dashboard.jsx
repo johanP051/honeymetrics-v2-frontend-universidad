@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container } from '@mui/material';
 import styles from "./dashboard.module.css";
+import style from "../Blacklist/blacklist.module.css";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import TitanicPie from '../../components/common/chartPie';
@@ -17,6 +18,7 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import Navbar from '../../components/layout/Navbar';
 import api from '../../api/client';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const advisorTemplates = [
     { name: 'root', type: 'System', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
@@ -30,6 +32,7 @@ const advisorTemplates = [
 export default function Dashboard() {
     const [activePreset, setActivePreset] = useState('7d');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const [metrics, setMetrics] = useState({
         total_analyzed_events: 165247,
         unique_attacker_ips: 1107,
@@ -41,6 +44,7 @@ export default function Dashboard() {
     const fetchSummary = useCallback(async (preset) => {
         try {
             setLoading(true);
+            setError('');
             const response = await api.get('/threats/summary', {
                 params: {
                     range_preset: preset,
@@ -56,8 +60,9 @@ export default function Dashboard() {
                     peak_hour_utc: response.data.peak_hour_utc || '11:00 - 12:00 UTC',
                 });
             }
-        } catch (error) {
-            console.warn('Error al consultar /threats/summary, usando datos de contingencia:', error);
+        } catch (err) {
+            console.warn('Error al consultar /threats/summary, usando datos de contingencia:', err);
+            setError('No se logró cargar los datos en el dashboard');
             // Fallback coherente con el preset seleccionado
             const fallbacks = {
                 '24h': { total_analyzed_events: 1920, unique_attacker_ips: 84, persistent_threats_count: 3, active_critical_cves_count: 142 },
@@ -87,24 +92,22 @@ export default function Dashboard() {
 
     return (
         <>
-        <Navbar/>
+        {loading ? (
+            <div className={style.loadingOverlay} role="status" aria-live="polite" aria-label="Cargando métricas del dashboard">
+                <CircularProgress aria-label="Cargando" />
+            </div>
+        ) : null}
+
+        <Navbar />
+
         <div className={styles.headerContent}>
             <div className={styles.textHeader}>
-                <DashboardIcon className={styles.icon} sx={{ fontSize: '30px' }}/>
                 <div className={styles.textContent}>
-                    <h2>Dashboard</h2>
+                    <h2><DashboardIcon className={styles.icon} sx={{ fontSize: '30px' }}/>Dashboard</h2>
                     <p>Monitoreo de telemetría e indicadores del Honeypot (CTI).</p>
                 </div>
             </div>
             <div className={styles.buttons}>
-                <button
-                    className={styles.restart}
-                    onClick={handleRefresh}
-                    title="Actualizar métricas"
-                    aria-label="Actualizar métricas"
-                >
-                    <RestartAltIcon className={loading ? 'animate-spin' : ''} />
-                </button>
                 <div className={styles.contenedorBotones}>
                     <button
                         type="button"
@@ -141,11 +144,19 @@ export default function Dashboard() {
                         <KeyboardArrowDownOutlinedIcon className={styles.arrowButton}/>
                     </button>
                 </div>
+                <button
+                    className={styles.restart}
+                    onClick={handleRefresh}
+                    title="Actualizar métricas"
+                    aria-label="Actualizar métricas"
+                >
+                    <RestartAltIcon className={loading ? 'animate-spin' : ''} />
+                </button>
             </div>
         </div>
 
         <div className={styles.datos}>
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}} className={styles.contenedor} id={styles.dat}>
+            <Container maxWidth={false} className={styles.contenedor} id={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>Eventos analizados</h3>
                     <AssessmentOutlinedIcon className={`${styles.metricIcon} ${styles.metricBlue}`}/>
@@ -155,7 +166,7 @@ export default function Dashboard() {
                 </h2>
             </Container>
 
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}} className={styles.contenedor} id={styles.dat}>
+            <Container maxWidth={false} className={styles.contenedor} id={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>IPs Atacantes</h3>
                     <ReportGmailerrorredIcon className={`${styles.metricIcon} ${styles.metricRed}`}/>
@@ -165,7 +176,7 @@ export default function Dashboard() {
                 </h2>
             </Container>
             
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}} className={styles.contenedor} id={styles.dat}>
+            <Container maxWidth={false} className={styles.contenedor} id={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>Amenazas Persistentes</h3>
                     <TrendingUpIcon className={`${styles.metricIcon} ${styles.metricYellow}`}/>
@@ -175,7 +186,7 @@ export default function Dashboard() {
                 </h2>
             </Container>
 
-            <Container maxWidth={false} sx={{maxWidth: "23vw"}} className={styles.contenedor} id={styles.dat}>
+            <Container maxWidth={false} className={styles.contenedor} id={styles.dat}>
                 <div className={styles.metricHeader}>
                     <h3 className={styles.metricTitle}>CVEs Activos</h3>
                     <VerifiedUserOutlinedIcon className={`${styles.metricIcon} ${styles.metricGreen}`}/>
