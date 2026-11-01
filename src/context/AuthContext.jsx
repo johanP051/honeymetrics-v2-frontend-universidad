@@ -1,64 +1,81 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { authService } from "../api/authService";
+import {
+  isTokenValid,
+  parseJwtPayload,
+  getScopesForRole,
+  purgeAllAuthStorage,
+} from "./authSecurity";
 
 const AuthContext = createContext(null);
 
-const parseJwtPayload = (token) => {
-  try {
-    const base64Url = token.split(".")[1];
-    if (!base64Url) return null;
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch {
-    return null;
-  }
-};
-
-const isTokenValid = (token) => {
-  if (!token) return false;
-  const payload = parseJwtPayload(token);
-  if (!payload || !payload.exp) return true;
-  return payload.exp * 1000 > Date.now();
-};
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(() => authService.getCurrentUser());
+  const [token, setToken] = useState(() => authService.getToken());
+  const [role, setRole] = useState(() => {
+    const t = authService.getToken();
+    if (!t) return null;
+    const payload = parseJwtPayload(t);
+    return payload?.role || payload?.role_name || null;
+  });
+  const [scopes, setScopes] = useState(() => {
+    const t = authService.getToken();
+    if (!t) return [];
+    const payload = parseJwtPayload(t);
+    return Array.isArray(payload?.scopes) ? payload.scopes : [];
+  });
   const [loading, setLoading] = useState(true);
 
-  // Inicializar estado de autenticación al cargar la aplicación validando expiración
+  const applyAuthSuccess = useCallback((tokenValue, userObject, scopesArray = null) => {
+    const payload = parseJwtPayload(tokenValue);
+    const resolvedRole = userObject?.role_name || payload?.role || payload?.role_name || "Analista";
+    const resolvedScopes = Array.isArray(scopesArray) && scopesArray.length > 0
+      ? scopesArray
+      : (Array.isArray(payload?.scopes) && payload.scopes.length > 0
+          ? payload.scopes
+          : (Array.isArray(userObject?.scopes) && userObject.scopes.length > 0
+              ? userObject.scopes
+              : getScopesForRole(resolvedRole)));
+
+    localStorage.setItem("access_token", tokenValue);
+    localStorage.setItem("hm_access_token", tokenValue);
+    localStorage.setItem("user_data", JSON.stringify(userObject || {}));
+    localStorage.setItem("hm_user", JSON.stringify(userObject || {}));
+    localStorage.setItem("hm_role", resolvedRole);
+    localStorage.setItem("hm_scopes", JSON.stringify(resolvedScopes));
+
+    setToken(tokenValue);
+    setUser(userObject);
+    setRole(resolvedRole);
+    setScopes(resolvedScopes);
+  }, []);
+
   useEffect(() => {
     const storedToken = authService.getToken();
-    const storedUser = authService.getCurrentUser();
-
     if (storedToken) {
       if (isTokenValid(storedToken)) {
         setToken(storedToken);
-        if (storedUser) {
-          setUser(storedUser);
-        }
+        const storedUser = authService.getCurrentUser();
+        if (storedUser) setUser(storedUser);
       } else {
-        authService.logout();
+        purgeAllAuthStorage();
         setToken(null);
         setUser(null);
+        setRole(null);
+        setScopes([]);
       }
     }
     setLoading(false);
 
-    // Monitoreo proactivo de la expiración del token
     const timer = setInterval(() => {
       const currentToken = authService.getToken();
       if (currentToken && !isTokenValid(currentToken)) {
-        authService.logout();
+        purgeAllAuthStorage();
         setToken(null);
         setUser(null);
-        if (window.location.pathname !== "/login") {
+        setRole(null);
+        setScopes([]);
+        if (!window.location.pathname.includes("/login")) {
           window.location.href = "/login?expired=1";
         }
       }
@@ -67,52 +84,80 @@ export function AuthProvider({ children }) {
     return () => clearInterval(timer);
   }, []);
 
-  /**
-   * Iniciar sesión, guardar JWT y actualizar estado reactivo
-   */
   const login = async (email, password) => {
     const data = await authService.login(email, password);
-    // data: { access_token, token_type, user }
+    if (data.mfa_required) {
+      return data;
+    }
     if (data.access_token) {
-      localStorage.setItem("access_token", data.access_token);
-      setToken(data.access_token);
+      applyAuthSuccess(data.access_token, data.user, data.scopes);
     }
-
-    if (data.user) {
-      localStorage.setItem("user_data", JSON.stringify(data.user));
-      setUser(data.user);
-    } else {
-      localStorage.removeItem("user_data");
-      setUser(null);
-    }
-
     return data;
   };
 
-  /**
-   * Cerrar sesión y resetear estados
-   */
-  const logout = () => {
-    authService.logout();
+  const verifyMfaLogin = async (mfaToken, code) => {
+    const data = await authService.verifyMfaLogin(mfaToken, code);
+    if (data.access_token) {
+      applyAuthSuccess(data.access_token, data.user, data.scopes);
+    }
+    return data;
+  };
+
+  const logout = async () => {
+    await authService.logout();
     setToken(null);
     setUser(null);
+    setRole(null);
+    setScopes([]);
   };
+
+  const hasScope = useCallback(
+    (requiredScope) => {
+      if (!requiredScope) return true;
+      if (role && (role.toLowerCase() === "administrador" || role.toLowerCase() === "superusuario")) return true;
+      return scopes.includes(requiredScope) || scopes.includes("admin:all");
+    },
+    [role, scopes]
+  );
+
+  const updateProfileData = useCallback(
+    (updatedProfile) => {
+      if (!updatedProfile) return;
+      setUser((prev) => {
+        const merged = { ...prev, ...updatedProfile };
+        localStorage.setItem("user_data", JSON.stringify(merged));
+        localStorage.setItem("hm_user", JSON.stringify(merged));
+        return merged;
+      });
+      if (updatedProfile.role_name) {
+        setRole(updatedProfile.role_name);
+        localStorage.setItem("hm_role", updatedProfile.role_name);
+      }
+      if (Array.isArray(updatedProfile.scopes) && updatedProfile.scopes.length > 0) {
+        setScopes(updatedProfile.scopes);
+        localStorage.setItem("hm_scopes", JSON.stringify(updatedProfile.scopes));
+      }
+    },
+    []
+  );
 
   const value = {
     user,
     token,
+    role,
+    scopes,
     isAuthenticated: !!token,
     loading,
     login,
+    verifyMfaLogin,
     logout,
+    hasScope,
+    updateProfileData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/**
- * Hook personalizado para consumir el contexto de autenticación
- */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
