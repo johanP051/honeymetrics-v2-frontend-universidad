@@ -1,59 +1,55 @@
 import api from "./client";
+import { purgeAllAuthStorage } from "../context/authSecurity";
 
-/**
- * Servicio de Autenticación de HoneyMetrics v2
- * Consume el contrato DTO del backend: POST /api/v1/auth/login
- */
 export const authService = {
-  /**
-   * Autenticar usuario con credenciales y obtener JWT + perfil
-   * @param {string} email - Correo del usuario
-   * @param {string} password - Contraseña en texto plano
-   * @returns {Promise<{ access_token: string, token_type: string, user: object }>}
-   */
   async login(email, password) {
-    const response = await api.post("/auth/login", {
-      email,
-      password,
+    purgeAllAuthStorage();
+    const response = await api.post("/auth/login", { email, password });
+    return response.data;
+  },
+
+  async verifyMfaLogin(mfaToken, code) {
+    const response = await api.post("/auth/mfa/verify-login", {
+      mfa_token: mfaToken,
+      code,
     });
     return response.data;
   },
 
-  /**
-   * Cerrar sesión y purgar credenciales locales
-   */
-  logout() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user_data");
-  },
-
-  /**
-   * Obtener el token actual almacenado
-   */
-  getToken() {
-    return localStorage.getItem("access_token");
-  },
-
-  /**
-   * Obtener los datos del usuario almacenados
-   */
-  getCurrentUser() {
-    const userStr = localStorage.getItem("user_data");
-    if (!userStr || userStr === "undefined" || userStr === "null") {
-      return null;
+  async logout() {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // Silencioso ante desconexión de red
+    } finally {
+      purgeAllAuthStorage();
     }
+  },
+
+  getToken() {
+    return (
+      sessionStorage.getItem("hm_access_token") ||
+      localStorage.getItem("hm_access_token") ||
+      sessionStorage.getItem("access_token") ||
+      localStorage.getItem("access_token")
+    );
+  },
+
+  getCurrentUser() {
+    const userStr =
+      sessionStorage.getItem("hm_user") ||
+      localStorage.getItem("hm_user") ||
+      sessionStorage.getItem("user_data") ||
+      localStorage.getItem("user_data");
+    if (!userStr || userStr === "undefined" || userStr === "null") return null;
     try {
       return JSON.parse(userStr);
     } catch {
-      localStorage.removeItem("user_data");
       return null;
     }
   },
 
-  /**
-   * Verificar si existe una sesión activa
-   */
   isAuthenticated() {
-    return !!localStorage.getItem("access_token");
+    return !!this.getToken();
   },
 };
