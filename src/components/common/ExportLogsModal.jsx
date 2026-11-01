@@ -6,7 +6,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
 import styles from './exportLogsModal.module.css';
-import api from "../../api/client";
+import api from '../../api/client';
+import useModalA11y from '../../hooks/useModalA11y';
 
 export default function ExportLogsModal({ open, onClose, onSubmit, onExportSuccess }) {
   const [fechaInicio, setFechaInicio] = useState('');
@@ -18,44 +19,36 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
   const handleClose = () => {
     setErrorValidacion('');
     setMensajeExito('');
-    if (onClose) {
-      onClose();
-    }
+    if (onClose) onClose();
   };
 
+  const modalRef = useModalA11y({
+    isOpen: Boolean(open),
+    onClose: handleClose,
+    isLoading: cargando,
+  });
+
   const solicitarLogs = async () => {
-    // Validación explícita (WCAG 3.3.1)
     if (!fechaInicio || !fechaFinal) {
       setErrorValidacion('Por favor completa tanto la fecha de inicio como la fecha de fin.');
       return;
     }
-
     if (fechaInicio > fechaFinal) {
       setErrorValidacion('La fecha de inicio no puede ser posterior a la fecha de fin.');
       return;
     }
-
     setErrorValidacion('');
     setCargando(true);
-
     try {
-      const datosEnvio = {
+      const { data } = await api.post('/logs/request-export', {
         start_date: fechaInicio,
         end_date: fechaFinal,
-      };
-
-      const respuesta = await api.post('/logs/request-export', datosEnvio);
-      
+      });
       setMensajeExito('Solicitud de exportación registrada exitosamente.');
-      if (onExportSuccess) {
-        onExportSuccess(respuesta.data);
-      }
+      if (onExportSuccess) onExportSuccess(data);
       setFechaInicio('');
       setFechaFinal('');
-
-      setTimeout(() => {
-        handleClose();
-      }, 500);
+      setTimeout(handleClose, 500);
     } catch (error) {
       console.error('Error al enviar el log:', error);
       setErrorValidacion('Hubo un error al procesar la exportación. Inténtalo de nuevo más tarde.');
@@ -67,17 +60,12 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
   const handleSubmit = (e) => {
     e.preventDefault();
     solicitarLogs();
-    if (onSubmit) {
-      onSubmit({ fechaInicio, fechaFinal });
-    }
+    if (onSubmit) onSubmit({ fechaInicio, fechaFinal });
   };
 
   const handleInputClick = (e) => {
     if (e.target.showPicker) {
-      try {
-        e.target.showPicker();
-      } catch (err) {
-      }
+      try { e.target.showPicker(); } catch (_) {}
     }
   };
 
@@ -89,6 +77,8 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
       aria-describedby="modal-security-text"
     >
       <div
+        ref={modalRef}
+        tabIndex="-1"
         className={styles.modalOverlay}
         role="dialog"
         aria-modal="true"
@@ -97,16 +87,9 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
         <div className={styles.modalHeader}>
           <div className={styles.titleWrapper}>
             <CalendarTodayOutlinedIcon className={styles.calendarHeaderIcon} aria-hidden="true" />
-            <h2 id="modal-export-logs-title" className={styles.modalTitle}>
-              Nuevo Export de Logs
-            </h2>
+            <h2 id="modal-export-logs-title" className={styles.modalTitle}>Nuevo Export de Logs</h2>
           </div>
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={handleClose}
-            aria-label="Cerrar modal de exportación"
-          >
+          <button type="button" className={styles.closeButton} onClick={handleClose} aria-label="Cerrar modal de exportación">
             <CloseIcon fontSize="small" aria-hidden="true" />
           </button>
         </div>
@@ -114,29 +97,18 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
         <div className={styles.securityNotice}>
           <WarningAmberOutlinedIcon className={styles.warningIcon} aria-hidden="true" />
           <p id="modal-security-text" className={styles.securityText}>
-            <strong>Nota de Seguridad:</strong> Las solicitudes que superen los{' '}
-            <strong>50,000 registros</strong> (o más de 7 días) requerirán
-            aprobación manual del Administrador vía <strong>Telegram</strong>.
+            <strong>Nota de Seguridad:</strong> Las solicitudes que superen los <strong>50,000 registros</strong> requerirán aprobación manual vía <strong>Telegram</strong>.
           </p>
         </div>
 
         {errorValidacion && (
-          <div
-            id="error-validacion-fechas"
-            className={styles.errorMessage}
-            role="alert"
-            aria-live="assertive"
-          >
+          <div id="error-validacion-fechas" className={styles.errorMessage} role="alert" aria-live="assertive">
             {errorValidacion}
           </div>
         )}
 
         {mensajeExito && (
-          <div
-            className={styles.successMessage}
-            role="status"
-            aria-live="polite"
-          >
+          <div className={styles.successMessage} role="status" aria-live="polite">
             {mensajeExito}
           </div>
         )}
@@ -156,6 +128,7 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
               aria-invalid={Boolean(errorValidacion)}
               aria-describedby={errorValidacion ? "error-validacion-fechas" : undefined}
               className={`${styles.dateInput} ${errorValidacion ? styles.inputError : ''}`}
+              style={{ colorScheme: 'dark' }}
               value={fechaInicio}
               onChange={(e) => {
                 setFechaInicio(e.target.value);
@@ -179,6 +152,7 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
               aria-invalid={Boolean(errorValidacion)}
               aria-describedby={errorValidacion ? "error-validacion-fechas" : undefined}
               className={`${styles.dateInput} ${errorValidacion ? styles.inputError : ''}`}
+              style={{ colorScheme: 'dark' }}
               value={fechaFinal}
               onChange={(e) => {
                 setFechaFinal(e.target.value);
@@ -189,30 +163,14 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
           </div>
 
           <div className={styles.modalActions}>
-            <button
-              type="button"
-              className={styles.btnCancel}
-              onClick={handleClose}
-              disabled={cargando}
-            >
+            <button type="button" className={styles.btnCancel} onClick={handleClose} disabled={cargando}>
               Cancelar
             </button>
-            <button
-              type="submit"
-              className={styles.btnSubmit}
-              disabled={cargando}
-              aria-busy={cargando}
-            >
+            <button type="submit" className={styles.btnSubmit} disabled={cargando} aria-busy={cargando}>
               {cargando ? (
-                <>
-                  <CircularProgress size={18} color="inherit" aria-hidden="true" />
-                  <span>Solicitando...</span>
-                </>
+                <><CircularProgress size={18} color="inherit" aria-hidden="true" /> <span>Solicitando...</span></>
               ) : (
-                <>
-                  <SendOutlinedIcon className={styles.submitIcon} aria-hidden="true" />
-                  <span>Solicitar Export</span>
-                </>
+                <><SendOutlinedIcon className={styles.submitIcon} aria-hidden="true" /> <span>Solicitar Export</span></>
               )}
             </button>
           </div>

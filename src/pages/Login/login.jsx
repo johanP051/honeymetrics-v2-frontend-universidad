@@ -4,18 +4,23 @@ import Container from "@mui/material/Container";
 import styles from "./login.module.css";
 import animation from "../../assets/animations/GotaMiel.svg";
 import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../api/authService";
+import LoginMfaStep from "./LoginMfaStep";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mfaRequired, setMfaRequired] = useState(false);
+  const [mfaToken, setMfaToken] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, verifyMfaLogin } = useAuth();
   const navigate = useNavigate();
   const isSessionExpired = new URLSearchParams(window.location.search).get("expired") === "1";
 
-  const handleSubmit = async (e) => {
+  const handleCredentialsSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -26,14 +31,39 @@ export default function Login() {
 
     try {
       setIsSubmitting(true);
-      await login(email, password);
-      // Redirigir al panel principal tras login exitoso
+      const res = await login(email, password);
+      if (res?.mfa_required) {
+        setMfaToken(res.mfa_token);
+        setMfaRequired(true);
+        setMfaCode("");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setErrorMsg(err.response?.data?.detail || "Error al iniciar sesión.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleMfaVerify = async (code) => {
+    setErrorMsg("");
+    try {
+      setIsSubmitting(true);
+      await verifyMfaLogin(mfaToken, code);
       navigate("/dashboard");
     } catch (err) {
-      const detail =
-        err.response?.data?.detail ||
-        "Error de conexión con el servidor. Intente más tarde.";
-      setErrorMsg(detail);
+      const msg = err.response?.data?.detail || "Código de verificación o de respaldo incorrecto.";
+      setErrorMsg(msg);
+      // Renovación silenciosa de mfa_token en segundo plano
+      try {
+        const refreshData = await authService.login(email, password);
+        if (refreshData?.mfa_token) {
+          setMfaToken(refreshData.mfa_token);
+        }
+      } catch {
+        // Si fallan las credenciales originales, se mantiene el estado
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -53,50 +83,77 @@ export default function Login() {
             <object data={animation} type="image/svg+xml" aria-label="Gota de Miel" />
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <label className={styles.labels}>Email</label> <br />
-            <input
-              className={styles.inputs}
-              placeholder="Digite su correo electrónico"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isSubmitting}
-              required
+          {mfaRequired ? (
+            <LoginMfaStep
+              mfaCode={mfaCode}
+              setMfaCode={setMfaCode}
+              onVerify={handleMfaVerify}
+              onBack={() => {
+                setMfaRequired(false);
+                setErrorMsg("");
+              }}
+              isSubmitting={isSubmitting}
+              errorMsg={errorMsg}
+              styles={styles}
             />
-            <br />
+          ) : (
+            <form onSubmit={handleCredentialsSubmit}>
+              <label className={styles.labels}>Email</label> <br />
+              <input
+                className={styles.inputs}
+                placeholder="Digite su correo electrónico"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+                required
+              />
+              <br />
 
-            <label className={styles.labels}>Password</label>
-            <input
-              className={styles.inputs}
-              placeholder="Digite su contraseña"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
-              required
-            />
+              <label className={styles.labels}>Password</label>
+              <input
+                className={styles.inputs}
+                placeholder="Digite su contraseña"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
+                required
+              />
 
-            {isSessionExpired && !errorMsg && (
-              <div style={{ color: "#d4af37", backgroundColor: "rgba(212, 175, 55, 0.1)", border: "1px solid rgba(212, 175, 55, 0.3)", borderRadius: "6px", padding: "10px", marginBottom: "14px", fontSize: "13px", textAlign: "center" }} role="status">
-                Su sesión ha caducado por límite de tiempo. Inicie sesión nuevamente para continuar.
-              </div>
-            )}
+              {isSessionExpired && !errorMsg && (
+                <div
+                  style={{
+                    color: "#d4af37",
+                    backgroundColor: "rgba(212, 175, 55, 0.1)",
+                    border: "1px solid rgba(212, 175, 55, 0.3)",
+                    borderRadius: "6px",
+                    padding: "10px",
+                    marginBottom: "14px",
+                    fontSize: "13px",
+                    textAlign: "center",
+                  }}
+                  role="status"
+                >
+                  Su sesión ha caducado por límite de tiempo. Inicie sesión nuevamente.
+                </div>
+              )}
 
-            {errorMsg && (
-              <div className={styles.errorMessage} role="alert">
-                {errorMsg}
-              </div>
-            )}
+              {errorMsg && (
+                <div className={styles.errorMessage} role="alert">
+                  {errorMsg}
+                </div>
+              )}
 
-            <button
-              type="submit"
-              className={styles.btnSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Autenticando..." : "Ingresar a HoneyMetrics"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                className={styles.btnSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Autenticando..." : "Ingresar a HoneyMetrics"}
+              </button>
+            </form>
+          )}
         </Container>
       </Container>
     </div>

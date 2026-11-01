@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard/dashboard.jsx";
 import LandingPage from "./pages/LandingPage/landingPage.jsx";
 import Login from "./pages/Login/login.jsx";
 import Logs from "./pages/Logs/logs.jsx";
+import Settings from "./pages/Settings.jsx";
+import AdminHub from "./pages/admin/AdminHub.jsx";
 import ProtectedRoute from "./pages/ProtectedRoute.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
@@ -30,6 +32,14 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <Dashboard />,
       },
+      {
+        path: "settings",
+        element: <Settings />,
+      },
+      {
+        path: "admin",
+        element: <AdminHub />,
+      },
     ],
   },
   {
@@ -39,7 +49,11 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
-  }
+  },
+  {
+    path: "*",
+    element: <Navigate to="/dashboard" replace />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
