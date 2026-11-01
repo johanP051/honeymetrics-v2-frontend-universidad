@@ -1,53 +1,89 @@
 import axios from "axios";
 
 /**
- * Cliente HTTP base para HoneyMetrics v2
- * Configurado con la URL base de Vite según el entorno (Development / Production).
+ * Normaliza cualquier payload `detail` de FastAPI / Pydantic (incluyendo arrays 422)
+ * a un string legible por humanos para evitar React Error #31 al renderizar alertas.
  */
+export const formatApiErrorDetail = (detail, fallback = "Error al procesar la solicitud.") => {
+  if (!detail) return fallback;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object") {
+          const cleanMsg = String(item.msg || item.message || JSON.stringify(item))
+            .replace(/^Value error,\s*/i, "")
+            .trim();
+          const field = Array.isArray(item.loc) && item.loc.length > 1
+            ? `${item.loc[item.loc.length - 1]}: `
+            : "";
+          return `${field}${cleanMsg}`;
+        }
+        return String(item);
+      })
+      .filter(Boolean);
+    return messages.length > 0 ? messages.join(" · ") : fallback;
+  }
+  if (typeof detail === "object") {
+    return String(detail.message || detail.msg || detail.detail || fallback);
+  }
+  return String(detail);
+};
+
+export const isMockModeEnabled = () => {
+  if (!import.meta.env?.DEV) return false;
+  const envVal = String(import.meta.env?.VITE_USE_MOCKS || "").trim().toLowerCase();
+  return envVal === "true" || envVal === "1";
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8001/api/v1",
+  baseURL: import.meta.env?.VITE_API_URL || "http://localhost:8001/api/v1",
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 30000, // 30 segundos de timeout para peticiones pesadas/reportes
 });
 
-/**
- * Interceptor de Solicitud (Request Interceptor)
- * Inyecta automáticamente el token JWT Bearer en el encabezado Authorization
- * si existe una sesión activa almacenada en el cliente.
- */
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
+    const token =
+      sessionStorage.getItem("hm_access_token") ||
+      localStorage.getItem("hm_access_token") ||
+      sessionStorage.getItem("access_token") ||
+      localStorage.getItem("access_token");
+    if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-/**
- * Interceptor de Respuesta (Response Interceptor)
- * Maneja de forma centralizada los códigos de estado HTTP (401, 403, 500).
- */
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // Si la API retorna 401 Unauthorized y no estamos en la pantalla de login, limpiar sesión
+    if (error?.response?.data && error.response.data.detail !== undefined && typeof error.response.data.detail !== "string") {
+      error.response.data.rawDetail = error.response.data.detail;
+      error.response.data.detail = formatApiErrorDetail(error.response.data.detail);
+    }
+
     if (error.response && error.response.status === 401) {
-      const isLoginRequest = error.config?.url?.includes("/auth/login");
-      if (!isLoginRequest) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user_data");
-        // Opcional: Redirigir a login si la sesión caducó
-        if (window.location.pathname !== "/login" && window.location.pathname !== "/login") {
-          window.location.href = "/login";
+      const url = error.config?.url || "";
+      const isAuthRequest =
+        url.includes("/auth/login") ||
+        url.includes("/auth/mfa") ||
+        url.includes("/auth/forgot-password") ||
+        url.includes("/auth/reset-password");
+
+      if (!isAuthRequest) {
+        const keys = ["access_token", "user_data", "hm_access_token", "hm_user", "hm_role", "hm_scopes"];
+        keys.forEach((k) => {
+          localStorage.removeItem(k);
+          sessionStorage.removeItem(k);
+        });
+        if (!window.location.pathname.includes("/login")) {
+          window.location.href = "/login?expired=1";
         }
       }
     }
@@ -55,4 +91,5 @@ api.interceptors.response.use(
   }
 );
 
+export const apiClient = api;
 export default api;

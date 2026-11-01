@@ -5,6 +5,14 @@ on:
     branches: [ main, develop, QA ]
   pull_request:
     branches: [ main, develop, QA ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   build-and-verify:
@@ -22,7 +30,7 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🏗️ Run Production Build (SWC)
         run: npm run build
@@ -44,9 +52,11 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🏗️ Run Production Build (SWC)
+        env:
+          VITE_API_URL: https://api-honey-v2-homeserver.johan-d3v.site/api/v1
         run: npm run build
 
       - name: 🚀 Deploy to Cloudflare Workers
