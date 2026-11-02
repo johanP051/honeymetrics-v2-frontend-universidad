@@ -10,8 +10,6 @@ import TablePagination from '@mui/material/TablePagination';
 import TableFooter from '@mui/material/TableFooter';
 import GppMaybeOutlinedIcon from '@mui/icons-material/GppMaybeOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
-import Navbar from '../../components/layout/Navbar';
-import Footer from '../../components/layout/Footer';
 import useThreatCRUD from '../../hooks/useThreatCRUD';
 import BlacklistTableRow from './BlacklistTableRow';
 import BlacklistModal from './BlacklistModal';
@@ -46,15 +44,14 @@ export default function Blacklist() {
   };
 
   return (
-    <>
-      <Navbar />
+    <div className="space-y-6">
       {isLoading && (
         <div className={styles.loadingOverlay} role="status" aria-label="Cargando blacklist">
           <CircularProgress aria-label="Cargando" />
         </div>
       )}
 
-      <main id="main-content" tabIndex="-1" className="outline-none">
+      <div>
         <div className={styles.encabezado}>
         <div className={styles.tituloFila}>
           <GppMaybeOutlinedIcon className={styles.tituloIcono} />
@@ -145,9 +142,7 @@ export default function Blacklist() {
       ) : (
         <ForensicVaultTable vaultData={vaultData} />
       )}
-      </main>
-
-      <Footer />
+      </div>
 
       <BlacklistModal
         open={modalOpen}
@@ -155,6 +150,6 @@ export default function Blacklist() {
         onSubmit={handleModalSubmit}
         threatToEdit={threatToEdit}
       />
-    </>
+    </div>
   );
 }
