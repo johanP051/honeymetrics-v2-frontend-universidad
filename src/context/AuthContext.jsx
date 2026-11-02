@@ -16,13 +16,19 @@ export function AuthProvider({ children }) {
     const t = authService.getToken();
     if (!t) return null;
     const payload = parseJwtPayload(t);
-    return payload?.role || payload?.role_name || null;
+    return payload?.role || payload?.role_name || localStorage.getItem("hm_role") || null;
   });
   const [scopes, setScopes] = useState(() => {
     const t = authService.getToken();
     if (!t) return [];
     const payload = parseJwtPayload(t);
-    return Array.isArray(payload?.scopes) ? payload.scopes : [];
+    if (Array.isArray(payload?.scopes) && payload.scopes.length > 0) return payload.scopes;
+    try {
+      const stored = JSON.parse(localStorage.getItem("hm_scopes") || "[]");
+      if (Array.isArray(stored) && stored.length > 0) return stored;
+    } catch {}
+    const r = payload?.role || payload?.role_name || localStorage.getItem("hm_role") || "Analista";
+    return getScopesForRole(r);
   });
   const [loading, setLoading] = useState(true);
 
@@ -114,10 +120,13 @@ export function AuthProvider({ children }) {
   const hasScope = useCallback(
     (requiredScope) => {
       if (!requiredScope) return true;
-      if (role && (role.toLowerCase() === "administrador" || role.toLowerCase() === "superusuario")) return true;
-      return scopes.includes(requiredScope) || scopes.includes("admin:all");
+      const effectiveRole = role || user?.role_name || (typeof localStorage !== 'undefined' ? localStorage.getItem("hm_role") : null);
+      if (effectiveRole && (effectiveRole.toLowerCase() === "administrador" || effectiveRole.toLowerCase() === "superusuario")) return true;
+      if (scopes.includes(requiredScope) || scopes.includes("admin:all")) return true;
+      const fallback = getScopesForRole(effectiveRole || 'Analista');
+      return fallback.includes(requiredScope) || fallback.includes("admin:all");
     },
-    [role, scopes]
+    [role, user, scopes]
   );
 
   const updateProfileData = useCallback(

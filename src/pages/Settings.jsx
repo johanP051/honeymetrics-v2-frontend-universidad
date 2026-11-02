@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Settings as SettingsIcon, ShieldCheck, X, AlertCircle, CheckCircle2 } from 'lucide-react';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 import { useAuth } from '../context/AuthContext';
 import { getMyProfileApi } from '../api/usersApi';
 import useProfileSecurity from '../hooks/useProfileSecurity';
@@ -42,10 +40,7 @@ export default function Settings() {
   };
 
   return (
-    <>
-      <Navbar />
-
-      <main id="main-content" tabIndex="-1" className="p-3 sm:p-6 md:p-8 animate-fade-up outline-none min-h-screen">
+    <div className="space-y-6">
         <div className="max-w-5xl mx-auto space-y-6">
           {/* Toast flotante en esquina superior derecha */}
           {toastMessage && (
@@ -115,28 +110,26 @@ export default function Settings() {
             handlePasswordSubmit={sec.handlePasswordSubmit}
           />
         </div>
-      </main>
-      <Footer />
 
-      {/* Modales de 2FA */}
-      <MfaModal
-        isOpen={sec.isMfaModalOpen}
-        onClose={handleMfaModalClose}
-        triggerRef={sec.mfaTriggerRef}
-        mfaData={sec.mfaData}
-        onVerify={sec.handleVerifyMfa}
-        isLoading={sec.isMfaLoading}
-        mfaMessage={sec.mfaMessage}
-      />
+        {/* Modales de 2FA */}
+        <MfaModal
+          isOpen={sec.isMfaModalOpen}
+          onClose={handleMfaModalClose}
+          triggerRef={sec.mfaTriggerRef}
+          mfaData={sec.mfaData}
+          onVerify={sec.handleVerifyMfa}
+          isLoading={sec.isMfaLoading}
+          mfaMessage={sec.mfaMessage}
+        />
 
-      <DisableMfaModal
-        isOpen={sec.isDisableMfaModalOpen}
-        onClose={() => sec.setIsDisableMfaModalOpen(false)}
-        triggerRef={sec.disableMfaTriggerRef}
-        onDisable={sec.handleDisableMfa}
-        isLoading={sec.isMfaLoading}
-        mfaMessage={sec.mfaMessage}
-      />
-    </>
+        <DisableMfaModal
+          isOpen={sec.isDisableMfaModalOpen}
+          onClose={() => sec.setIsDisableMfaModalOpen(false)}
+          triggerRef={sec.disableMfaTriggerRef}
+          onDisable={sec.handleDisableMfa}
+          isLoading={sec.isMfaLoading}
+          mfaMessage={sec.mfaMessage}
+        />
+      </div>
   );
 }

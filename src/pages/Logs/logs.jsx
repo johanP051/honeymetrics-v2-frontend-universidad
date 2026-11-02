@@ -9,8 +9,6 @@ import TableFooter from '@mui/material/TableFooter';
 import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress';
 import SpeedDial from '../../components/common/speedDial';
-import Navbar from '../../components/layout/Navbar';
-import Footer from '../../components/layout/Footer';
 import useLogsExport from '../../hooks/useLogsExport';
 import LogsHeaderToolbar from './LogsHeaderToolbar';
 import LogsTableBody from './LogsTableBody';
@@ -96,8 +94,7 @@ export default function Logs() {
   };
 
   return (
-    <>
-      <a href="#main-content" className={styles.skipLink}>Saltar al contenido principal</a>
+    <div className="space-y-6">
       <div className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">{anuncioAccesible}</div>
 
       {cargando && (
@@ -106,9 +103,7 @@ export default function Logs() {
         </div>
       )}
 
-      <Navbar />
-
-      <main id="main-content" className={styles.mainContainer} tabIndex="-1">
+      <div>
         <LogsHeaderToolbar
           busqueda={busqueda}
           onBusquedaChange={setBusqueda}
@@ -172,14 +167,12 @@ export default function Logs() {
             </TableFooter>
           </Table>
         </TableContainer>
-      </main>
-
-      <Footer />
+      </div>
 
       <SpeedDial
         onExportSuccess={handleExportSuccess}
         onDownloadDictionary={handleDownloadLatestDictionary}
       />
-    </>
+    </div>
   );
 }
