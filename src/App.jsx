@@ -1,38 +1,106 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import LandingPage from './pages/LandingPage/landingPage';
+import Login from './pages/Login/login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import AccessDenied from './pages/AccessDenied';
+import NotFound from './pages/NotFound';
+import MainLayout from './components/layout/MainLayout';
+import RoleGuard from './components/layout/RoleGuard';
+import Dashboard from './pages/Dashboard/dashboard';
+import Blacklist from './pages/Blacklist/blacklist';
+import Logs from './pages/Logs/logs';
+import Settings from './pages/Settings';
+import AdminHub from './pages/admin/AdminHub';
+import ErrorBoundary from './components/common/ErrorBoundary';
+
 export default function App() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-hm-bg text-hm-text">
-      <div className="glass-card max-w-xl w-full p-8 text-center space-y-6 animate-fade-up border border-hm-border">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-hm-gold/10 border border-hm-gold/30 flex items-center justify-center shadow-lg shadow-hm-gold/5">
-            <span className="text-3xl">🍯</span>
-          </div>
-        </div>
+    <AuthProvider>
+      <Router>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/access-denied" element={<AccessDenied />} />
 
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold font-display text-hm-gold tracking-wide">
-            HoneyMetrics v2.0
-          </h1>
-          <p className="text-sm text-gray-400 font-mono">
-            Plataforma CTI & Telemetría Honeypots — UDEC Facatativá
-          </p>
-        </div>
+            {/* Rutas Protegidas dentro de MainLayout */}
+            <Route
+              path="/dashboard"
+              element={
+                <RoleGuard requiredScope="dashboard:read" allowedRoles={['Administrador', 'Analista', 'Superusuario', 'Consultor']}>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </RoleGuard>
+              }
+            />
 
-        <div className="p-4 rounded-lg bg-black/30 border border-hm-border/50 text-left space-y-2">
-          <div className="flex items-center space-x-2">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
-              Entorno Frontend Listo (Vite SWC + Tailwind)
-            </span>
-          </div>
-          <p className="text-xs text-gray-400">
-            Estructura de carpetas limpia y preparada. El código de este proyecto se construirá paso a paso mediante aprendizaje guiado por Sprints (Scrum).
-          </p>
-        </div>
+            <Route
+              path="/blacklist"
+              element={
+                <RoleGuard requiredScope="threats:read" allowedRoles={['Administrador', 'Superusuario', 'Consultor']}>
+                  <MainLayout>
+                    <Blacklist />
+                  </MainLayout>
+                </RoleGuard>
+              }
+            />
 
-        <div className="text-xs text-gray-500 font-mono border-t border-hm-border/30 pt-4">
-          Próximo hito: Sprint 1 — Autenticación & Control de Acceso (RBAC)
-        </div>
-      </div>
-    </main>
+            <Route
+              path="/threat-center"
+              element={
+                <RoleGuard requiredScope="threats:read" allowedRoles={['Administrador', 'Superusuario', 'Consultor']}>
+                  <MainLayout>
+                    <Blacklist />
+                  </MainLayout>
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/logs"
+              element={
+                <RoleGuard requiredScope="logs:read" allowedRoles={['Administrador', 'Analista', 'Superusuario', 'Consultor']}>
+                  <MainLayout>
+                    <Logs />
+                  </MainLayout>
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/admin"
+              element={
+                <RoleGuard requiredScope="admin:all" allowedRoles={['Administrador', 'Superusuario']}>
+                  <MainLayout>
+                    <AdminHub />
+                  </MainLayout>
+                </RoleGuard>
+              }
+            />
+
+            <Route
+              path="/settings"
+              element={
+                <RoleGuard>
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                </RoleGuard>
+              }
+            />
+
+            {/* Error 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ErrorBoundary>
+      </Router>
+    </AuthProvider>
   );
 }
