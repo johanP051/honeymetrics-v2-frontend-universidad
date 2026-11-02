@@ -169,6 +169,8 @@ export default function Logs() {
         </TableContainer>
       </div>
 
+      <Footer />
+
       <SpeedDial
         onExportSuccess={handleExportSuccess}
         onDownloadDictionary={handleDownloadLatestDictionary}
