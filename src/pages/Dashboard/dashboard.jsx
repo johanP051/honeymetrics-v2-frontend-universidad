@@ -10,8 +10,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import TitanicPie from '../../components/common/chartPie';
 import LineMarkShape from '../../components/common/chartLine';
 import ColorConfig from '../../components/common/heatMap';
-import Navbar from '../../components/layout/Navbar';
-import Footer from '../../components/layout/Footer';
 import api from '../../api/client';
 import DashboardMetricsGrid from './DashboardMetricsGrid';
 import HoneypotAdvisor from './HoneypotAdvisor';
@@ -67,16 +65,14 @@ export default function Dashboard() {
   }, [activePreset, fetchSummary]);
 
   return (
-    <>
+    <div className="space-y-6">
       {loading && (
         <div className={style.loadingOverlay} role="status" aria-live="polite" aria-label="Cargando métricas del dashboard">
           <CircularProgress aria-label="Cargando" />
         </div>
       )}
 
-      <Navbar />
-
-      <main id="main-content" tabIndex="-1" className="outline-none">
+      <div>
         <div className={styles.headerContent}>
         <div className={styles.textHeader}>
           <div className={styles.textContent}>
@@ -131,9 +127,7 @@ export default function Dashboard() {
         </Container>
         <HoneypotAdvisor totalEvents={metrics.total_analyzed_events} styles={styles} />
       </div>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </div>
   );
 }

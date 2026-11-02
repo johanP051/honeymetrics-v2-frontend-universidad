@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { ShieldCheck, Users, Shield, FileText, RefreshCw, X, AlertCircle, CheckCircle2 } from 'lucide-react';
-import Navbar from '../../components/layout/Navbar';
-import Footer from '../../components/layout/Footer';
 import { useAdminSecurity } from '../../hooks/useAdminSecurity';
 import UserManagementTab from '../../components/admin/UserManagementTab';
 import RoleMatrixTab from '../../components/admin/RoleMatrixTab';
@@ -21,11 +19,8 @@ export default function AdminHub() {
   };
 
   return (
-    <>
-      <Navbar />
-
-      <main id="main-content" tabIndex="-1" className="p-3 sm:p-6 md:p-8 animate-fade-up outline-none min-h-screen">
-        <div className="max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
           {/* Toast flotante en esquina superior derecha sin bloquear botones */}
           {toastMessage && (
             <div
@@ -148,8 +143,6 @@ export default function AdminHub() {
             />
           )}
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
   );
 }

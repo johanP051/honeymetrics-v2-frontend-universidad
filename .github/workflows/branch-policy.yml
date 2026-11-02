@@ -26,12 +26,7 @@ jobs:
                 *) echo "PR a develop debe venir de una rama auxiliar (feat/*, fix/*, hotfix/*, security/*, test/*, docs/*, chore/*): $HEAD"; exit 1 ;;
               esac
               ;;
-            QA)
-              case "$HEAD" in
-                develop|chore/*|sync/*) ;;
-                *) echo "PR a QA debe venir de develop o rama auxiliar de sync: $HEAD"; exit 1 ;;
-              esac
-              ;;
+            QA) [ "$HEAD" = "develop" ] || { echo "PR a QA debe venir exclusivamente de develop: $HEAD"; exit 1; } ;;
             main) [ "$HEAD" = "QA" ] || { echo "PR a main debe venir exclusivamente de QA: $HEAD"; exit 1; } ;;
             *) echo "Base no soportada en el flujo académico: $BASE"; exit 1 ;;
           esac
