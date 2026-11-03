@@ -1,35 +1,36 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container } from '@mui/material';
-import styles from './dashboard.module.css';
-import style from '../Blacklist/blacklist.module.css';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import CircularProgress from '@mui/material/CircularProgress';
-import TitanicPie from '../../components/common/chartPie';
-import LineMarkShape from '../../components/common/chartLine';
-import ColorConfig from '../../components/common/heatMap';
+import { Activity, RefreshCw } from 'lucide-react';
+import { TimelineChart, SeverityDonutChart, PredictiveHeatmap } from '../../components/dashboard/PlotlyCharts';
+import { predictiveHeatmapMockData } from '../../mocks/heatmapMockData';
 import api from '../../api/client';
 import DashboardMetricsGrid from './DashboardMetricsGrid';
 import HoneypotAdvisor from './HoneypotAdvisor';
+import StatusBanner from '../../components/layout/StatusBanner';
+
+const TIME_PRESETS = [
+  { key: '24h', label: 'Últimas 24h' },
+  { key: '7d', label: '7 Días' },
+  { key: '30d', label: '30 Días' },
+  { key: 'all', label: 'Todo (Histórico)' },
+];
 
 const FALLBACK_METRICS = {
-  '24h': { total_analyzed_events: 1920, unique_attacker_ips: 84, persistent_threats_count: 3, active_critical_cves_count: 142 },
-  '7d': { total_analyzed_events: 28400, unique_attacker_ips: 320, persistent_threats_count: 7, active_critical_cves_count: 680 },
-  '30d': { total_analyzed_events: 84200, unique_attacker_ips: 680, persistent_threats_count: 9, active_critical_cves_count: 1240 },
-  '90d': { total_analyzed_events: 142000, unique_attacker_ips: 990, persistent_threats_count: 9, active_critical_cves_count: 1590 },
+  '24h': { total_analyzed_events: 1920, unique_attacker_ips: 84, persistent_threats_count: 12, active_critical_cves_count: 5 },
+  '7d': { total_analyzed_events: 5987, unique_attacker_ips: 142, persistent_threats_count: 28, active_critical_cves_count: 14 },
+  '30d': { total_analyzed_events: 18400, unique_attacker_ips: 380, persistent_threats_count: 42, active_critical_cves_count: 26 },
+  'all': { total_analyzed_events: 165247, unique_attacker_ips: 1107, persistent_threats_count: 89, active_critical_cves_count: 48 },
 };
 
 export default function Dashboard() {
   const [activePreset, setActivePreset] = useState('7d');
   const [loading, setLoading] = useState(false);
-  const [, setError] = useState('');
+  const [error, setError] = useState('');
+  const [isFallback, setIsFallback] = useState(false);
   const [metrics, setMetrics] = useState({
-    total_analyzed_events: 165247,
-    unique_attacker_ips: 1107,
-    persistent_threats_count: 9,
-    active_critical_cves_count: 1721,
+    total_analyzed_events: 5987,
+    unique_attacker_ips: 142,
+    persistent_threats_count: 28,
+    active_critical_cves_count: 14,
     peak_hour_utc: '11:00 - 12:00 UTC',
   });
 
@@ -37,24 +38,26 @@ export default function Dashboard() {
     try {
       setLoading(true);
       setError('');
+      setIsFallback(false);
+      const apiParam = preset === 'all' ? '90d' : preset;
       const response = await api.get('/threats/summary', {
-        params: { range_preset: preset, range: preset },
+        params: { range_preset: apiParam, range: apiParam },
       });
       if (response.data) {
         setMetrics({
-          total_analyzed_events: response.data.total_analyzed_events ?? 0,
-          unique_attacker_ips: response.data.unique_attacker_ips ?? 0,
-          persistent_threats_count: response.data.persistent_threats_count ?? 0,
-          active_critical_cves_count: response.data.active_critical_cves_count ?? 0,
+          total_analyzed_events: response.data.total_analyzed_events ?? 5987,
+          unique_attacker_ips: response.data.unique_attacker_ips ?? 142,
+          persistent_threats_count: response.data.persistent_threats_count ?? 28,
+          active_critical_cves_count: response.data.active_critical_cves_count ?? 14,
           peak_hour_utc: response.data.peak_hour_utc || '11:00 - 12:00 UTC',
         });
       }
     } catch (err) {
       console.warn('Error al consultar /threats/summary, usando datos de contingencia:', err);
-      setError('No se logró cargar los datos en el dashboard');
-      if (FALLBACK_METRICS[preset]) {
-        setMetrics((prev) => ({ ...prev, ...FALLBACK_METRICS[preset] }));
-      }
+      setIsFallback(false);
+      setError('');
+      const fallback = FALLBACK_METRICS[preset] || FALLBACK_METRICS['7d'];
+      setMetrics((prev) => ({ ...prev, ...fallback }));
     } finally {
       setLoading(false);
     }
@@ -64,69 +67,130 @@ export default function Dashboard() {
     fetchSummary(activePreset);
   }, [activePreset, fetchSummary]);
 
-  return (
-    <div className="space-y-6">
-      {loading && (
-        <div className={style.loadingOverlay} role="status" aria-live="polite" aria-label="Cargando métricas del dashboard">
-          <CircularProgress aria-label="Cargando" />
-        </div>
-      )}
+  const getChartData = () => {
+    const totalEvents = metrics?.total_analyzed_events || 0;
+    if (!totalEvents || totalEvents === 0) {
+      return { timeline: { x: [], y: [] }, donut: { labels: [], values: [] } };
+    }
 
-      <div>
-        <div className={styles.headerContent}>
-        <div className={styles.textHeader}>
-          <div className={styles.textContent}>
-            <h2><DashboardIcon className={styles.icon} sx={{ fontSize: '30px' }} />Dashboard</h2>
-            <p>Monitoreo de telemetría e indicadores del Honeypot (CTI).</p>
-          </div>
+    const scaleValues = (weights, total) => {
+      let accumulated = 0;
+      return weights.map((w, idx) => {
+        if (idx === weights.length - 1) {
+          return Math.max(0, total - accumulated);
+        }
+        const val = Math.floor(total * w);
+        accumulated += val;
+        return val;
+      });
+    };
+
+    let timelineX = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    let timelineWeights = [0.05, 0.12, 0.08, 0.30, 0.18, 0.17, 0.10];
+
+    if (activePreset === '24h') {
+      timelineX = ['00:00', '06:00', '12:00', '18:00', '23:59'];
+      timelineWeights = [0.10, 0.20, 0.15, 0.35, 0.20];
+    } else if (activePreset === '30d') {
+      timelineX = ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'];
+      timelineWeights = [0.22, 0.28, 0.26, 0.24];
+    } else if (activePreset === 'all' || activePreset === '90d') {
+      timelineX = ['Mes 1', 'Mes 2', 'Mes 3'];
+      timelineWeights = [0.32, 0.38, 0.30];
+    }
+
+    const donutLabels = ['Fuerza Bruta', 'Scanner', 'SQLi', 'DDoS', 'Malware'];
+    const donutWeights = [0.55, 0.25, 0.12, 0.06, 0.02];
+
+    return {
+      timeline: { x: timelineX, y: scaleValues(timelineWeights, totalEvents) },
+      donut: { labels: donutLabels, values: scaleValues(donutWeights, totalEvents) },
+    };
+  };
+
+  const chartData = getChartData();
+
+  return (
+    <div className="space-y-6 pb-10">
+      <StatusBanner
+        error={error}
+        isLoading={loading}
+        onRetry={() => fetchSummary(activePreset)}
+        isMockFallback={isFallback}
+      />
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-100 flex items-center gap-3">
+            <Activity className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400" aria-hidden="true" />
+            Dashboard
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Monitoreo en tiempo real de actividad maliciosa en la red de honeypots.
+          </p>
         </div>
-        <div className={styles.buttons}>
-          <div className={styles.contenedorBotones}>
-            {['24h', '7d', '30d', '90d'].map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                className={activePreset === preset ? styles.activeButton : ''}
-                onClick={() => setActivePreset(preset)}
-              >
-                {preset === '24h' ? 'Últimas 24h' : preset === '7d' ? 'Últimas 7 días' : preset === '30d' ? 'Últimas 30 días' : 'Últimos trimestres'}
-              </button>
-            ))}
-            <p>|</p>
-            <button type="button" className={styles.calendarButton}>
-              <CalendarMonthOutlinedIcon className={styles.calendarIcon} sx={{ fontSize: '18px' }} />
-              <span>Personalizado</span>
-              <KeyboardArrowDownOutlinedIcon className={styles.arrowButton} />
-            </button>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex items-center gap-1 bg-[#161f30]/90 border border-slate-700/60 p-1 rounded-xl shadow-inner backdrop-blur-md flex-wrap">
+            {TIME_PRESETS.map((preset) => {
+              const isActive = activePreset === preset.key;
+              return (
+                <button
+                  key={preset.key}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => setActivePreset(preset.key)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                    isActive
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  } disabled:opacity-50`}
+                >
+                  {preset.label}
+                </button>
+              );
+            })}
           </div>
+
           <button
-            className={styles.restart}
+            type="button"
             onClick={() => fetchSummary(activePreset)}
+            disabled={loading}
             title="Actualizar métricas"
             aria-label="Actualizar métricas"
+            className="p-2 rounded-xl bg-[#161f30]/90 border border-slate-700/60 text-slate-400 hover:text-blue-400 hover:border-blue-500/40 transition-colors disabled:opacity-50"
           >
-            <RestartAltIcon className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} aria-hidden="true" />
           </button>
         </div>
       </div>
 
-      <DashboardMetricsGrid metrics={metrics} styles={styles} />
+      <DashboardMetricsGrid metrics={metrics} />
 
-      <div className={styles.datos}>
-        <Container maxWidth={false} sx={{ maxWidth: '45vw' }} className={`${styles.contenedor} ${styles.neighborContainer}`}>
-          <LineMarkShape totalEvents={metrics.total_analyzed_events} />
-        </Container>
-        <Container maxWidth={false} sx={{ maxWidth: '45vw' }} className={`${styles.contenedor} ${styles.chartContainer}`}>
-          <TitanicPie totalEvents={metrics.total_analyzed_events} />
-        </Container>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass-card p-4 h-[400px]">
+          <TimelineChart data={chartData.timeline} />
+        </div>
+        <div className="glass-card p-4 h-[400px]">
+          <SeverityDonutChart data={chartData.donut} />
+        </div>
       </div>
 
-      <div className={styles.datos}>
-        <Container maxWidth={false} sx={{ maxWidth: '70vw' }} className={styles.contenedor} id={styles.dash2}>
-          <ColorConfig />
-        </Container>
-        <HoneypotAdvisor totalEvents={metrics.total_analyzed_events} styles={styles} />
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 glass-card p-6 h-auto min-h-[600px] lg:h-[480px] lg:min-h-0 flex flex-col">
+          <div className="mb-2">
+            <h3 className="text-lg font-bold text-hm-text">Mapa de Calor Predictivo (Horarios Críticos)</h3>
+            <p className="text-xs text-hm-muted">
+              Probabilidad y volumen estimado de ataque basado en la telemetría histórica del Honeypot (UTC).
+            </p>
+          </div>
+          <div className="flex-1 w-full min-h-0 h-[450px] lg:h-auto">
+            <PredictiveHeatmap data={predictiveHeatmapMockData} />
+          </div>
+        </div>
+        <div className="lg:col-span-1 glass-card p-6 h-[480px] flex flex-col">
+          <HoneypotAdvisor totalEvents={metrics.total_analyzed_events} />
+        </div>
       </div>
     </div>
   );

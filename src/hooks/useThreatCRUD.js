@@ -35,6 +35,7 @@ export function useThreatCRUD() {
   const [vaultData, setVaultData] = useState(DEFAULT_VAULT);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isFallback, setIsFallback] = useState(false);
 
   const fetchThreats = useCallback(async () => {
     setIsLoading(true);
@@ -43,12 +44,16 @@ export function useThreatCRUD() {
       const response = await getBlacklistThreats();
       if (Array.isArray(response) && response.length > 0) {
         setData(response.map(normalizeThreat));
+        setIsFallback(false);
       } else {
         setData(DEFAULT_THREATS.map(normalizeThreat));
+        setIsFallback(true);
       }
     } catch (err) {
       console.warn('Error al cargar blacklist, usando contingencia:', err.message);
+      setError(err.message || 'Error de conexión con el motor CTI');
       setData(DEFAULT_THREATS.map(normalizeThreat));
+      setIsFallback(true);
     } finally {
       setIsLoading(false);
     }
@@ -149,6 +154,7 @@ export function useThreatCRUD() {
     vaultData,
     isLoading,
     error,
+    isFallback,
     fetchThreats,
     fetchVault,
     addThreat,
