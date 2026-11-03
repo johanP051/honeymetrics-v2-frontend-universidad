@@ -73,7 +73,7 @@ export default function Navbar() {
 
   async function cerrarSesion() {
     await logout();
-    navigate("/login");
+    void navigate("/login");
   }
 
   return (

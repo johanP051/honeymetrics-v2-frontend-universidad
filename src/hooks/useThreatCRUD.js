@@ -72,8 +72,8 @@ export function useThreatCRUD() {
   }, []);
 
   useEffect(() => {
-    fetchThreats();
-    fetchVault();
+    void fetchThreats();
+    void fetchVault();
   }, [fetchThreats, fetchVault]);
 
   const addThreat = useCallback(async (threatData) => {

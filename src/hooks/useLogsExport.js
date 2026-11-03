@@ -46,13 +46,13 @@ export function useLogsExport() {
   }, []);
 
   useEffect(() => {
-    cargarLogs(true);
+    void cargarLogs(true);
   }, [cargarLogs]);
 
   useEffect(() => {
     const hayEnProceso = rows.some((row) => row.status === 'Procesando' || row.status === 'En Proceso');
     const timer = setInterval(() => {
-      cargarLogs(false);
+      void cargarLogs(false);
     }, hayEnProceso ? 3000 : 10000);
     return () => clearInterval(timer);
   }, [rows, cargarLogs]);
@@ -161,7 +161,7 @@ export function useLogsExport() {
         return [filaOptimista, ...prev];
       });
     }
-    cargarLogs(false);
+    void cargarLogs(false);
     setAnuncioAccesible('Nueva exportación solicitada. La lista ha sido actualizada.');
   };
 

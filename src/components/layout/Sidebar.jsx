@@ -30,7 +30,7 @@ export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onC
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    void navigate('/login');
     if (onCloseMobile) onCloseMobile();
   };
 

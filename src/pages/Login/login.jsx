@@ -39,7 +39,7 @@ export default function Login() {
         setMfaRequired(true);
         setMfaCode("");
       } else {
-        navigate("/dashboard");
+        void navigate("/dashboard");
       }
     } catch (err) {
       setErrorMsg(err.response?.data?.detail || "Error al iniciar sesión.");
@@ -53,7 +53,7 @@ export default function Login() {
     try {
       setIsSubmitting(true);
       await verifyMfaLogin(mfaToken, code);
-      navigate("/dashboard");
+      void navigate("/dashboard");
     } catch (err) {
       const msg = err.response?.data?.detail || "Código de verificación o de respaldo incorrecto.";
       setErrorMsg(msg);

@@ -64,7 +64,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    fetchSummary(activePreset);
+    void fetchSummary(activePreset);
   }, [activePreset, fetchSummary]);
 
   const getChartData = () => {

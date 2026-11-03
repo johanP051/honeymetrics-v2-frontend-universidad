@@ -62,7 +62,7 @@ export default function ResetPassword() {
       try { sessionStorage.removeItem('hm_reset_token'); } catch {}
       setIsSuccess(true);
       redirectTimerRef.current = setTimeout(() => {
-        navigate('/login', {
+        void navigate('/login', {
           state: { message: 'Contraseña actualizada exitosamente. Inicia sesión con tus nuevas credenciales.' },
         });
       }, 2000);

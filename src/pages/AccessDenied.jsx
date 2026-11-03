@@ -11,9 +11,9 @@ export default function AccessDenied({ moduleName = 'este módulo' }) {
 
   const handleGoBack = () => {
     if (window.history.state && window.history.state.idx > 0) {
-      navigate(-1);
+      void navigate(-1);
     } else {
-      navigate(controlCenterPath, { replace: true });
+      void navigate(controlCenterPath, { replace: true });
     }
   };
 

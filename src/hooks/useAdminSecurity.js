@@ -106,8 +106,8 @@ export function useAdminSecurity({ enabled = true } = {}) {
 
   useEffect(() => {
     if (enabled) {
-      fetchAdminData();
-      fetchAuditLogs();
+      void fetchAdminData();
+      void fetchAuditLogs();
     }
     return () => {
       if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -118,7 +118,7 @@ export function useAdminSecurity({ enabled = true } = {}) {
     try {
       const res = await createUserApi(payload);
       showToast(res.message || 'Usuario creado exitosamente.');
-      await fetchAdminData();
+      await void fetchAdminData();
       return res;
     } catch (err) {
       showToast(err.response?.data?.detail || 'Error al crear usuario.', 'error');
@@ -130,7 +130,7 @@ export function useAdminSecurity({ enabled = true } = {}) {
     try {
       const res = await updateUserApi(userId, payload);
       showToast('Usuario actualizado exitosamente.');
-      await fetchAdminData();
+      await void fetchAdminData();
       return res;
     } catch (err) {
       showToast(err.response?.data?.detail || 'Error al actualizar usuario.', 'error');
@@ -142,7 +142,7 @@ export function useAdminSecurity({ enabled = true } = {}) {
     try {
       await deleteUserApi(userId);
       showToast('Usuario eliminado permanentemente.');
-      await fetchAdminData();
+      await void fetchAdminData();
     } catch (err) {
       showToast(err.response?.data?.detail || 'Error al eliminar usuario.', 'error');
       throw err;
@@ -153,7 +153,7 @@ export function useAdminSecurity({ enabled = true } = {}) {
     try {
       const res = await resetUserMfaApi(userId);
       showToast(res.message || '2FA reseteado exitosamente.');
-      await fetchAdminData();
+      await void fetchAdminData();
     } catch (err) {
       showToast(err.response?.data?.detail || 'Error al resetear 2FA.', 'error');
       throw err;
@@ -164,7 +164,7 @@ export function useAdminSecurity({ enabled = true } = {}) {
     try {
       const res = await createRoleApi(payload);
       showToast('Rol creado exitosamente.');
-      await fetchAdminData();
+      await void fetchAdminData();
       return res;
     } catch (err) {
       showToast(err.response?.data?.detail || 'Error al crear rol.', 'error');
@@ -176,7 +176,7 @@ export function useAdminSecurity({ enabled = true } = {}) {
     try {
       await deleteRoleApi(roleId);
       showToast('Rol eliminado exitosamente.');
-      await fetchAdminData();
+      await void fetchAdminData();
     } catch (err) {
       showToast(err.response?.data?.detail || 'Error al eliminar rol.', 'error');
       throw err;

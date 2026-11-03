@@ -29,7 +29,7 @@ export default function Settings() {
   }, [updateProfileData]);
 
   useEffect(() => {
-    fetchProfile();
+    void fetchProfile();
   }, [fetchProfile]);
 
   const sec = useProfileSecurity({ onProfileUpdate: fetchProfile });
@@ -38,7 +38,7 @@ export default function Settings() {
     sec.setIsMfaModalOpen(false);
     if (wasActivated) {
       setToastMessage({ type: 'success', text: 'Autenticación en dos pasos activada exitosamente.' });
-      fetchProfile();
+      void fetchProfile();
     }
   };
 
