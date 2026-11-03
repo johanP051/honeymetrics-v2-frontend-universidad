@@ -6,7 +6,7 @@
 FROM node:18-slim AS base
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci --ignore-scripts
 
 # ETAPA 2: Desarrollo Local (Live Reload con Vite)
 FROM base AS dev
@@ -19,9 +19,10 @@ FROM base AS builder
 COPY . .
 RUN npm run build
 
-# ETAPA 4: Runner de Producción (Servidor Nginx de Alto Desempeño)
-FROM nginx:alpine AS runner
+# ETAPA 4: Runner de Producción (Servidor Nginx de Alto Desempeño sin privilegios)
+FROM nginxinc/nginx-unprivileged:alpine AS runner
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
+
