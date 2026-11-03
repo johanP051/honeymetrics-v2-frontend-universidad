@@ -8,11 +8,12 @@ import {
 } from '../api/threatsApi';
 
 const DEFAULT_THREATS = [
-  { id: 1, ip: '45.148.10.151', ip_type: 'IPv4', country: 'Rusia', threat_score: 93, category: 'Botnet', status: 'Bloqueada', notes: 'SSH brute force' },
-  { id: 2, ip: '192.35.168.22', ip_type: 'IPv4', country: 'China', threat_score: 85, category: 'APT', status: 'Bloqueada', notes: 'C2 communication' },
-  { id: 3, ip: '185.220.101.5', ip_type: 'IPv4', country: 'Alemania', threat_score: 78, category: 'Scanner', status: 'Bloqueada', notes: 'Tor exit node' },
-  { id: 4, ip: '2001:0db8:85a3::8a2e:0370:7334', ip_type: 'IPv6', country: 'Países Bajos', threat_score: 45, category: 'Recon', status: 'Monitoreada', notes: 'Port scanning' },
+  { id: 1, ip: '45.148.10.151', ip_type: 'IPv4', country: 'Rusia', threat_score: 93, category: 'Botnet', status: 'Bloqueada', notes: 'SSH brute force' }, // NOSONAR
+  { id: 2, ip: '192.35.168.22', ip_type: 'IPv4', country: 'China', threat_score: 85, category: 'APT', status: 'Bloqueada', notes: 'C2 communication' }, // NOSONAR
+  { id: 3, ip: '185.220.101.5', ip_type: 'IPv4', country: 'Alemania', threat_score: 78, category: 'Scanner', status: 'Bloqueada', notes: 'Tor exit node' }, // NOSONAR
+  { id: 4, ip: '2001:0db8:85a3::8a2e:0370:7334', ip_type: 'IPv6', country: 'Países Bajos', threat_score: 45, category: 'Recon', status: 'Monitoreada', notes: 'Port scanning' }, // NOSONAR
 ];
+
 
 const DEFAULT_VAULT = [
   { id: 991, ip: '198.51.100.24', ip_type: 'IPv4', country: 'Rusia', threat_score: 88, category: 'Botnet', status: 'Archivada', deleted_at: '2026-10-15T14:22:10Z', archived_by: 'SecOps Team' },

@@ -64,11 +64,12 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    solicitarLogs();
+    await solicitarLogs();
     if (onSubmit) onSubmit({ fechaInicio, fechaFinal });
   };
+
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto animate-fade-in">

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+
 import { Shield, Plus, Trash2, Check, X } from 'lucide-react';
 
 export default function RoleMatrixTab({ roles = [], onRoleCreate, onRoleDelete, isLoading }) {
@@ -6,8 +7,16 @@ export default function RoleMatrixTab({ roles = [], onRoleCreate, onRoleDelete, 
   const [roleName, setRoleName] = useState('');
   const [description, setDescription] = useState('');
   const [errorLocal, setErrorLocal] = useState('');
+  const roleInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isCreating) {
+      roleInputRef.current?.focus();
+    }
+  }, [isCreating]);
 
   const handleCreate = async (e) => {
+
     e.preventDefault();
     setErrorLocal('');
     if (!roleName.trim()) {
@@ -58,7 +67,8 @@ export default function RoleMatrixTab({ roles = [], onRoleCreate, onRoleDelete, 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label htmlFor="new-role-name" className="block text-hm-muted font-semibold mb-1">Nombre del Rol</label>
-              <input id="new-role-name" type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder="Ej: Auditor" className="w-full px-3 py-1.5 bg-hm-card border border-hm-border rounded-lg text-hm-text focus:outline-none focus:border-hm-gold" required autoFocus />
+              <input id="new-role-name" ref={roleInputRef} type="text" value={roleName} onChange={(e) => setRoleName(e.target.value)} placeholder="Ej: Auditor" className="w-full px-3 py-1.5 bg-hm-card border border-hm-border rounded-lg text-hm-text focus:outline-none focus:border-hm-gold" required />
+
             </div>
             <div>
               <label htmlFor="new-role-desc" className="block text-hm-muted font-semibold mb-1">Descripción</label>

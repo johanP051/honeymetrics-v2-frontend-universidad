@@ -62,10 +62,11 @@ export default function LogsTableBody({
     return (
       <tbody className="divide-y divide-slate-800/60">
         <tr>
-          <td colSpan={6} className="p-8 text-center text-red-400 text-sm font-medium" role="alert">
-            {error}
+          <td colSpan={6} className="p-8 text-center text-red-400 text-sm font-medium">
+            <div role="alert">{error}</div>
           </td>
         </tr>
+
       </tbody>
     );
   }

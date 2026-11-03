@@ -116,18 +116,19 @@ export const MESES_MAP = {
 export function parseFechaSolicitud(fechaStr) {
   if (!fechaStr) return 0;
   const isoTime = new Date(fechaStr).getTime();
-  if (!isNaN(isoTime)) return isoTime;
+  if (!Number.isNaN(isoTime)) return isoTime;
 
   const regex = /(\d{1,2})\s+de\s+([a-zA-ZáéíóúÁÉÍÓÚ]+)\s+de\s+(\d{4}),?\s+(\d{1,2}):(\d{2})\s*(a\.?m\.?|p\.?m\.?)?/i;
   const match = String(fechaStr).toLowerCase().match(regex);
   if (!match) return 0;
 
-  const dia = parseInt(match[1], 10);
+  const dia = Number.parseInt(match[1], 10);
   const mesNombre = match[2];
-  const anio = parseInt(match[3], 10);
-  let hora = parseInt(match[4], 10);
-  const minuto = parseInt(match[5], 10);
+  const anio = Number.parseInt(match[3], 10);
+  let hora = Number.parseInt(match[4], 10);
+  const minuto = Number.parseInt(match[5], 10);
   const ampm = match[6];
+
   const mes = MESES_MAP[mesNombre] ?? -1;
   if (mes === -1) return 0;
 

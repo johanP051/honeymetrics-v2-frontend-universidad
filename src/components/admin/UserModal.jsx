@@ -68,8 +68,9 @@ export default function UserModal({
         first_names: firstNames.trim(),
         last_names: lastNames.trim(),
         email: email.trim(),
-        role_id: parseInt(roleId, 10),
-        ...(tempPassword.trim() ? { [isEditing ? 'new_password' : 'temp_password']: tempPassword.trim() } : {}),
+        role_id: Number.parseInt(roleId, 10),
+
+        ...(tempPassword.trim() ? { [isEditing ? 'password' : 'temp_password']: tempPassword.trim() } : {}),
         ...(!isEditing ? { send_email: sendEmail } : {}),
       };
       await onSubmit(payload, userToEdit?.id);
@@ -104,7 +105,8 @@ export default function UserModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label htmlFor="user-first-names" className="block font-semibold text-hm-muted mb-1">Nombres</label>
-              <input id="user-first-names" type="text" value={firstNames} onChange={(e) => setFirstNames(e.target.value)} className="w-full px-3 py-2 bg-hm-elevated border border-hm-border rounded-lg text-hm-text text-xs focus:outline-none focus:border-hm-gold" required autoFocus />
+              <input id="user-first-names" type="text" value={firstNames} onChange={(e) => setFirstNames(e.target.value)} className="w-full px-3 py-2 bg-hm-elevated border border-hm-border rounded-lg text-hm-text text-xs focus:outline-none focus:border-hm-gold" required />
+
             </div>
             <div>
               <label htmlFor="user-last-names" className="block font-semibold text-hm-muted mb-1">Apellidos</label>

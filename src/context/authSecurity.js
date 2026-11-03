@@ -100,9 +100,10 @@ export const extractAuthAuthorization = (data = {}, decoded = null) => ({
 const encodeBase64Url = (obj) => {
   const json = JSON.stringify(obj);
   const utf8 = encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) =>
-    String.fromCharCode(parseInt(p1, 16))
+    String.fromCharCode(Number.parseInt(p1, 16))
   );
-  return btoa(utf8).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return btoa(utf8).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
 };
 
 export const createOfflineJwtToken = ({

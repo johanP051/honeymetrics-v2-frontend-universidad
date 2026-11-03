@@ -34,8 +34,9 @@ function interpolateColor(normalizedValue) {
   const previousStop = colorStops[nextStopIndex - 1];
   const nextStop = colorStops[nextStopIndex];
   const progress = (clampedValue - previousStop.position) / (nextStop.position - previousStop.position);
-  const prevRgb = previousStop.color.match(/[0-9a-f]{2}/gi).map((p) => parseInt(p, 16));
-  const nextRgb = nextStop.color.match(/[0-9a-f]{2}/gi).map((p) => parseInt(p, 16));
+  const prevRgb = previousStop.color.match(/[0-9a-f]{2}/gi).map((p) => Number.parseInt(p, 16));
+  const nextRgb = nextStop.color.match(/[0-9a-f]{2}/gi).map((p) => Number.parseInt(p, 16));
+
   const rgb = prevRgb.map((channel, i) => Math.round(channel + (nextRgb[i] - channel) * progress));
   return `#${rgb.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
 }

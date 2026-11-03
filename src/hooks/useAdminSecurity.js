@@ -28,6 +28,9 @@ const FALLBACK_ROLES = [
   { id: 2, name: 'Analista', description: 'Lectura de dashboard, logs y amenazas.', user_count: 1 },
 ];
 
+const DEFAULT_AUDIT_LOG_PARAMS = Object.freeze({ limit: 100, offset: 0 });
+
+
 const normalizeUsers = (rawUsers) => {
   const list = Array.isArray(rawUsers) && rawUsers.length > 0 ? rawUsers : FALLBACK_USERS;
   const mapped = list.map((u) => {
@@ -89,8 +92,9 @@ export function useAdminSecurity({ enabled = true } = {}) {
     }
   }, [enabled]);
 
-  const fetchAuditLogs = useCallback(async (params = { limit: 100, offset: 0 }) => {
+  const fetchAuditLogs = useCallback(async (params = DEFAULT_AUDIT_LOG_PARAMS) => {
     try {
+
       const data = await getAuditLogsApi(params);
       setAuditLogs(Array.isArray(data) ? data : []);
       return data;

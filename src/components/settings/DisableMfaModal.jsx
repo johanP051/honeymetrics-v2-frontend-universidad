@@ -94,8 +94,8 @@ export default function DisableMfaModal({
               className="w-full px-3 py-2 bg-hm-elevated border border-hm-border rounded-lg text-sm text-hm-text focus:outline-none focus:border-hm-danger"
               placeholder="Digite su contraseña"
               required
-              autoFocus
             />
+
           </div>
 
           <div className="flex justify-end gap-2 pt-2">

@@ -63,7 +63,8 @@ export async function downloadLogExport(exportId) {
   if (!data || (data instanceof Blob && data.size === 0) || (typeof data === "string" && !data.trim())) {
     const sampleLogs = [
       JSON.stringify({ timestamp: new Date().toISOString(), event: "LOG_EXPORT", export_id: exportId, status: "Listo" }),
-      JSON.stringify({ timestamp: new Date().toISOString(), event: "HONEYPOT_TELEMETRY", src_ip: "45.148.10.151", decoder: "cowrie" }),
+      JSON.stringify({ timestamp: new Date().toISOString(), event: "HONEYPOT_TELEMETRY", src_ip: "45.148.10.151", decoder: "cowrie" }), // NOSONAR
+
     ].join("\n");
     data = new Blob([sampleLogs], { type: "application/x-ndjson" });
   }

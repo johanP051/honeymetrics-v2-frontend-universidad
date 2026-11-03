@@ -131,10 +131,14 @@ export default function MfaModal({
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(mfaData.secret);
-                    setCopiedSecret(true);
-                    setTimeout(() => setCopiedSecret(false), 2000);
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(mfaData.secret);
+                      setCopiedSecret(true);
+                      setTimeout(() => setCopiedSecret(false), 2000);
+                    } catch {
+                      // Fallback silently if clipboard permissions are restricted
+                    }
                   }}
                   className="p-1.5 text-hm-muted hover:text-hm-gold hover:bg-white/5 rounded transition-colors shrink-0"
                   title="Copiar clave"
