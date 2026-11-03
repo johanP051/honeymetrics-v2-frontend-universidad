@@ -24,9 +24,20 @@ export const parseJwtPayload = (token) => {
 };
 
 export const isTokenValid = (token, now = Date.now()) => {
-  if (!token || token === 'mock-token') return false;
+  if (!token || typeof token !== 'string') return false;
+  if (token === 'mock-token' || token.startsWith('mock-token')) return false;
+
+  const isProd =
+    (typeof import.meta !== 'undefined' && Boolean(import.meta?.env?.PROD)) ||
+    (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production');
+
+  if (token.includes('.hm_offline_sig') && isProd) return false;
+
   const payload = parseJwtPayload(token);
-  return Boolean(payload && Number.isFinite(payload.exp) && payload.exp * 1000 > now);
+  if (!payload) return false;
+  if (payload.mode === 'offline-mock' && isProd) return false;
+
+  return Boolean(Number.isFinite(payload.exp) && payload.exp * 1000 > now);
 };
 
 export const purgeAllAuthStorage = () => {
@@ -37,11 +48,20 @@ export const purgeAllAuthStorage = () => {
     'hm_user',
     'hm_role',
     'hm_scopes',
+    'hm_reset_token',
   ];
-  keys.forEach((key) => {
-    localStorage.removeItem(key);
-    sessionStorage.removeItem(key);
-  });
+  if (typeof localStorage !== 'undefined') {
+    try {
+      keys.forEach((k) => localStorage.removeItem(k));
+      localStorage.clear();
+    } catch {}
+  }
+  if (typeof sessionStorage !== 'undefined') {
+    try {
+      keys.forEach((k) => sessionStorage.removeItem(k));
+      sessionStorage.clear();
+    } catch {}
+  }
 };
 
 export const ROLES_TO_SCOPES = {
@@ -91,6 +111,12 @@ export const createOfflineJwtToken = ({
   scopes = null,
   expiresInSeconds = 86400,
 } = {}) => {
+  const isProd =
+    (typeof import.meta !== 'undefined' && Boolean(import.meta?.env?.PROD)) ||
+    (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production');
+  if (isProd) {
+    throw new Error('createOfflineJwtToken está estrictamente prohibido en producción');
+  }
   const nowSec = Math.floor(Date.now() / 1000);
   const resolvedScopes = Array.isArray(scopes) ? scopes : getScopesForRole(role);
   const header = { alg: 'HS256', typ: 'JWT' };

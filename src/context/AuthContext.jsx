@@ -33,6 +33,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const applyAuthSuccess = useCallback((tokenValue, userObject, scopesArray = null) => {
+    purgeAllAuthStorage();
     const payload = parseJwtPayload(tokenValue);
     const resolvedRole = userObject?.role_name || payload?.role || payload?.role_name || "Analista";
     const resolvedScopes = Array.isArray(scopesArray) && scopesArray.length > 0
@@ -43,12 +44,16 @@ export function AuthProvider({ children }) {
               ? userObject.scopes
               : getScopesForRole(resolvedRole)));
 
-    localStorage.setItem("access_token", tokenValue);
-    localStorage.setItem("hm_access_token", tokenValue);
-    localStorage.setItem("user_data", JSON.stringify(userObject || {}));
-    localStorage.setItem("hm_user", JSON.stringify(userObject || {}));
-    localStorage.setItem("hm_role", resolvedRole);
-    localStorage.setItem("hm_scopes", JSON.stringify(resolvedScopes));
+    const serializedUser = JSON.stringify(userObject || {});
+    const serializedScopes = JSON.stringify(resolvedScopes);
+    [localStorage, sessionStorage].forEach((storage) => {
+      storage.setItem("access_token", tokenValue);
+      storage.setItem("hm_access_token", tokenValue);
+      storage.setItem("user_data", serializedUser);
+      storage.setItem("hm_user", serializedUser);
+      storage.setItem("hm_role", resolvedRole);
+      storage.setItem("hm_scopes", serializedScopes);
+    });
 
     setToken(tokenValue);
     setUser(userObject);
@@ -110,11 +115,15 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await authService.logout();
-    setToken(null);
-    setUser(null);
-    setRole(null);
-    setScopes([]);
+    try {
+      await authService.logout();
+    } finally {
+      purgeAllAuthStorage();
+      setToken(null);
+      setUser(null);
+      setRole(null);
+      setScopes([]);
+    }
   };
 
   const hasScope = useCallback(
@@ -133,18 +142,28 @@ export function AuthProvider({ children }) {
     (updatedProfile) => {
       if (!updatedProfile) return;
       setUser((prev) => {
-        const merged = { ...prev, ...updatedProfile };
-        localStorage.setItem("user_data", JSON.stringify(merged));
-        localStorage.setItem("hm_user", JSON.stringify(merged));
+        const merged = { ...(prev || {}), ...updatedProfile };
+        const serialized = JSON.stringify(merged);
+        if (prev && JSON.stringify(prev) === serialized) return prev;
+        localStorage.setItem("user_data", serialized);
+        localStorage.setItem("hm_user", serialized);
+        sessionStorage.setItem("user_data", serialized);
+        sessionStorage.setItem("hm_user", serialized);
         return merged;
       });
       if (updatedProfile.role_name) {
-        setRole(updatedProfile.role_name);
+        setRole((prev) => (prev === updatedProfile.role_name ? prev : updatedProfile.role_name));
         localStorage.setItem("hm_role", updatedProfile.role_name);
+        sessionStorage.setItem("hm_role", updatedProfile.role_name);
       }
       if (Array.isArray(updatedProfile.scopes) && updatedProfile.scopes.length > 0) {
-        setScopes(updatedProfile.scopes);
-        localStorage.setItem("hm_scopes", JSON.stringify(updatedProfile.scopes));
+        setScopes((prev) => {
+          const json = JSON.stringify(updatedProfile.scopes);
+          if (JSON.stringify(prev) === json) return prev;
+          localStorage.setItem("hm_scopes", json);
+          sessionStorage.setItem("hm_scopes", json);
+          return updatedProfile.scopes;
+        });
       }
     },
     []

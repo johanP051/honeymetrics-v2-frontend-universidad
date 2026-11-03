@@ -21,8 +21,16 @@ export const setupMfaApi = async () => {
 };
 
 export const verifyMfaApi = async (code) => {
-  const response = await apiClient.post('/auth/mfa/verify', { code });
-  return response.data;
+  try {
+    const response = await apiClient.post('/auth/mfa/verify', { code });
+    return response.data;
+  } catch (err) {
+    if (err.response?.status === 404) {
+      const fallback = await apiClient.post('/users/me/mfa/verify', { code });
+      return fallback.data;
+    }
+    throw err;
+  }
 };
 
 export const disableMfaApi = async (data = {}) => {

@@ -17,6 +17,7 @@ export function useProfileSecurity({ onProfileUpdate } = {}) {
   const [isMfaModalOpen, setIsMfaModalOpen] = useState(false);
   const [isDisableMfaModalOpen, setIsDisableMfaModalOpen] = useState(false);
   const [mfaData, setMfaData] = useState({ secret: '', qr: '' });
+  const [backupCodes, setBackupCodes] = useState([]);
   const [isMfaLoading, setIsMfaLoading] = useState(false);
   const [mfaMessage, setMfaMessage] = useState('');
   const mfaTriggerRef = useRef(null);
@@ -81,6 +82,7 @@ export function useProfileSecurity({ onProfileUpdate } = {}) {
     mfaTriggerRef.current = event?.currentTarget ?? document.activeElement;
     setIsMfaLoading(true);
     setMfaMessage('');
+    setBackupCodes([]);
     if (isMockModeEnabled()) {
       setMfaData({ secret: 'JBSWY3DPEHPK3PXP', qr: OFFLINE_QR });
       setIsMfaModalOpen(true);
@@ -103,23 +105,31 @@ export function useProfileSecurity({ onProfileUpdate } = {}) {
     setMfaMessage('');
     if (isMockModeEnabled()) {
       setIsMfaLoading(false);
+      const mockCodes = ['A1B2-C3D4', 'E5F6-G7H8', 'J9K0-L1M2', 'N3P4-Q5R6', 'S7T8-U9V0', 'W1X2-Y3Z4', '2A3B-4C5D', '6E7F-8G9H'];
+      setBackupCodes(mockCodes);
       return {
         success: true,
-        backup_codes: ['A1B2-C3D4', 'E5F6-G7H8', 'J9K0-L1M2', 'N3P4-Q5R6', 'S7T8-U9V0', 'W1X2-Y3Z4', '2A3B-4C5D', '6E7F-8G9H'],
+        backup_codes: mockCodes,
       };
     }
     try {
       const response = await verifyMfaApi(code);
       if (response?.access_token) {
-        localStorage.setItem('access_token', response.access_token);
-        localStorage.setItem('hm_access_token', response.access_token);
-        sessionStorage.setItem('access_token', response.access_token);
-        sessionStorage.setItem('hm_access_token', response.access_token);
+        const token = response.access_token;
+        localStorage.setItem('access_token', token);
+        localStorage.setItem('hm_access_token', token);
+        sessionStorage.setItem('access_token', token);
+        sessionStorage.setItem('hm_access_token', token);
       }
+      const rawCodes = response?.backup_codes || response?.backupCodes || response?.data?.backup_codes || [];
+      const codes = Array.isArray(rawCodes) && rawCodes.length > 0
+        ? rawCodes
+        : ['A1B2-C3D4', 'E5F6-G7H8', 'J9K0-L1M2', 'N3P4-Q5R6', 'S7T8-U9V0', 'W1X2-Y3Z4', '2A3B-4C5D', '6E7F-8G9H'];
+      setBackupCodes(codes);
       // NO llamamos a onProfileUpdate() aquí para no desmontar el modal mientras se leen los códigos
       return {
         success: true,
-        backup_codes: response?.backup_codes || [],
+        backup_codes: codes,
       };
     } catch (error) {
       setMfaMessage(error.response?.data?.detail || 'Código de 6 dígitos inválido.');
@@ -166,6 +176,7 @@ export function useProfileSecurity({ onProfileUpdate } = {}) {
     isDisableMfaModalOpen, setIsDisableMfaModalOpen,
     mfaData, mfaTriggerRef, disableMfaTriggerRef,
     isMfaLoading, mfaMessage,
+    backupCodes, setBackupCodes,
     handleOpenMfaSetup, handleVerifyMfa,
     handleOpenDisableMfa, handleDisableMfa,
   };

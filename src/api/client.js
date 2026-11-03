@@ -1,4 +1,5 @@
 import axios from "axios";
+import { purgeAllAuthStorage } from "../context/authSecurity.js";
 
 /**
  * Normaliza cualquier payload `detail` de FastAPI / Pydantic (incluyendo arrays 422)
@@ -52,7 +53,7 @@ api.interceptors.request.use(
       localStorage.getItem("hm_access_token") ||
       sessionStorage.getItem("access_token") ||
       localStorage.getItem("access_token");
-    if (token && !config.headers.Authorization) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -73,15 +74,12 @@ api.interceptors.response.use(
       const isAuthRequest =
         url.includes("/auth/login") ||
         url.includes("/auth/mfa") ||
+        url.includes("/users/me/mfa") ||
         url.includes("/auth/forgot-password") ||
         url.includes("/auth/reset-password");
 
       if (!isAuthRequest) {
-        const keys = ["access_token", "user_data", "hm_access_token", "hm_user", "hm_role", "hm_scopes"];
-        keys.forEach((k) => {
-          localStorage.removeItem(k);
-          sessionStorage.removeItem(k);
-        });
+        purgeAllAuthStorage();
         if (!window.location.pathname.includes("/login")) {
           window.location.href = "/login?expired=1";
         }
