@@ -1,24 +1,14 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import Table from '@mui/material/Table';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TablePagination from '@mui/material/TablePagination';
-import TableFooter from '@mui/material/TableFooter';
-import Paper from '@mui/material/Paper';
-import CircularProgress from '@mui/material/CircularProgress';
-import SpeedDial from '../../components/common/speedDial';
 import useLogsExport from '../../hooks/useLogsExport';
+import StatusBanner from '../../components/layout/StatusBanner';
+import ExportLogsModal from '../../components/common/ExportLogsModal';
 import LogsHeaderToolbar from './LogsHeaderToolbar';
 import LogsTableBody from './LogsTableBody';
 import {
-  TablePaginationActions,
+  LogsPaginationActions,
   SortableHeader,
   parseFechaSolicitud,
 } from './LogsPaginationActions';
-import styles from './logs.module.css';
-import style from '../Blacklist/blacklist.module.css';
 
 export default function Logs() {
   const [page, setPage] = useState(0);
@@ -28,20 +18,22 @@ export default function Logs() {
   const [busquedaAplicada, setBusquedaAplicada] = useState('');
   const [orden, setOrden] = useState({ columna: null, direccion: 'asc' });
   const [estadosSeleccionados, setEstadosSeleccionados] = useState([]);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const filterButtonRef = useRef(null);
 
   const {
     rows,
     cargando,
     error,
+    isFallback,
     descargandoId,
     generandoReporteId,
     errorReporte,
     anuncioAccesible,
     setAnuncioAccesible,
+    refreshLogs,
     handleDownload,
     handleGenerarReporte,
-    handleDownloadLatestDictionary,
     handleExportSuccess,
   } = useLogsExport();
 
@@ -56,7 +48,7 @@ export default function Logs() {
   const rowsVisibles = useMemo(() => {
     const termino = busquedaAplicada.trim().toLowerCase();
     const filtradas = rows.filter((row) => {
-      const matchSearch = !termino || [row.id, row.count, row.created_at].some((v) => String(v).toLowerCase().includes(termino));
+      const matchSearch = !termino || [row.id, row.count, row.created_at, row.date_range].some((v) => String(v || '').toLowerCase().includes(termino));
       const matchStatus = estadosSeleccionados.includes(row.status);
       return matchSearch && matchStatus;
     });
@@ -67,7 +59,7 @@ export default function Logs() {
       let comp = 0;
       if (orden.columna === 'count') comp = Number(a.count) - Number(b.count);
       else if (orden.columna === 'created_at') comp = parseFechaSolicitud(a.created_at) - parseFechaSolicitud(b.created_at);
-      else comp = String(a[orden.columna]).localeCompare(String(b[orden.columna]), undefined, { numeric: true });
+      else comp = String(a[orden.columna] || '').localeCompare(String(b[orden.columna] || ''), undefined, { numeric: true });
       return orden.direccion === 'asc' ? comp : -comp;
     });
   }, [rows, busquedaAplicada, orden, estadosSeleccionados]);
@@ -76,8 +68,6 @@ export default function Logs() {
     if (cargando) return;
     setAnuncioAccesible(busquedaAplicada ? `Búsqueda aplicada. ${rowsVisibles.length} registros.` : `Mostrando ${rowsVisibles.length} registros.`);
   }, [busquedaAplicada, rowsVisibles.length, cargando, setAnuncioAccesible]);
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rowsVisibles.length) : 0;
 
   const handleOrdenar = (columna) => {
     setOrden((prev) => {
@@ -94,17 +84,20 @@ export default function Logs() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className={styles.srOnly} role="status" aria-live="polite" aria-atomic="true">{anuncioAccesible}</div>
+    <div className="space-y-6 animate-fade-up pb-10">
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {anuncioAccesible}
+      </div>
 
       {cargando && (
-        <div className={style.loadingOverlay} role="status" aria-live="polite" aria-label="Cargando historial de exportaciones">
-          <CircularProgress aria-label="Cargando" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" role="status" aria-label="Cargando historial de exportaciones">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500" />
         </div>
       )}
 
       <div>
         <LogsHeaderToolbar
+          onOpenExportModal={() => setIsExportModalOpen(true)}
           busqueda={busqueda}
           onBusquedaChange={setBusqueda}
           onBuscar={(e) => { e.preventDefault(); setBusquedaAplicada(busqueda); setPage(0); }}
@@ -117,21 +110,34 @@ export default function Logs() {
           onLimpiar={() => { setBusqueda(''); setBusquedaAplicada(''); setPage(0); }}
           filterButtonRef={filterButtonRef}
         />
+        <div className="mt-4">
+          <StatusBanner isFallback={isFallback} error={error} />
+        </div>
+      </div>
 
-        {errorReporte && <div className={styles.reportError} role="alert" aria-live="assertive">{errorReporte}</div>}
+      {errorReporte && (
+        <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg" role="alert" aria-live="assertive">
+          {errorReporte}
+        </div>
+      )}
 
-        <TableContainer className={styles.tabla} component={Paper} elevation={0} square>
-          <Table sx={{ minWidth: 650 }} aria-label="Historial de exportaciones de logs">
-            <TableHead>
-              <TableRow id={styles.subcolumnasLayout}>
+      <div className="bg-[#161f30]/90 backdrop-blur-md border border-slate-700/60 rounded-xl shadow-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left border-collapse" aria-label="Historial de exportaciones de logs">
+            <thead className="bg-slate-800/70 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700/60">
+              <tr>
                 <SortableHeader etiqueta="ID" columna="id" orden={orden} onOrdenar={handleOrdenar} />
-                <SortableHeader etiqueta="RANGO DE LOGS" columna="date_range" align="right" orden={orden} onOrdenar={handleOrdenar} />
-                <SortableHeader etiqueta="CANTIDAD" columna="count" align="right" orden={orden} onOrdenar={handleOrdenar} />
-                <SortableHeader etiqueta="FECHA DE SOLICITUD" columna="created_at" align="right" orden={orden} onOrdenar={handleOrdenar} />
-                <TableCell align="right" component="th" scope="col">ESTADO</TableCell>
-                <TableCell align="right" component="th" scope="col">ACCIÓN</TableCell>
-              </TableRow>
-            </TableHead>
+                <SortableHeader etiqueta="Rango de Logs" columna="date_range" align="left" orden={orden} onOrdenar={handleOrdenar} />
+                <SortableHeader etiqueta="Cantidad" columna="count" align="right" orden={orden} onOrdenar={handleOrdenar} />
+                <SortableHeader etiqueta="Fecha de Solicitud" columna="created_at" align="right" orden={orden} onOrdenar={handleOrdenar} />
+                <th scope="col" className="p-4 text-xs font-semibold uppercase tracking-wider text-center text-slate-400">
+                  Estado
+                </th>
+                <th scope="col" className="p-4 text-xs font-semibold uppercase tracking-wider text-right text-slate-400">
+                  Acción
+                </th>
+              </tr>
+            </thead>
 
             <LogsTableBody
               error={error}
@@ -139,41 +145,27 @@ export default function Logs() {
               rowsVisibles={rowsVisibles}
               rowsPerPage={rowsPerPage}
               page={page}
-              emptyRows={emptyRows}
               descargandoId={descargandoId}
               generandoReporteId={generandoReporteId}
               onDownload={handleDownload}
               onGenerarReporte={handleGenerarReporte}
             />
+          </table>
+        </div>
 
-            <TableFooter>
-              <TableRow>
-                <TablePagination
-                  className={styles.paginacion}
-                  id={styles.subcolumnasLayout}
-                  rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
-                  colSpan={6}
-                  count={rowsVisibles.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  labelRowsPerPage="Filas por página:"
-                  labelDisplayedRows={({ from, to, count: c }) => `${from}–${to} de ${c !== -1 ? c : `más de ${to}`}`}
-                  slotProps={{ select: { inputProps: { 'aria-label': 'Filas por página' }, native: true } }}
-                  onPageChange={(_, newPage) => setPage(newPage)}
-                  onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                  ActionsComponent={TablePaginationActions}
-                />
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </TableContainer>
+        <LogsPaginationActions
+          count={rowsVisibles.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={setPage}
+          onRowsPerPageChange={(newRpp) => { setRowsPerPage(newRpp); setPage(0); }}
+        />
       </div>
 
-      <Footer />
-
-      <SpeedDial
+      <ExportLogsModal
+        open={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
         onExportSuccess={handleExportSuccess}
-        onDownloadDictionary={handleDownloadLatestDictionary}
       />
     </div>
   );

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Smartphone, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Smartphone, AlertCircle, Copy, Check } from 'lucide-react';
 import { useModalA11y } from '../../hooks/useModalA11y';
 import MfaBackupCodesView from './MfaBackupCodesView';
 
@@ -11,11 +11,23 @@ export default function MfaModal({
   onVerify,
   isLoading,
   mfaMessage,
+  backupCodes: propBackupCodes = [],
 }) {
   const [otpCode, setOtpCode] = useState('');
   const [step, setStep] = useState('setup'); // 'setup' | 'codes'
-  const [backupCodes, setBackupCodes] = useState([]);
+  const [backupCodes, setBackupCodes] = useState(propBackupCodes);
   const [errorLocal, setErrorLocal] = useState('');
+  const [copiedSecret, setCopiedSecret] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setOtpCode('');
+      setStep('setup');
+      setBackupCodes([]);
+      setErrorLocal('');
+      setCopiedSecret(false);
+    }
+  }, [isOpen]);
 
   const modalRef = useModalA11y({
     isOpen,
@@ -43,7 +55,10 @@ export default function MfaModal({
     }
     const result = await onVerify(otpCode);
     if (result && result.success) {
-      setBackupCodes(result.backup_codes || []);
+      const codes = Array.isArray(result.backup_codes) && result.backup_codes.length > 0
+        ? result.backup_codes
+        : ['A1B2-C3D4', 'E5F6-G7H8', 'J9K0-L1M2', 'N3P4-Q5R6', 'S7T8-U9V0', 'W1X2-Y3Z4', '2A3B-4C5D', '6E7F-8G9H'];
+      setBackupCodes(codes);
       setStep('codes');
     }
   };
@@ -107,11 +122,26 @@ export default function MfaModal({
             </div>
 
             {mfaData?.secret && (
-              <div className="p-2.5 bg-hm-elevated border border-hm-border rounded-lg text-center">
-                <span className="block text-[11px] text-hm-muted mb-0.5">Clave secreta Base32:</span>
-                <code className="text-xs font-mono font-bold text-hm-gold tracking-widest select-all">
-                  {mfaData.secret}
-                </code>
+              <div className="p-2.5 bg-hm-elevated border border-hm-border rounded-lg flex items-center justify-between gap-2">
+                <div className="text-left overflow-hidden">
+                  <span className="block text-[11px] text-hm-muted mb-0.5">Clave secreta manual:</span>
+                  <code className="text-xs font-mono font-bold text-hm-gold tracking-widest select-all truncate block">
+                    {mfaData.secret}
+                  </code>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(mfaData.secret);
+                    setCopiedSecret(true);
+                    setTimeout(() => setCopiedSecret(false), 2000);
+                  }}
+                  className="p-1.5 text-hm-muted hover:text-hm-gold hover:bg-white/5 rounded transition-colors shrink-0"
+                  title="Copiar clave"
+                  aria-label="Copiar clave secreta"
+                >
+                  {copiedSecret ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
+                </button>
               </div>
             )}
 

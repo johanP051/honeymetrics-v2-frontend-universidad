@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Users, UserPlus, Search, RefreshCw, Trash2, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Users, UserPlus, Search, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import UserModal from './UserModal';
 import DeleteUserModal from './DeleteUserModal';
+import ResetMfaModal from './ResetMfaModal';
+import UserTableRow from './UserTableRow';
 
 export default function UserManagementTab({
   users = [], roles = [],
@@ -12,8 +14,10 @@ export default function UserManagementTab({
   const { user: currentUser } = useAuth();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [userToResetMfa, setUserToResetMfa] = useState(null);
   const createTriggerRef = useRef(null);
   const deleteTriggerRef = useRef(null);
 
@@ -32,6 +36,31 @@ export default function UserManagementTab({
     return String(currentUser.id) === String(targetUser.id) || currentUser.email === targetUser.email;
   };
 
+  const handleOpenCreate = () => {
+    setUserToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (user) => {
+    setUserToEdit(user);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveUser = async (payload, userId) => {
+    if (userId) {
+      await onUserUpdate(userId, payload);
+    } else {
+      await onUserCreate(payload);
+    }
+  };
+
+  const handleConfirmResetMfa = async () => {
+    if (userToResetMfa && onUserMfaReset) {
+      await onUserMfaReset(userToResetMfa.id);
+      setUserToResetMfa(null);
+    }
+  };
+
   return (
     <div className="bg-hm-card/90 border border-hm-border rounded-xl p-4 sm:p-5 shadow-lg space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-hm-border/60 pb-4">
@@ -46,7 +75,7 @@ export default function UserManagementTab({
           <button
             ref={createTriggerRef}
             type="button"
-            onClick={() => setIsCreateOpen(true)}
+            onClick={handleOpenCreate}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-hm-gold text-slate-950 text-xs font-bold hover:bg-hm-goldHover transition-colors shrink-0"
           >
             <UserPlus size={14} aria-hidden="true" />
@@ -94,88 +123,56 @@ export default function UserManagementTab({
           <table className="w-full text-left text-xs min-w-[760px]">
             <thead className="bg-hm-elevated/80 text-hm-muted uppercase tracking-wider font-semibold border-b border-hm-border">
               <tr>
-                <th scope="col" className="px-3.5 py-3 whitespace-nowrap">Usuario</th>
-                <th scope="col" className="px-3.5 py-3 whitespace-nowrap">Rol</th>
-                <th scope="col" className="px-3.5 py-3 whitespace-nowrap">Estado</th>
-                <th scope="col" className="px-3.5 py-3 whitespace-nowrap">2FA</th>
-                <th scope="col" className="px-3.5 py-3 whitespace-nowrap">Alta en Sistema</th>
-                <th scope="col" className="px-3.5 py-3 whitespace-nowrap text-right">Acciones</th>
+                <th scope="col" className="px-4 py-3 whitespace-nowrap">USUARIO</th>
+                <th scope="col" className="px-4 py-3 whitespace-nowrap">ROL ASIGNADO</th>
+                <th scope="col" className="px-4 py-3 whitespace-nowrap text-center">ESTADO</th>
+                <th scope="col" className="px-4 py-3 whitespace-nowrap text-center">2FA</th>
+                <th scope="col" className="px-4 py-3 whitespace-nowrap">ALTA EN SISTEMA</th>
+                <th scope="col" className="px-4 py-3 whitespace-nowrap text-right">ACCIONES</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-hm-border/40">
-              {filteredUsers.map((u) => {
-                const isCurrent = isCurrentSessionUser(u);
-                const fullName = `${u.first_names || ''} ${u.last_names || ''}`.trim() || u.email;
-                return (
-                  <tr key={u.id} className="hover:bg-hm-elevated/40 transition-colors">
-                    <td className="px-3.5 py-2.5">
-                      <div className="font-semibold text-hm-text">{fullName}</div>
-                      <div className="text-[11px] text-hm-muted">{u.email}</div>
-                    </td>
-                    <td className="px-3.5 py-2.5 whitespace-nowrap">
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-hm-elevated border border-hm-border text-hm-gold">
-                        {u.role_name || 'Analista'}
-                      </span>
-                    </td>
-                    <td className="px-3.5 py-2.5 whitespace-nowrap">
-                      <button
-                        type="button"
-                        onClick={() => !isCurrent && onUserUpdate(u.id, { is_active: !u.is_active })}
-                        disabled={isCurrent || isLoading}
-                        className={`px-2 py-0.5 rounded-full text-[11px] font-semibold transition-colors ${
-                          u.is_active ? 'bg-emerald-500/15 text-emerald-300' : 'bg-hm-danger/15 text-hm-danger'
-                        } ${isCurrent ? 'cursor-default' : 'hover:opacity-80'}`}
-                      >
-                        {u.is_active ? 'Activo' : 'Inactivo'}
-                      </button>
-                    </td>
-                    <td className="px-3.5 py-2.5 whitespace-nowrap">
-                      {u.is_mfa_enabled ? (
-                        <span className="text-emerald-400 font-semibold flex items-center gap-1 text-[11px]">
-                          <CheckCircle2 size={13} /> Activo
-                        </span>
-                      ) : (
-                        <span className="text-hm-muted text-[11px]">Inactivo</span>
-                      )}
-                    </td>
-                    <td className="px-3.5 py-2.5 text-hm-muted font-mono whitespace-nowrap">
-                      {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/D'}
-                    </td>
-                    <td className="px-3.5 py-2.5 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-1">
-                        {u.is_mfa_enabled && (
-                          <button
-                            type="button"
-                            onClick={() => onUserMfaReset(u.id)}
-                            disabled={isLoading}
-                            className="p-1.5 text-hm-warning hover:bg-hm-warning/10 rounded transition-colors"
-                            title="Resetear 2FA"
-                          >
-                            <KeyRound size={15} />
-                          </button>
-                        )}
-                        <button
-                          ref={deleteTriggerRef}
-                          type="button"
-                          onClick={() => setUserToDelete(u)}
-                          disabled={isCurrent || isLoading}
-                          className={`p-1.5 rounded transition-colors ${isCurrent ? 'text-hm-muted/40 cursor-not-allowed' : 'text-hm-danger hover:bg-hm-danger/10'}`}
-                          title={isCurrent ? 'No puede auto-eliminar su cuenta activa' : 'Eliminar usuario'}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+              {filteredUsers.map((u) => (
+                <UserTableRow
+                  key={u.id}
+                  user={u}
+                  isCurrent={isCurrentSessionUser(u)}
+                  isLoading={isLoading}
+                  onUserUpdate={onUserUpdate}
+                  onOpenResetMfa={setUserToResetMfa}
+                  onOpenEdit={handleOpenEdit}
+                  onOpenDelete={setUserToDelete}
+                />
+              ))}
             </tbody>
           </table>
         </div>
       )}
 
-      <UserModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} triggerRef={createTriggerRef} onSubmit={onUserCreate} roles={roles} isLoading={isLoading} />
-      <DeleteUserModal isOpen={!!userToDelete} onClose={() => setUserToDelete(null)} triggerRef={deleteTriggerRef} userToDelete={userToDelete} onConfirm={onUserDelete} isLoading={isLoading} />
+      <UserModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        triggerRef={createTriggerRef}
+        onSubmit={handleSaveUser}
+        roles={roles}
+        isLoading={isLoading}
+        userToEdit={userToEdit}
+      />
+      <DeleteUserModal
+        isOpen={!!userToDelete}
+        onClose={() => setUserToDelete(null)}
+        triggerRef={deleteTriggerRef}
+        userToDelete={userToDelete}
+        onConfirm={onUserDelete}
+        isLoading={isLoading}
+      />
+      <ResetMfaModal
+        isOpen={!!userToResetMfa}
+        onClose={() => setUserToResetMfa(null)}
+        userToReset={userToResetMfa}
+        onConfirm={handleConfirmResetMfa}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

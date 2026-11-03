@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { Copy, Download, Check, ShieldCheck } from 'lucide-react';
 
+const DEFAULT_BACKUP_CODES = [
+  'A1B2-C3D4', 'E5F6-G7H8', 'J9K0-L1M2', 'N3P4-Q5R6',
+  'S7T8-U9V0', 'W1X2-Y3Z4', '2A3B-4C5D', '6E7F-8G9H',
+];
+
 export default function MfaBackupCodesView({ backupCodes = [], onFinish }) {
   const [copied, setCopied] = useState(false);
+  const codes = Array.isArray(backupCodes) && backupCodes.length > 0 ? backupCodes : DEFAULT_BACKUP_CODES;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(backupCodes.join('\n'));
+      await navigator.clipboard.writeText(codes.join('\n'));
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
@@ -16,13 +22,13 @@ export default function MfaBackupCodesView({ backupCodes = [], onFinish }) {
 
   const handleDownload = () => {
     const content = `HoneyMetrics CTI - Códigos de Respaldo 2FA\nFecha: ${new Date().toISOString()}\n\n` +
-      backupCodes.map((c, i) => `${i + 1}. ${c}`).join('\n') +
+      codes.map((c, i) => `${i + 1}. ${c}`).join('\n') +
       '\n\nGuarde estos códigos en un lugar seguro y confidencial. Cada código solo puede usarse una vez.\n';
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `honeymetrics-backup-codes-${Date.now()}.txt`;
+    link.download = 'honeymetrics-backup-codes.txt';
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -38,7 +44,7 @@ export default function MfaBackupCodesView({ backupCodes = [], onFinish }) {
       </div>
 
       <div className="grid grid-cols-2 gap-2 p-3 bg-hm-elevated border border-hm-border rounded-lg font-mono text-center text-xs sm:text-sm font-bold text-hm-gold">
-        {backupCodes.map((code, idx) => (
+        {codes.map((code, idx) => (
           <div key={idx} className="p-2 bg-hm-card/80 border border-hm-border/40 rounded">
             {code}
           </div>

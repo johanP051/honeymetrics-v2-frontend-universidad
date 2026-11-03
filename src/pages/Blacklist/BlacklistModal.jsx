@@ -1,64 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import Modal from '@mui/material/Modal';
-import Slider from '@mui/material/Slider';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import useModalA11y from '../../hooks/useModalA11y';
-import styles from './blacklist.module.css';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
+import { useModalA11y } from '../../hooks/useModalA11y';
 
-const CATEGORY_OPTIONS = ['Botnet', 'APT', 'Scanner', 'Recon', 'BruteForce', 'DDoS'];
+const CATEGORIES = ['Botnet', 'APT', 'Scanner', 'Recon', 'BruteForce', 'DDoS', 'Malware'];
 
 function getIpType(ip) {
   if (typeof ip !== 'string') return null;
-  const ipv4Parts = ip.split('.');
-  if (ipv4Parts.length === 4 && ipv4Parts.every((p) => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255)) {
-    return 'IPv4';
-  }
+  const parts = ip.split('.');
+  if (parts.length === 4 && parts.every((p) => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255)) return 'IPv4';
   if (ip.includes(':')) return 'IPv6';
   return null;
 }
 
-export default function BlacklistModal({
-  open,
-  onClose,
-  onSubmit,
-  threatToEdit = null,
-}) {
+export default function BlacklistModal({ open, onClose, onSubmit, threatToEdit = null }) {
+  const modalRef = useRef(null);
+  useModalA11y({ isOpen: Boolean(open), onClose, containerRef: modalRef });
+
   const [ip, setIp] = useState('');
   const [country, setCountry] = useState('');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState('Botnet');
   const [threatScore, setThreatScore] = useState(50);
   const [notes, setNotes] = useState('');
-
-  const modalRef = useModalA11y({
-    isOpen: Boolean(open),
-    onClose,
-  });
+  const [formError, setFormError] = useState(null);
 
   useEffect(() => {
     if (threatToEdit) {
       setIp(threatToEdit.ip || '');
       setCountry(threatToEdit.country || '');
-      setCategory(threatToEdit.category || '');
+      setCategory(threatToEdit.category || 'Botnet');
       setThreatScore(Number(threatToEdit.threat_score ?? 50));
       setNotes(threatToEdit.notes || '');
     } else {
-      setIp('');
-      setCountry('');
-      setCategory('');
-      setThreatScore(50);
-      setNotes('');
+      setIp(''); setCountry(''); setCategory('Botnet'); setThreatScore(50); setNotes('');
     }
+    setFormError(null);
   }, [threatToEdit, open]);
+
+  if (!open) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const cleanIp = ip.trim();
     const ipType = getIpType(cleanIp);
     if (!ipType) {
-      alert('Introduce una dirección IPv4 o IPv6 válida.');
+      setFormError('Introduce una dirección IPv4 o IPv6 válida.');
       return;
     }
 
@@ -67,107 +53,142 @@ export default function BlacklistModal({
       ip: cleanIp,
       ip_type: ipType,
       country: country.trim(),
-      category: category || 'Scanner',
+      category: category || 'Botnet',
       threat_score: Number(threatScore),
       notes: notes.trim(),
     });
     onClose();
   };
 
-  return (
-    <Modal open={Boolean(open)} onClose={onClose} aria-labelledby="modal-threat-title">
-      <div ref={modalRef} tabIndex="-1" className={`${styles.modalAmenaza} ${styles.modalAmenazaEntrada}`} role="dialog" aria-modal="true">
-        <h2 id="modal-threat-title" className={styles.tituloModal}>
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="threat-modal-title"
+        className="w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-xl p-6 relative shadow-2xl text-slate-100 animate-fade-up"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar modal"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-100 transition-colors p-1 rounded-lg hover:bg-slate-800"
+        >
+          <X size={20} aria-hidden="true" />
+        </button>
+
+        <h2 id="threat-modal-title" className="text-xl font-bold font-display text-amber-400 mb-4">
           {threatToEdit ? 'Editar Amenaza' : 'Nueva Amenaza'}
         </h2>
-        <IconButton className={styles.cerrarModal} aria-label="cerrar modal" onClick={onClose}>
-          <CloseIcon />
-        </IconButton>
 
-        <form id="amenaza-form" onSubmit={handleSubmit}>
-          <label className={styles.ipLabel} htmlFor="ip-input">Dirección IP:</label>
-          <input
-            id="ip-input"
-            name="ip"
-            type="text"
-            required
-            autoComplete="off"
-            placeholder="Ej. 45.148.10.151"
-            value={ip}
-            onChange={(e) => setIp(e.target.value)}
-          />
+        {formError && (
+          <div role="alert" className="mb-4 bg-red-500/10 border border-red-500/30 text-red-400 p-3 rounded-lg text-sm">
+            {formError}
+          </div>
+        )}
 
-          <label className={styles.paisLabel} htmlFor="country-input">País:</label>
-          <input
-            id="country-input"
-            name="country"
-            required
-            type="text"
-            placeholder="Ej. Rusia"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-          />
-
-          <div className={styles.threatScoreForm}>
-            <div className={styles.threatScoreFormLabel}>
-              <p>Threat score:</p>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={threatScore}
-                onChange={(e) => setThreatScore(Math.min(100, Math.max(0, Number(e.target.value))))}
-                aria-label="valor del threat score"
-              />
-            </div>
-            <Slider
-              value={threatScore}
-              min={0}
-              max={100}
-              onChange={(_, val) => setThreatScore(val)}
-              aria-label="threat score"
-              className={styles.threatScoreSlider}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="threat-ip" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
+              Dirección IP
+            </label>
+            <input
+              id="threat-ip"
+              type="text"
+              required
+              placeholder="Ej. 45.148.10.151"
+              value={ip}
+              onChange={(e) => setIp(e.target.value)}
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm font-mono placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
 
-          <label className={styles.categoriaLabel} htmlFor="category-select">Categoría:</label>
-          <Select
-            id="category-select"
-            value={category}
-            required
-            displayEmpty
-            onChange={(e) => setCategory(e.target.value)}
-            className={styles.categorySelect}
-            inputProps={{ 'aria-label': 'categoría' }}
-          >
-            <MenuItem value="" disabled className={styles.categoryPlaceholder}>
-              Selecciona una categoría
-            </MenuItem>
-            {CATEGORY_OPTIONS.map((opt) => (
-              <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-            ))}
-          </Select>
+          <div>
+            <label htmlFor="threat-country" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
+              País
+            </label>
+            <input
+              id="threat-country"
+              type="text"
+              required
+              placeholder="Ej. Rusia"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+            />
+          </div>
 
-          <label className={styles.paisLabel} htmlFor="notes-input" style={{ marginTop: '12px' }}>Notas SOC:</label>
-          <input
-            id="notes-input"
-            name="notes"
-            type="text"
-            placeholder="Observaciones de telemetría"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="threat-score" className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                Threat Score
+              </label>
+              <span className={`text-sm font-mono font-bold ${threatScore > 70 ? 'text-red-400' : 'text-amber-400'}`}>
+                {threatScore}
+              </span>
+            </div>
+            <input
+              id="threat-score"
+              type="range"
+              min="0"
+              max="100"
+              value={threatScore}
+              onChange={(e) => setThreatScore(Number(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer h-2 bg-slate-800 rounded-lg"
+            />
+          </div>
 
-          <div className={styles.modalActions}>
-            <button type="button" className={styles.cancelarModal} onClick={onClose}>
+          <div>
+            <label htmlFor="threat-category" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
+              Categoría
+            </label>
+            <select
+              id="threat-category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500 transition-colors"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c} className="bg-slate-900 text-slate-100">
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="threat-notes" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
+              Notas SOC / Contexto Forense
+            </label>
+            <textarea
+              id="threat-notes"
+              rows={2}
+              placeholder="Observaciones de telemetría..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-none"
+            />
+          </div>
+
+          <div className="pt-2 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
+            >
               Cancelar
             </button>
-            <button type="submit" className={`${styles.anadirAmenazaTexto} ${styles.guardarModal}`}>
+            <button
+              type="submit"
+              className="px-5 py-2 rounded-lg text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-slate-900 transition-colors shadow-lg shadow-amber-500/20"
+            >
               Guardar
             </button>
           </div>
         </form>
       </div>
-    </Modal>
+    </div>,
+    document.body
   );
 }

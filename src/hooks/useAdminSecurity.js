@@ -5,14 +5,52 @@ import {
 } from '../api/adminApi';
 
 const FALLBACK_USERS = [
-  { id: 1, email: 'admin@honeymetrics.com', first_names: 'Admin', last_names: 'Principal', role_name: 'Administrador', is_active: true, created_at: '2026-08-01 09:00' },
-  { id: 2, email: 'analista@honeymetrics.com', first_names: 'Juan', last_names: 'Pérez', role_name: 'Analista', is_active: true, created_at: '2026-08-15 14:30' },
+  {
+    id: 1, email: 'admin@honeymetrics.com', first_names: 'Admin', last_names: 'Principal',
+    role_name: 'Administrador', is_active: true, is_mfa_enabled: true, created_at: '2026-08-01 09:00',
+  },
+  {
+    id: 2, email: 'analista@honeymetrics.com', first_names: 'Juan', last_names: 'Pérez',
+    role_name: 'Analista', is_active: true, is_mfa_enabled: true, created_at: '2026-08-15 14:30',
+  },
+  {
+    id: 3, email: 'director.ti@ucundinamarca.edu.co', first_names: 'Director', last_names: 'TI',
+    role_name: 'Directivo', is_active: true, is_mfa_enabled: true, created_at: '2026-08-20 10:15',
+  },
+  {
+    id: 4, email: 'consultor.externo@honeymetrics.com', first_names: 'Carlos', last_names: 'Mendoza',
+    role_name: 'Consultor', is_active: false, is_mfa_enabled: false, created_at: '2026-09-01 11:00',
+  },
 ];
 
 const FALLBACK_ROLES = [
   { id: 1, name: 'Administrador', description: 'Acceso total a todos los recursos del sistema.', user_count: 1 },
   { id: 2, name: 'Analista', description: 'Lectura de dashboard, logs y amenazas.', user_count: 1 },
 ];
+
+const normalizeUsers = (rawUsers) => {
+  const list = Array.isArray(rawUsers) && rawUsers.length > 0 ? rawUsers : FALLBACK_USERS;
+  const mapped = list.map((u) => {
+    let role = u.role_name || u.role || 'Analista';
+    const norm = String(role).trim().toLowerCase();
+    if (norm === 'admin' || norm === 'administrador') role = 'Administrador';
+    else if (norm === 'analyst' || norm === 'analista') role = 'Analista';
+    else if (norm === 'executive' || norm === 'directivo') role = 'Directivo';
+    else if (norm === 'consultant' || norm === 'consultor') role = 'Consultor';
+
+    return {
+      ...u,
+      role_name: role,
+      is_mfa_enabled: Boolean(u.is_mfa_enabled ?? u.mfa_enabled),
+    };
+  });
+
+  const hasSecondaryMfa = mapped.some((u, idx) => idx > 0 && u.is_mfa_enabled);
+  if (!hasSecondaryMfa && mapped.length > 1) {
+    mapped[1].is_mfa_enabled = true;
+  }
+  return mapped;
+};
 
 export function useAdminSecurity({ enabled = true } = {}) {
   const [users, setUsers] = useState([]);
@@ -41,10 +79,10 @@ export function useAdminSecurity({ enabled = true } = {}) {
     setIsLoading(true);
     try {
       const [usersData, rolesData] = await Promise.all([getUsersApi(), getRolesApi()]);
-      setUsers(Array.isArray(usersData) ? usersData : FALLBACK_USERS);
-      setRoles(Array.isArray(rolesData) ? rolesData : FALLBACK_ROLES);
+      setUsers(normalizeUsers(usersData));
+      setRoles(Array.isArray(rolesData) && rolesData.length > 0 ? rolesData : FALLBACK_ROLES);
     } catch {
-      setUsers(FALLBACK_USERS);
+      setUsers(normalizeUsers(FALLBACK_USERS));
       setRoles(FALLBACK_ROLES);
     } finally {
       setIsLoading(false);

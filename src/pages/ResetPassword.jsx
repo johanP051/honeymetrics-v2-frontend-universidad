@@ -8,7 +8,14 @@ import Footer from '../components/layout/Footer';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
-  const [token] = useState(() => searchParams.get('token') || '');
+  const [token] = useState(() => {
+    const fromUrl = searchParams.get('token');
+    if (fromUrl) {
+      try { sessionStorage.setItem('hm_reset_token', fromUrl); } catch {}
+      return fromUrl;
+    }
+    try { return sessionStorage.getItem('hm_reset_token') || ''; } catch { return ''; }
+  });
   const navigate = useNavigate();
 
   const [password, setPassword] = useState('');
@@ -23,7 +30,9 @@ export default function ResetPassword() {
   const strength = calculatePasswordStrength(password);
 
   useEffect(() => {
-    if (searchParams.get('token')) {
+    const urlToken = searchParams.get('token');
+    if (urlToken) {
+      try { sessionStorage.setItem('hm_reset_token', urlToken); } catch {}
       window.history.replaceState({}, document.title, window.location.pathname);
     }
     return () => {
@@ -50,6 +59,7 @@ export default function ResetPassword() {
 
     try {
       await resetPassword(token, password);
+      try { sessionStorage.removeItem('hm_reset_token'); } catch {}
       setIsSuccess(true);
       redirectTimerRef.current = setTimeout(() => {
         navigate('/login', {

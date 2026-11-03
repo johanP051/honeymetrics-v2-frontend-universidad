@@ -44,7 +44,7 @@ export async function generarReportePdf(exportId = 'EXP-0001', estadisticas = {}
 
   const [logo, grafica] = await Promise.all([
     cargarImagenComoDataUrl(logoHoneyMetrics),
-    Promise.resolve(crearGraficaDonut(values)),
+    Promise.resolve(crearGraficaDonut(values, labels)),
   ]);
 
   const indicePrincipal = values.reduce((mayor, v, i, arr) => (Number(v) > Number(arr[mayor]) ? i : mayor), 0);
@@ -110,8 +110,8 @@ export async function generarReportePdf(exportId = 'EXP-0001', estadisticas = {}
 
   documento.setFont('helvetica', 'bold');
   documento.setFontSize(13);
-  documento.text('Eventos por Decoder', 130, 44);
-  if (grafica) documento.addImage(grafica, 'PNG', 120, 48, 76, 76);
+  documento.text('Distribución por Decoder', 118, 44);
+  if (grafica) documento.addImage(grafica, 'PNG', 114, 48, 82, 60);
 
   autoTable(documento, {
     startY: 132,

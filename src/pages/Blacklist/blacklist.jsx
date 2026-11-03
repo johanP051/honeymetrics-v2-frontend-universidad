@@ -1,31 +1,30 @@
 import React, { useState, useMemo } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import TablePagination from '@mui/material/TablePagination';
-import TableFooter from '@mui/material/TableFooter';
-import GppMaybeOutlinedIcon from '@mui/icons-material/GppMaybeOutlined';
-import CircularProgress from '@mui/material/CircularProgress';
+import { ShieldAlert, Shield, Archive, Search, Plus } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import useThreatCRUD from '../../hooks/useThreatCRUD';
+import StatusBanner from '../../components/layout/StatusBanner';
 import BlacklistTableRow from './BlacklistTableRow';
 import BlacklistModal from './BlacklistModal';
 import ForensicVaultTable from './ForensicVaultTable';
-import { TablePaginationActions } from '../Logs/LogsPaginationActions';
-import styles from './blacklist.module.css';
+import BlacklistPagination from './BlacklistPagination';
 
 export default function Blacklist() {
   const [activeTab, setActiveTab] = useState('active');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const rowsPerPage = 5;
   const [modalOpen, setModalOpen] = useState(false);
   const [threatToEdit, setThreatToEdit] = useState(null);
 
-  const { data: threats, vaultData, isLoading, addThreat, updateThreat, deleteThreat } = useThreatCRUD();
+  const { hasScope } = useAuth();
+  const { data: threats, vaultData, isLoading, error, isFallback, addThreat, updateThreat, deleteThreat } = useThreatCRUD();
+
+  const hasPermission = (perm) => {
+    if (!hasScope) return true;
+    if (perm === 'threats:audit_view') return hasScope('threats:audit_view') || hasScope('threats:read') || hasScope('admin:all');
+    if (perm === 'threats:create') return hasScope('threats:create') || hasScope('threats:write') || hasScope('admin:all');
+    return hasScope(perm) || hasScope('admin:all');
+  };
 
   const filteredThreats = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -33,9 +32,16 @@ export default function Blacklist() {
     return threats.filter((t) => [t.ip, t.country, t.category, t.status].some((v) => String(v || '').toLowerCase().includes(term)));
   }, [threats, searchTerm]);
 
-  const handleOpenEdit = (threat) => {
-    setThreatToEdit(threat);
-    setModalOpen(true);
+  const paginatedThreats = useMemo(() => {
+    return filteredThreats.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  }, [filteredThreats, page, rowsPerPage]);
+
+  const handleOpenEdit = (threat) => { setThreatToEdit(threat); setModalOpen(true); };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('¿Desea archivar esta amenaza en la Bóveda Forense?')) {
+      await deleteThreat(id);
+    }
   };
 
   const handleModalSubmit = async (formData) => {
@@ -44,104 +50,131 @@ export default function Blacklist() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-up pb-10">
       {isLoading && (
-        <div className={styles.loadingOverlay} role="status" aria-label="Cargando blacklist">
-          <CircularProgress aria-label="Cargando" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" role="status" aria-label="Cargando">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500" />
         </div>
       )}
 
       <div>
-        <div className={styles.encabezado}>
-        <div className={styles.tituloFila}>
-          <GppMaybeOutlinedIcon className={styles.tituloIcono} />
-          <h1>Threat Intelligence Center</h1>
+        <div className="flex items-center gap-3 mb-1">
+          <ShieldAlert className="w-8 h-8 text-amber-500" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-100 font-display">
+            Threat Intelligence Center
+          </h1>
         </div>
-        <p>Gestión y análisis de indicadores de compromiso (IoC) y Bóveda Forense.</p>
-
-        <div style={{ display: 'flex', gap: '12px', marginTop: '16px', alignItems: 'center' }}>
-          <button
-            type="button"
-            className={`${styles.anadirAmenazaTexto} ${activeTab === 'active' ? styles.guardarModal : ''}`}
-            onClick={() => setActiveTab('active')}
-          >
-            Amenazas Activas ({threats.length})
-          </button>
-          <button
-            type="button"
-            className={`${styles.anadirAmenazaTexto} ${activeTab === 'vault' ? styles.guardarModal : ''}`}
-            onClick={() => setActiveTab('vault')}
-          >
-            Bóveda Forense ({vaultData.length})
-          </button>
-          <input
-            type="search"
-            placeholder="Buscar por IP, país o categoría..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ marginLeft: 'auto', padding: '8px 12px', borderRadius: '8px', border: '1px solid #3B4655', background: '#1B212B', color: '#FFF', width: '250px' }}
-          />
-        </div>
+        <p className="text-slate-400 text-sm mb-4">
+          Gestión de Lista Negra (Active Response), IOCs y Auditoría Forense.
+        </p>
+        <StatusBanner isFallback={isFallback} error={error} />
       </div>
 
-      {activeTab === 'active' ? (
-        <>
-          <TableContainer className={styles.tabla} component={Paper} elevation={0} square>
-            <Table sx={{ minWidth: 650, width: '100%', tableLayout: 'fixed' }} aria-label="Amenazas Activas">
-              <TableHead>
-                <TableRow id={styles.subcolumnasLayout}>
-                  <TableCell>IP / TIPO</TableCell>
-                  <TableCell>PAÍS</TableCell>
-                  <TableCell>CATEGORÍA</TableCell>
-                  <TableCell className={styles.threatScoreCell}>THREAT SCORE</TableCell>
-                  <TableCell className={styles.estadoCell}>ESTADO</TableCell>
-                  <TableCell className={styles.accionesHeader}>ACCIONES</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredThreats.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#8995A2' }}>
-                      No se encontraron amenazas activas.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  (rowsPerPage > 0 ? filteredThreats.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : filteredThreats).map((row) => (
-                    <BlacklistTableRow key={row.id || row.ip} row={row} onEdit={handleOpenEdit} onDelete={deleteThreat} />
-                  ))
-                )}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    className={styles.paginacion}
-                    id={styles.subcolumnasLayout}
-                    rowsPerPageOptions={[5, 10, 25, { label: 'Todos', value: -1 }]}
-                    colSpan={6}
-                    count={filteredThreats.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={(_, newPage) => setPage(newPage)}
-                    onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                    ActionsComponent={TablePaginationActions}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
+      <div className="glass-card w-full rounded-xl border border-slate-700/60 bg-slate-900/40 shadow-xl overflow-hidden">
+        <div className="p-4 border-b border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-800/40">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => { setActiveTab('active'); setPage(0); }}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                activeTab === 'active'
+                  ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>Amenazas Activas</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${activeTab === 'active' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-700 text-slate-300'}`}>
+                {threats.length}
+              </span>
+            </button>
 
-          <button
-            type="button"
-            className={styles.anadirAmenazaTexto}
-            style={{ marginTop: '16px' }}
-            onClick={() => { setThreatToEdit(null); setModalOpen(true); }}
-          >
-            + Añadir amenaza
-          </button>
-        </>
-      ) : (
-        <ForensicVaultTable vaultData={vaultData} />
-      )}
+            {hasPermission('threats:audit_view') && (
+              <button
+                type="button"
+                onClick={() => { setActiveTab('vault'); setPage(0); }}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  activeTab === 'vault'
+                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
+                }`}
+              >
+                <Archive className="w-4 h-4" />
+                <span>Bóveda Forense</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${activeTab === 'vault' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-700 text-slate-300'}`}>
+                  {vaultData.length}
+                </span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
+                placeholder="Buscar IP o país..."
+                className="w-full bg-slate-900/60 border border-slate-700 text-slate-200 text-sm rounded-lg pl-9 pr-3 py-2 placeholder-slate-400 focus:outline-none focus:border-amber-500 transition-colors"
+              />
+            </div>
+
+            {hasPermission('threats:create') && (
+              <button
+                type="button"
+                onClick={() => { setThreatToEdit(null); setModalOpen(true); }}
+                className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-sm px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/20 whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                <span>+ Añadir Amenaza</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {activeTab === 'active' ? (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] text-left border-collapse" aria-label="Amenazas Activas">
+                <thead className="bg-slate-900/70 border-b border-slate-700/60 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  <tr>
+                    <th scope="col" className="p-4">IP / TIPO</th>
+                    <th scope="col" className="p-4">PAÍS</th>
+                    <th scope="col" className="p-4">CATEGORÍA</th>
+                    <th scope="col" className="p-4">THREAT SCORE</th>
+                    <th scope="col" className="p-4">ESTADO</th>
+                    <th scope="col" className="p-4 text-right">ACCIONES</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {filteredThreats.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-slate-400 text-sm">
+                        No se encontraron amenazas activas que coincidan con la búsqueda.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedThreats.map((row) => (
+                      <BlacklistTableRow
+                        key={row.id || row.ip}
+                        row={row}
+                        onEdit={handleOpenEdit}
+                        onDelete={handleDelete}
+                        canEdit={hasPermission('threats:create')}
+                        canDelete={hasPermission('threats:create')}
+                      />
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <BlacklistPagination page={page} setPage={setPage} total={filteredThreats.length} rowsPerPage={rowsPerPage} />
+          </>
+        ) : (
+          <ForensicVaultTable vaultData={vaultData} searchTerm={searchTerm} />
+        )}
       </div>
 
       <BlacklistModal

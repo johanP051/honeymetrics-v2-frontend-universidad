@@ -1,86 +1,109 @@
-import React, { useState } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TablePagination from '@mui/material/TablePagination';
-import Paper from '@mui/material/Paper';
-import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
-import Estado from '../../components/common/estados';
-import styles from './blacklist.module.css';
+import React, { useState, useMemo } from 'react';
+import { Clock } from 'lucide-react';
+import BlacklistPagination from './BlacklistPagination';
 
-export default function ForensicVaultTable({ vaultData = [] }) {
+export default function ForensicVaultTable({ vaultData = [], searchTerm = '' }) {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const rowsPerPage = 5;
 
-  const paginatedData = rowsPerPage > 0
-    ? vaultData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-    : vaultData;
+  const filteredVault = useMemo(() => {
+    const term = searchTerm?.trim()?.toLowerCase();
+    if (!term) return vaultData;
+    return vaultData.filter((t) =>
+      [t.ip, t.country, t.category, t.notes].some((v) =>
+        String(v || '').toLowerCase().includes(term)
+      )
+    );
+  }, [vaultData, searchTerm]);
+
+  const paginatedData = useMemo(() => {
+    return filteredVault.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  }, [filteredVault, page, rowsPerPage]);
+
+  const total = filteredVault.length;
 
   return (
-    <div style={{ marginTop: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-        <ArchiveOutlinedIcon sx={{ color: '#D4AF37' }} />
-        <h2 style={{ fontSize: '1.1rem', margin: 0, color: '#D4AF37' }}>
-          Bóveda Forense — Amenazas Archivadas (Trazabilidad y Auditoría)
-        </h2>
+    <div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[720px] text-left border-collapse" aria-label="Bóveda Forense de Amenazas">
+          <thead className="bg-slate-900/70 border-b border-slate-700/60 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <tr>
+              <th scope="col" className="p-4">IP / TIPO</th>
+              <th scope="col" className="p-4">PAÍS</th>
+              <th scope="col" className="p-4">CATEGORÍA</th>
+              <th scope="col" className="p-4">SCORE ORIGINAL</th>
+              <th scope="col" className="p-4">FECHA ARCHIVADO</th>
+              <th scope="col" className="p-4">ESTADO / NOTAS</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-800/60">
+            {total === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-400 text-sm">
+                  No hay registros archivados en la Bóveda Forense.
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((item) => {
+                const score = Number(item.threat_score ?? 0);
+                return (
+                  <tr key={item.id || item.ip} className="border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors">
+                    <td className="p-4">
+                      <div className="font-mono font-medium text-slate-200">{item.ip}</div>
+                      <div className="text-xs text-slate-400">{item.ip_type || (item.ip?.includes(':') ? 'IPv6' : 'IPv4')}</div>
+                    </td>
+                    <td className="p-4 text-slate-200 font-medium">{item.country || 'Desconocido'}</td>
+                    <td className="p-4 text-slate-200 font-medium">
+                      <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-800 text-slate-200 border border-slate-700/60">
+                        {item.category || 'General'}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-mono text-sm font-bold w-6 text-right ${score > 70 ? 'text-red-400' : 'text-amber-400'}`}>
+                          {score}
+                        </span>
+                        <div
+                          role="progressbar"
+                          aria-valuenow={score}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700 max-w-[100px]"
+                        >
+                          <div
+                            className={`h-full rounded-full ${score > 70 ? 'bg-red-500' : 'bg-amber-400'}`}
+                            style={{ width: `${Math.min(100, Math.max(0, score))}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4 text-sm text-slate-400">
+                      <div className="flex items-center gap-1.5 font-mono text-xs text-slate-300">
+                        <Clock size={14} className="text-amber-500 shrink-0" />
+                        <span>{item.deleted_at ? new Date(item.deleted_at).toLocaleString('es-CO') : 'Histórico'}</span>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-700/40 text-slate-300 border border-slate-600/40">
+                          Archivada
+                        </span>
+                        {item.notes && (
+                          <span className="text-xs text-slate-400 max-w-[150px] truncate" title={item.notes}>
+                            {item.notes}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
 
-      <TableContainer className={styles.tabla} component={Paper} elevation={0} square>
-        <Table sx={{ minWidth: 650, width: '100%', tableLayout: 'fixed' }} aria-label="Bóveda Forense">
-          <TableHead>
-            <TableRow id={styles.subcolumnasLayout}>
-              <TableCell>IP / TIPO</TableCell>
-              <TableCell>PAÍS</TableCell>
-              <TableCell>CATEGORÍA</TableCell>
-              <TableCell className={styles.threatScoreCell}>SCORE ORIGINAL</TableCell>
-              <TableCell>FECHA ARCHIVADO</TableCell>
-              <TableCell className={styles.estadoCell}>ESTADO</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {vaultData.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} style={{ textAlign: 'center', padding: '24px', color: '#8995A2' }}>
-                  No hay registros archivados en la Bóveda Forense.
-                </TableCell>
-              </TableRow>
-            ) : (
-              paginatedData.map((row) => (
-                <TableRow id={styles.tuplas} key={row.id || row.ip} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  <TableCell component="th" scope="row" className={styles.ipCell}>
-                    <span>{row.ip}</span>
-                    <small>{row.ip_type || (row.ip?.includes(':') ? 'IPv6' : 'IPv4')}</small>
-                  </TableCell>
-                  <TableCell>{row.country}</TableCell>
-                  <TableCell>{row.category}</TableCell>
-                  <TableCell className={styles.threatScoreCell}>
-                    <span className={styles.threatScoreSafe}>{row.threat_score}</span>
-                  </TableCell>
-                  <TableCell style={{ fontSize: '0.8rem', color: '#8995A2' }}>
-                    {row.deleted_at ? new Date(row.deleted_at).toLocaleString('es-CO') : 'Histórico'}
-                  </TableCell>
-                  <TableCell className={styles.estadoCell}>
-                    <Estado texto="Archivada" mostrarIcono={false} />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <TablePagination
-          className={styles.paginacion}
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={vaultData.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-        />
-      </TableContainer>
+      <BlacklistPagination page={page} setPage={setPage} total={total} rowsPerPage={rowsPerPage} />
     </div>
   );
 }

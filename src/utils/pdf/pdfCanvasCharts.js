@@ -1,4 +1,4 @@
-export const COLORES_GRAFICA = ['#CDA544', '#323232', '#8995A2', '#4189BC', '#D16D61', '#48A87D'];
+export const COLORES_GRAFICA = ['#CDA544', '#2E3846', '#4189BC', '#3AA76D', '#D16D61', '#8995A2'];
 
 export function cargarImagenComoDataUrl(url) {
   return fetch(url)
@@ -15,59 +15,78 @@ export function cargarImagenComoDataUrl(url) {
     });
 }
 
-export function crearGraficaDonut(values) {
+export function crearGraficaBarrasHorizontales(values, labels = []) {
   try {
     const canvas = document.createElement('canvas');
-    const tamano = 620;
-    canvas.width = tamano;
-    canvas.height = tamano;
-    const contexto = canvas.getContext('2d');
-    if (!contexto) return null;
+    const width = 800;
+    const height = 540;
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
 
-    const total = values.reduce((acumulado, valor) => acumulado + Number(valor || 0), 0) || 1;
-    const centro = tamano / 2;
-    let anguloInicio = -Math.PI / 2;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, width, height);
 
-    contexto.fillStyle = '#FFFFFF';
-    contexto.fillRect(0, 0, tamano, tamano);
+    const total = values.reduce((acc, val) => acc + Number(val || 0), 0) || 1;
+    const maxItems = Math.min(labels.length || values.length, 6);
 
-    values.forEach((valor, indice) => {
-      const porcentaje = Number(valor || 0) / total;
-      const anguloFinal = anguloInicio + porcentaje * Math.PI * 2;
+    const startY = 30;
+    const rowHeight = 80;
+    const labelX = 14;
+    const barStartX = 230;
+    const maxBarWidth = 360;
+    const barHeight = 22;
 
-      contexto.beginPath();
-      contexto.arc(centro, centro, 190, anguloInicio, anguloFinal);
-      contexto.arc(centro, centro, 112, anguloFinal, anguloInicio, true);
-      contexto.closePath();
-      contexto.fillStyle = COLORES_GRAFICA[indice % COLORES_GRAFICA.length];
-      contexto.fill();
+    for (let i = 0; i < maxItems; i += 1) {
+      const y = startY + i * rowHeight;
+      const rawVal = Number(values[i] || 0);
+      const pct = (rawVal / total) * 100;
+      const barW = Math.max((rawVal / total) * maxBarWidth, 4);
+      const label = labels[i] || `Decoder ${i + 1}`;
+      const isTop = i === 0;
+      const barColor = isTop ? '#CDA544' : COLORES_GRAFICA[i % COLORES_GRAFICA.length];
 
-      if (porcentaje >= 0.05) {
-        const anguloTexto = (anguloInicio + anguloFinal) / 2;
-        contexto.fillStyle = '#FFFFFF';
-        contexto.font = 'bold 24px Arial';
-        contexto.textAlign = 'center';
-        contexto.textBaseline = 'middle';
-        contexto.fillText(
-          `${(porcentaje * 100).toFixed(1)}%`,
-          centro + Math.cos(anguloTexto) * 151,
-          centro + Math.sin(anguloTexto) * 151
-        );
-      }
+      // Barra de fondo sutil
+      ctx.fillStyle = '#F1F5F9';
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(barStartX, y, maxBarWidth, barHeight, 6) : ctx.rect(barStartX, y, maxBarWidth, barHeight);
+      ctx.fill();
 
-      anguloInicio = anguloFinal;
-    });
+      // Barra de valor coloreada proporcional al % real
+      ctx.fillStyle = barColor;
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(barStartX, y, barW, barHeight, 6) : ctx.rect(barStartX, y, barW, barHeight);
+      ctx.fill();
 
-    contexto.fillStyle = '#20242A';
-    contexto.font = 'bold 28px Arial';
-    contexto.textAlign = 'center';
-    contexto.fillText('TOTAL', centro, centro - 16);
-    contexto.font = 'bold 38px Arial';
-    contexto.fillText(String(total), centro, centro + 28);
+      // Nombre del decoder (hasta 22 caracteres sin truncamiento)
+      ctx.fillStyle = '#1E293B';
+      ctx.font = 'bold 20px Helvetica, Arial, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const safeLabel = label.length > 22 ? `${label.slice(0, 21)}…` : label;
+      ctx.fillText(safeLabel, labelX, y + 12);
+
+      // Porcentaje y cantidad formateada a la derecha
+      ctx.fillStyle = '#334155';
+      ctx.font = 'bold 20px Helvetica, Arial, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${pct.toFixed(1)}%`, barStartX + maxBarWidth + 14, y + 12);
+
+      ctx.fillStyle = '#64748B';
+      ctx.font = 'normal 18px Helvetica, Arial, sans-serif';
+      ctx.fillText(`(${rawVal.toLocaleString('es-CO')})`, barStartX + maxBarWidth + 90, y + 12);
+    }
 
     return canvas.toDataURL('image/png');
   } catch (err) {
-    console.warn('Error al generar donut chart:', err);
+    console.warn('Error al generar horizontal bar chart:', err);
     return null;
   }
+}
+
+export function crearGraficaDonut(values, labels = []) {
+  // Alias que delega al nuevo diseño de barras horizontales de alto rendimiento
+  return crearGraficaBarrasHorizontales(values, labels);
 }

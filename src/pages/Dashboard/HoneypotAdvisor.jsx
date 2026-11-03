@@ -1,58 +1,75 @@
 import React from 'react';
-import { Container } from '@mui/material';
-import TerminalOutlinedIcon from '@mui/icons-material/TerminalOutlined';
-import GppMaybeOutlinedIcon from '@mui/icons-material/GppMaybeOutlined';
-import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
+import { Terminal, Database, Server, ShieldAlert } from 'lucide-react';
 
 const advisorTemplates = [
-  { name: 'root', type: 'System', percentage: 59.6, icon: TerminalOutlinedIcon, color: 'yellow' },
-  { name: 'admin', type: 'System', percentage: 17.2, icon: TerminalOutlinedIcon, color: 'yellow' },
-  { name: 'postgres', type: 'Database', percentage: 8.6, icon: StorageOutlinedIcon, color: 'teal' },
-  { name: 'odoo', type: 'ERP', percentage: 6.0, icon: GppMaybeOutlinedIcon, color: 'red' },
-  { name: 'jenkins', type: 'DevOps', percentage: 3.2, icon: StorageOutlinedIcon, color: 'yellow' },
-  { name: 'Ubuntu', type: 'System', percentage: 2.3, icon: TerminalOutlinedIcon, color: 'yellow' },
+  { name: 'root', type: 'System', percentage: 59.6, icon: Terminal, color: 'text-amber-400', barColor: 'bg-amber-400' },
+  { name: 'admin', type: 'System', percentage: 17.2, icon: Terminal, color: 'text-amber-400', barColor: 'bg-amber-400' },
+  { name: 'postgres', type: 'Database', percentage: 8.6, icon: Database, color: 'text-blue-400', barColor: 'bg-blue-400' },
+  { name: 'odoo', type: 'ERP', percentage: 6.0, icon: ShieldAlert, color: 'text-red-400', barColor: 'bg-red-400' },
+  { name: 'jenkins', type: 'DevOps', percentage: 3.2, icon: Server, color: 'text-amber-400', barColor: 'bg-amber-400' },
+  { name: 'Ubuntu', type: 'System', percentage: 2.3, icon: Terminal, color: 'text-amber-400', barColor: 'bg-amber-400' },
 ];
 
-export default function HoneypotAdvisor({ totalEvents = 0, styles }) {
+export default function HoneypotAdvisor({ totalEvents = 0 }) {
   return (
-    <Container maxWidth={false} sx={{ maxWidth: '25vw' }} className={`${styles.contenedor} ${styles.advisorContainer}`}>
-      <div className={styles.advisorHeader}>
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h6>Honeypot Advisor</h6>
-          <p>Top diccionarios SSH probados</p>
+          <h3 className="text-base font-display font-semibold text-slate-200">
+            Honeypot Advisor
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5 break-words">Top diccionarios SSH probados</p>
         </div>
-        <span className={styles.advisorBadge}>CTI RECON</span>
+        <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 shrink-0">
+          CTI RECON
+        </span>
       </div>
-      <div className={styles.advisorList}>
-        {advisorTemplates.map(({ name, type, percentage, icon: Icon, color }) => {
-          const calculatedAttempts = Math.max(1, Math.round((totalEvents || 0) * (percentage / 100)));
+
+      <div
+        role="region"
+        aria-label="Top diccionarios SSH probados"
+        className="flex-1 flex flex-col space-y-2.5 overflow-y-auto pr-1 pb-2"
+      >
+        {advisorTemplates.map(({ name, type, percentage, icon: Icon, color, barColor }) => {
+          const attempts = Math.max(1, Math.round((totalEvents || 0) * (percentage / 100)));
           return (
-            <div className={styles.advisorItem} key={name}>
-              <div className={styles.advisorItemHeader}>
-                <div className={styles.advisorName}>
-                  <span className={`${styles.advisorIcon} ${styles[`advisorIcon${color}`]}`}>
-                    <Icon />
-                  </span>
-                  <strong>{name}</strong>
-                  <small>({type})</small>
+            <div
+              key={name}
+              className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-700/60 hover:border-amber-500/40 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 rounded bg-slate-800 border border-slate-700">
+                    <Icon size={14} className={color} aria-hidden="true" />
+                  </div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-mono text-xs font-semibold text-amber-300">{name}</span>
+                    <span className="text-[10px] text-slate-400">({type})</span>
+                  </div>
                 </div>
-                <span className={styles.advisorAttempts}>
-                  {calculatedAttempts.toLocaleString('es-CO')} <small>intentos</small>
-                </span>
+                <div className="text-right">
+                  <span className="text-xs font-semibold text-slate-200">
+                    {attempts.toLocaleString('es-CO')}
+                  </span>
+                  <span className="text-[10px] text-slate-400 ml-1">intentos</span>
+                </div>
               </div>
-              <div className={styles.advisorProgressRow}>
-                <div className={styles.advisorProgressTrack}>
+
+              <div className="flex items-center gap-2">
+                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-slate-700/60">
                   <div
-                    className={`${styles.advisorProgressBar} ${styles[`advisorBar${color}`]}`}
+                    className={`h-full rounded-full transition-all duration-500 ${barColor}`}
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <small>{percentage}%</small>
+                <span className="text-[10px] font-mono text-slate-400 shrink-0 w-9 text-right">
+                  {percentage}%
+                </span>
               </div>
             </div>
           );
         })}
       </div>
-    </Container>
+    </div>
   );
 }

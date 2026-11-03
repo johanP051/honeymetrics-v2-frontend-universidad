@@ -1,9 +1,5 @@
 import React from 'react';
-import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import TextSnippetOutlinedIcon from '@mui/icons-material/TextSnippetOutlined';
-import ScheduleSendOutlinedIcon from '@mui/icons-material/ScheduleSendOutlined';
-import { TextoAnimado } from './LogsPaginationActions';
-import styles from './logs.module.css';
+import { Download, FileText, Send, Clock, Loader2 } from 'lucide-react';
 
 export default function LogsActionButtons({
   texto,
@@ -13,53 +9,71 @@ export default function LogsActionButtons({
   onDownload,
   onGenerarReporte,
 }) {
-  if (texto === 'Listo') {
+  const norm = String(texto || '').toLowerCase();
+
+  if (norm === 'listo' || norm === 'completado' || norm === 'completed') {
     return (
-      <div className={styles.botonesAccion}>
+      <div className="flex items-center justify-end gap-2">
         <button
           type="button"
-          className={styles.botonDescarga}
           onClick={() => onDownload(exportId)}
           disabled={descargandoId === exportId}
-          aria-label={`Descargar exportación ${exportId}`}
+          aria-label={`Descargar archivo JSONL de exportación ${exportId}`}
+          title="Descargar archivo crudo JSONL"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          <FileDownloadOutlinedIcon aria-hidden="true" />
-          <span className={styles.srOnly}>Descargar archivo de exportación {exportId}</span>
+          {descargandoId === exportId ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+          ) : (
+            <Download className="w-3.5 h-3.5" aria-hidden="true" />
+          )}
+          <span>JSONL</span>
         </button>
+
         <button
           type="button"
-          className={styles.botonPdf}
           onClick={() => onGenerarReporte(exportId)}
           disabled={generandoReporteId === exportId}
           aria-label={`Generar reporte PDF de exportación ${exportId}`}
+          title="Generar reporte forense PDF"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/15 hover:bg-blue-500/25 text-blue-400 border border-blue-500/30 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          <TextSnippetOutlinedIcon className={styles.iconoPdf} aria-hidden="true" />
-          <span className={styles.srOnly}>Generar reporte PDF de exportación {exportId}</span>
+          {generandoReporteId === exportId ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+          ) : (
+            <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+          )}
+          <span>PDF</span>
         </button>
       </div>
     );
   }
 
-  if (texto === 'Pendiente de Aprobación') {
+  if (norm.includes('pendiente')) {
     return (
-      <div className={styles.botonesAccion} id={styles.telegramContainer} role="status">
-        <ScheduleSendOutlinedIcon className={styles.iconoSend} aria-hidden="true" />
-        <p className={styles.textoTelegram}>Esperando Telegram</p>
+      <div className="flex items-center justify-end" role="status">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-md">
+          <Send className="w-3.5 h-3.5 text-amber-400" aria-hidden="true" />
+          <span>Esperando Telegram</span>
+        </span>
       </div>
     );
   }
 
-  if (texto === 'Procesando') {
+  if (norm === 'procesando' || norm === 'en proceso') {
     return (
-      <div role="status">
-        <TextoAnimado texto="En cola Celery ..." />
+      <div className="flex items-center justify-end" role="status">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 bg-blue-500/10 border border-blue-500/30 px-2.5 py-1 rounded-md animate-pulse">
+          <Clock className="w-3.5 h-3.5 animate-spin text-blue-400" aria-hidden="true" />
+          <span>En cola Celery...</span>
+        </span>
       </div>
     );
   }
 
-  if (texto === 'Rechazada') {
-    return <span className={styles.sinAcciones} aria-label="Sin acciones disponibles">—</span>;
-  }
-
-  return null;
+  return (
+    <div className="text-right">
+      <span className="text-slate-500 text-sm" aria-label="Sin acciones disponibles">—</span>
+    </div>
+  );
 }

@@ -1,104 +1,110 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import TableCell from '@mui/material/TableCell';
-import styles from './logs.module.css';
+import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 
-export function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
-  const theme = useTheme();
+export function LogsPaginationActions({ count, page, rowsPerPage, onPageChange, onRowsPerPageChange }) {
+  const totalPages = Math.max(1, Math.ceil(count / rowsPerPage));
+  const from = count === 0 ? 0 : page * rowsPerPage + 1;
+  const to = Math.min((page + 1) * rowsPerPage, count);
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-      <IconButton
-        className={styles.paginationIconButton}
-        onClick={(e) => onPageChange(e, 0)}
-        disabled={page === 0}
-        aria-label="Primera página"
-      >
-        {theme.direction === 'rtl' ? <LastPageIcon aria-hidden="true" /> : <FirstPageIcon aria-hidden="true" />}
-      </IconButton>
-      <IconButton
-        className={styles.paginationIconButton}
-        onClick={(e) => onPageChange(e, page - 1)}
-        disabled={page === 0}
-        aria-label="Página anterior"
-      >
-        {theme.direction === 'rtl' ? <KeyboardArrowRight aria-hidden="true" /> : <KeyboardArrowLeft aria-hidden="true" />}
-      </IconButton>
-      <IconButton
-        className={styles.paginationIconButton}
-        onClick={(e) => onPageChange(e, page + 1)}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="Página siguiente"
-      >
-        {theme.direction === 'rtl' ? <KeyboardArrowLeft aria-hidden="true" /> : <KeyboardArrowRight aria-hidden="true" />}
-      </IconButton>
-      <IconButton
-        className={styles.paginationIconButton}
-        onClick={(e) => onPageChange(e, Math.max(0, Math.ceil(count / rowsPerPage) - 1))}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="Última página"
-      >
-        {theme.direction === 'rtl' ? <FirstPageIcon aria-hidden="true" /> : <LastPageIcon aria-hidden="true" />}
-      </IconButton>
-    </Box>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-700/60 bg-slate-800/40 text-xs sm:text-sm text-slate-400">
+      <div className="flex items-center gap-2">
+        <span>Filas por página:</span>
+        <select
+          value={rowsPerPage}
+          onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
+          aria-label="Filas por página"
+          className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-amber-500 transition-colors"
+        >
+          {[5, 10, 25, 50].map((pageSize) => (
+            <option key={pageSize} value={pageSize}>
+              {pageSize}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <span className="text-slate-300 font-mono">
+          {from}–{to} de {count}
+        </span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onPageChange(0)}
+            disabled={page === 0}
+            aria-label="Primera página"
+            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronsLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onPageChange(page - 1)}
+            disabled={page === 0}
+            aria-label="Página anterior"
+            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onPageChange(page + 1)}
+            disabled={page >= totalPages - 1}
+            aria-label="Página siguiente"
+            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onPageChange(totalPages - 1)}
+            disabled={page >= totalPages - 1}
+            aria-label="Última página"
+            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronsRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
-TablePaginationActions.propTypes = {
+LogsPaginationActions.propTypes = {
   count: PropTypes.number.isRequired,
   onPageChange: PropTypes.func.isRequired,
+  onRowsPerPageChange: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-export function TextoAnimado({ texto }) {
-  return (
-    <p className={styles.textoCelery} aria-label={texto}>
-      <span aria-hidden="true">
-        {texto.split('').map((caracter, indice) => (
-          <span key={`${caracter}-${indice}`} style={{ '--i': indice + 1 }}>
-            {caracter === ' ' ? '\u00a0' : caracter}
-          </span>
-        ))}
-      </span>
-    </p>
-  );
-}
-
 export function SortableHeader({ etiqueta, columna, align = 'left', orden, onOrdenar }) {
   const activa = orden.columna === columna;
   const descendente = activa && orden.direccion === 'desc';
-  const ordenTexto = activa ? (descendente ? 'descendente' : 'ascendente') : 'sin ordenar';
-  const accionSiguiente = activa && !descendente ? 'descendente' : 'ascendente';
+  const alignClass = align === 'right' ? 'text-right justify-end' : align === 'center' ? 'text-center justify-center' : 'text-left justify-start';
 
   return (
-    <TableCell
-      component="th"
+    <th
       scope="col"
-      align={align}
+      className={`p-4 text-xs font-semibold uppercase tracking-wider ${align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'}`}
       aria-sort={activa ? (descendente ? 'descending' : 'ascending') : 'none'}
     >
       <button
         type="button"
-        className={`${styles.sortButton} ${align === 'right' ? styles.sortButtonRight : ''} ${activa ? styles.sortButtonActive : ''}`}
         onClick={() => onOrdenar(columna)}
-        aria-label={`Ordenar por ${etiqueta}. Orden actual: ${ordenTexto}. Presione para ordenar ${accionSiguiente}`}
+        className={`inline-flex items-center gap-1.5 hover:text-slate-200 transition-colors ${alignClass} ${activa ? 'text-amber-400 font-bold' : 'text-slate-400'}`}
+        aria-label={`Ordenar por ${etiqueta}`}
       >
         <span>{etiqueta}</span>
-        <ArrowDownwardIcon
-          className={`${styles.sortIcon} ${activa && !descendente ? styles.sortIconAsc : ''}`}
-          aria-hidden="true"
-        />
+        {activa ? (
+          descendente ? <ArrowDown className="w-3.5 h-3.5 text-amber-400" /> : <ArrowUp className="w-3.5 h-3.5 text-amber-400" />
+        ) : (
+          <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
+        )}
       </button>
-    </TableCell>
+    </th>
   );
 }
 
@@ -122,7 +128,6 @@ export function parseFechaSolicitud(fechaStr) {
   let hora = parseInt(match[4], 10);
   const minuto = parseInt(match[5], 10);
   const ampm = match[6];
-
   const mes = MESES_MAP[mesNombre] ?? -1;
   if (mes === -1) return 0;
 
@@ -131,6 +136,7 @@ export function parseFechaSolicitud(fechaStr) {
     if (esPM && hora < 12) hora += 12;
     if (!esPM && hora === 12) hora = 0;
   }
-
   return new Date(anio, mes, dia, hora, minuto).getTime();
 }
+
+export default LogsPaginationActions;

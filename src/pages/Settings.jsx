@@ -11,6 +11,9 @@ import DisableMfaModal from '../components/settings/DisableMfaModal';
 
 export default function Settings() {
   const { user: authUser, updateProfileData } = useAuth();
+  const authUserRef = React.useRef(authUser);
+  authUserRef.current = authUser;
+
   const [profile, setProfile] = useState(authUser || null);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -21,9 +24,9 @@ export default function Settings() {
       if (updateProfileData) updateProfileData(data);
     } catch {
       // Si falla llamada de red, mantener el perfil de la sesión
-      if (authUser) setProfile(authUser);
+      if (authUserRef.current) setProfile(authUserRef.current);
     }
-  }, [authUser, updateProfileData]);
+  }, [updateProfileData]);
 
   useEffect(() => {
     fetchProfile();
@@ -120,6 +123,7 @@ export default function Settings() {
           onVerify={sec.handleVerifyMfa}
           isLoading={sec.isMfaLoading}
           mfaMessage={sec.mfaMessage}
+          backupCodes={sec.backupCodes}
         />
 
         <DisableMfaModal

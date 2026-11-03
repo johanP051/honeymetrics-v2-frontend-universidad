@@ -1,371 +1,96 @@
-.contenedorNavbar{
-    display: flex;
-    position: fixed;
-    flex-direction: column;
-    width: 120px !important;
-    height: 100%;
-    z-index: 999;
-    box-sizing: border-box;
-    align-items: flex-start;
-    max-width: none !important;
-    padding: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    overflow: visible;
+.contenedorNavbar {
+    display: flex; position: fixed; flex-direction: column; width: 120px !important; height: 100%; z-index: 999;
+    box-sizing: border-box; align-items: flex-start; max-width: none !important; padding: 0 !important;
+    margin-left: 0 !important; margin-right: 0 !important; overflow: visible;
 }
-
-.capaOscura{
-    position: fixed;
-    inset: 0;
-    z-index: 998;
-    border: 0;
-    background: rgba(13, 17, 23, 0.52);
-    cursor: default;
-    animation: aparecerCapa 0.2s ease-out;
+.capaOscura {
+    position: fixed; inset: 0; z-index: 998; border: 0; background: rgba(13, 17, 23, 0.52);
+    cursor: default; animation: aparecerCapa 0.2s ease-out;
 }
-
-.contenedorNavbar::before{
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 44px;
-    height: 100%;
-    background-color: #161b22;
-    border-right: 1px solid #2a3440;
-    box-shadow: 5px 0 18px rgba(0, 0, 0, 0.2);
-    z-index: 0;
-    pointer-events: none;
-    transition: width 220ms ease-in-out;
+.contenedorNavbar::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 44px; height: 100%; background-color: #161b22;
+    border-right: 1px solid #2a3440; box-shadow: 5px 0 18px rgba(0, 0, 0, 0.2); z-index: 0;
+    pointer-events: none; transition: width 220ms ease-in-out;
 }
-
-.contenedorNavbar.abierto::before{
-    width: 300px;
+.contenedorNavbar.abierto::before { width: 300px; }
+.accionInferior, .accionMedia {
+    display: flex; flex-direction: column; align-items: stretch; width: 100% !important; padding: 0 !important;
+    transform-origin: left center; transition: width 220ms ease-in-out;
 }
-
-
-/* ---------- Bloques del centro y de abajo ---------- */
-.accionInferior,
-.accionMedia{
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100% !important;
-    padding: 0px !important;
-    transform-origin: left center;
-    transition: width 220ms ease-in-out;
-}
-
-.accionMedia{
-    justify-content: center;
-    flex: 1;
-    margin-top: 0;
-    gap: 80px;
-}
-
-.accionInferior{
-    margin-top: auto;
-    gap: 50px;
-    margin-bottom: 50px;
-}
-
-
-/* ---------- Botón del menú y marca (misma posición base) ---------- */
-.botonMenu,
-.marca{
-    position: absolute;
-    top: 24px;
-    z-index: 2;
-}
-
-.botonMenu{
-    left: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    padding: 0;
-    border: 2px solid #2a3440;
-    border-radius: 50%;
-    background: #161b22;
-    color: #d4af37;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+.accionMedia { justify-content: center; flex: 1; margin-top: 0; gap: 80px; }
+.accionInferior { margin-top: auto; gap: 50px; margin-bottom: 50px; }
+.botonMenu, .marca { position: absolute; top: 24px; z-index: 2; }
+.botonMenu {
+    left: 36px; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px;
+    padding: 0; border: 2px solid #2a3440; border-radius: 50%; background: #161b22; color: #d4af37;
+    cursor: pointer; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: left 220ms ease-in-out, background-color 180ms ease, box-shadow 180ms ease;
 }
-
-.botonMenu:hover{
-    border-color: #66551a;
-    background: #202733;
-    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.42);
+.botonMenu:hover { border-color: #66551a; background: #202733; box-shadow: 0 5px 14px rgba(0, 0, 0, 0.42); }
+.botonMenu:focus-visible { outline: 3px solid rgba(245, 200, 66, 0.5); outline-offset: 3px; }
+.botonMenu > svg { transition: transform 220ms ease-in-out; }
+.abierto .botonMenu { left: 276px; }
+.abierto .botonMenu > svg { transform: rotate(180deg); }
+.marca { width: max-content; left: 5px; height: 48px; display: flex; align-items: center; gap: 0; text-decoration: none; transition: left 220ms ease-in-out, gap 220ms ease-in-out; }
+.logo { width: 30px; height: 30px; object-fit: contain; filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.45)); transition: width 220ms ease-in-out, height 220ms ease-in-out, transform 220ms ease; }
+.marca:hover .logo { transform: scale(1.08) rotate(-4deg); }
+.nombreMarca {
+    font-family: 'Orbitron', 'Rajdhani', sans-serif; font-weight: 800; font-size: 1.05rem; letter-spacing: 0.08em;
+    text-transform: uppercase; white-space: nowrap; color: #e3eaf1; max-width: 0; overflow: hidden; opacity: 0;
+    transform: translateX(-8px); transition: max-width 220ms ease-in-out, opacity 200ms ease, transform 220ms ease;
 }
-
-.botonMenu:focus-visible{
-    outline: 3px solid rgba(245, 200, 66, 0.5);
-    outline-offset: 3px;
+.nombreMarca > span { background: linear-gradient(90deg, #f5c842, #d4af37 55%, #b8860b); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.abierto .marca { left: 20px; gap: 12px; }
+.abierto .logo { width: 40px; height: 40px; }
+.abierto .nombreMarca { max-width: 180px; opacity: 1; transform: translateX(0); transition-delay: 60ms; filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.25)); }
+.accionMedia > a, .accionInferior > a, .accionInferior > button {
+    display: inline-flex; align-items: center; justify-content: flex-start; width: 100%; height: 44px;
+    padding: 0; margin: 0; box-sizing: border-box; position: relative;
 }
-
-.botonMenu > svg{
-    transition: transform 220ms ease-in-out;
-}
-
-.abierto .botonMenu{
-    left: 276px;
-}
-
-.abierto .botonMenu > svg{
-    transform: rotate(180deg);
-}
-
-
-/* ---------- Marca: logo + nombre ---------- */
-.marca{
-    width: max-content;
-    left: 5px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    gap: 0;                       /* cerrado: sin espacio fantasma a la derecha del logo */
-    text-decoration: none;
-    transition: left 220ms ease-in-out, gap 220ms ease-in-out;
-}
-
-.logo{
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.45));
-    transition: width 220ms ease-in-out, height 220ms ease-in-out, transform 220ms ease;
-}
-
-.marca:hover .logo{
-    transform: scale(1.08) rotate(-4deg);
-}
-
-.nombreMarca{
-    font-family: 'Orbitron', 'Rajdhani', sans-serif;
-    font-weight: 800;
-    font-size: 1.05rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: #e3eaf1;
-
-    /* cerrado: no ocupa espacio */
-    max-width: 0;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: max-width 220ms ease-in-out, opacity 200ms ease, transform 220ms ease;
-}
-
-/* "Metrics" en degradado miel */
-.nombreMarca > span{
-    background: linear-gradient(90deg, #f5c842, #d4af37 55%, #b8860b);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-}
-
-.abierto .marca{
-    left: 20px;
-    gap: 12px;
-}
-
-.abierto .logo{
-    width: 40px;
-    height: 40px;
-}
-
-.abierto .nombreMarca{
-    max-width: 180px;
-    opacity: 1;
-    transform: translateX(0);
-    transition-delay: 60ms;
-    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.25));
-}
-
-
-/* ---------- Enlaces ---------- */
-.accionMedia > a,
-.accionInferior > a,
-.accionInferior > button{
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    height: 44px;
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-    position: relative;
-}
-
-.iconoActivo{
-    color: #d4af37;
-    transition: 0.5s ease-in-out;
-}
-
-.iconoInactivo{
-    color: #8b949e;
-}
-
-.textoEnlace{
-    position: absolute;
-    top: 50%;
-    left: 74px;
-    color: #e3eaf1;
-    font-size: 0.95rem;
-    font-weight: 700;
-    line-height: 1;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(-8px, -50%);
+.iconoActivo { color: #d4af37; transition: 0.5s ease-in-out; }
+.iconoInactivo { color: #8b949e; }
+.textoEnlace {
+    position: absolute; top: 50%; left: 74px; color: #e3eaf1; font-size: 0.95rem; font-weight: 700;
+    line-height: 1; white-space: nowrap; opacity: 0; pointer-events: none; transform: translate(-8px, -50%);
     transition: opacity 160ms ease, transform 220ms ease;
 }
-
-.abierto .textoEnlace{
-    opacity: 1;
-    transform: translate(0, -50%);
+.abierto .textoEnlace { opacity: 1; transform: translate(0, -50%); }
+.abierto .accionMedia, .abierto .accionInferior { width: 300px !important; }
+.abierto .accionMedia > a, .abierto .accionInferior > a, .abierto .accionInferior > button {
+    width: calc(100% - 32px); margin: 0 16px; padding: 0 12px; border: 0; border-radius: 7px;
+    background: #1b212b; transition: background-color 180ms ease;
 }
-
-.abierto .accionMedia,
-.abierto .accionInferior{
-    width: 300px !important;
+.abierto .accionMedia > a:hover, .abierto .accionInferior > a:hover, .abierto .accionInferior > button:hover { background: #202833; }
+.abierto .accionMedia > a.iconoActivo, .abierto .accionInferior > button.iconoActivo { background: transparent; }
+.iconoActivo > svg, .iconoInactivo > svg { transform-origin: left center; transition: transform 220ms ease; }
+.iconoInactivo > svg { transform: scale(0.5); }
+.iconoActivo > svg { transform: translateX(25px) scale(1.15); }
+.abierto .iconoInactivo > svg { transform: translateX(20px); }
+.contenedorNavbar:not(.abierto) .iconoActivo > svg { transform: translateX(30px) scale(1.15); }
+.indicadorActivo {
+    position: absolute; left: 10px; width: 68px; height: 68px; border: 1px solid #66551a; background-color: #292719 !important;
+    border-radius: 50%; pointer-events: none; transform: translateY(-50%); transition: top 220ms ease, opacity 160ms ease; z-index: 0;
 }
-
-.abierto .accionMedia > a,
-.abierto .accionInferior > a,
-.abierto .accionInferior > button{
-    width: calc(100% - 32px);
-    margin: 0 16px;
-    padding: 0 12px;
-    border: 0;
-    border-radius: 7px;
-    background: #1b212b;
-    transition: background-color 180ms ease;
-}
-
-.abierto .accionMedia > a:hover,
-.abierto .accionInferior > a:hover,
-.abierto .accionInferior > button:hover{
-    background: #202833;
-}
-
-.abierto .accionMedia > a.iconoActivo,
-.abierto .accionInferior > button.iconoActivo{
-    background: transparent;
-}
-
-
-/* ---------- Íconos ---------- */
-.iconoActivo > svg,
-.iconoInactivo > svg{
-    transform-origin: left center;
-    transition: transform 220ms ease;
-}
-
-.iconoInactivo > svg{
-    transform: scale(0.5);
-}
-
-.iconoActivo > svg{
-    transform: translateX(25px) scale(1.15);
-}
-
-.abierto .iconoInactivo > svg{
-    transform: translateX(20px);
-}
-
-.contenedorNavbar:not(.abierto) .iconoActivo > svg{
-    transform: translateX(30px) scale(1.15);
-}
-
-.indicadorActivo{
-    position: absolute;
-    left: 10px;
-    width: 68px;
-    height: 68px;
-    border: 1px solid #66551a;
-    background-color: #292719 !important;
-    border-radius: 50%;
-    pointer-events: none;
-    transform: translateY(-50%);
-    transition: top 220ms ease, opacity 160ms ease;
-    z-index: 0;
-}
-
-.abierto .indicadorActivo{
-    opacity: 0;
-}
-
-.accionMedia > a{
-    z-index: 1;
-}
-
-.contenedorNavbar > .accionInferior,
-.contenedorNavbar > .accionMedia{
-    position: relative;
-    z-index: 1;
-}
-
-
-/* ---------- Página actual con el menú abierto ---------- */
-.abierto .accionMedia > a[aria-current="page"]{
+.abierto .indicadorActivo { opacity: 0; }
+.accionMedia > a { z-index: 1; }
+.contenedorNavbar > .accionInferior, .contenedorNavbar > .accionMedia { position: relative; z-index: 1; }
+.abierto .accionMedia > a[aria-current="page"] {
     background: linear-gradient(90deg, rgba(212, 175, 55, 0.20), rgba(212, 175, 55, 0.05));
-    box-shadow:
-        inset 0 0 0 1px #66551a,
-        0 0 14px rgba(212, 175, 55, 0.12);
+    box-shadow: inset 0 0 0 1px #66551a, 0 0 14px rgba(212, 175, 55, 0.12);
+}
+.abierto .accionMedia > a[aria-current="page"]::before {
+    content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 4px; border-radius: 0 4px 4px 0;
+    background: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.7);
+}
+.abierto .accionMedia > a[aria-current="page"] .textoEnlace { color: #f5c842; }
+
+@keyframes aparecerCapa {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-/* Barra amarilla en el borde izquierdo */
-.abierto .accionMedia > a[aria-current="page"]::before{
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 10px;
-    bottom: 10px;
-    width: 4px;
-    border-radius: 0 4px 4px 0;
-    background: #d4af37;
-    box-shadow: 0 0 8px rgba(212, 175, 55, 0.7);
-}
-
-/* Texto en amarillo */
-.abierto .accionMedia > a[aria-current="page"] .textoEnlace{
-    color: #f5c842;
-}
-
-
-@keyframes aparecerCapa{
-    from{
-        opacity: 0;
-    }
-
-    to{
-        opacity: 1;
-    }
-}
-
-
-/* ---------- Celular ---------- */
-@media (max-width: 768px){
-
-    /* Sin círculo indicador */
-    .indicadorActivo{
-        display: none;
-    }
-
-    /* Cerrada: el activo mide lo mismo que los inactivos */
-    .contenedorNavbar:not(.abierto) .iconoActivo > svg{
-        transform: scale(0.5);
-    }
-
-    /* Abierta: igual que los inactivos */
-    .contenedorNavbar.abierto .iconoActivo > svg{
-        transform: translateX(20px);
-    }
+@media (max-width: 768px) {
+    .indicadorActivo { display: none; }
+    .contenedorNavbar:not(.abierto) .iconoActivo > svg { transform: scale(0.5); }
+    .contenedorNavbar.abierto .iconoActivo > svg { transform: translateX(20px); }
 }

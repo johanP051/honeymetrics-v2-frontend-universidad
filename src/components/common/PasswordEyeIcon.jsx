@@ -1,15 +1,17 @@
 import React from 'react';
 
-export default function PasswordEyeIcon({ isVisible, onClick, controlsId = 'password' }) {
+export default function PasswordEyeIcon({ isVisible, onClick, controlsId = 'password', className = '' }) {
+  const defaultClass = `absolute inset-y-0 right-0 pr-3 flex items-center transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold rounded ${
+    isVisible ? 'text-hm-gold' : 'text-hm-muted hover:text-hm-gold'
+  }`;
+
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
       aria-controls={controlsId}
-      className={`absolute inset-y-0 right-0 pr-3 flex items-center transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold rounded ${
-        isVisible ? 'text-hm-gold' : 'text-hm-muted hover:text-hm-gold'
-      }`}
+      className={className ? `${className} ${isVisible ? 'text-hm-gold' : 'text-hm-muted hover:text-hm-gold'}` : defaultClass}
     >
       <svg
         aria-hidden="true"

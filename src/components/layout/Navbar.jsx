@@ -85,18 +85,18 @@ export default function Navbar() {
         Saltar al contenido principal
       </a>
 
-      <header className="md:hidden sticky top-0 z-30 bg-hm-card/95 backdrop-blur-md border-b border-hm-border px-3.5 py-2.5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+      <header className="md:hidden sticky top-0 z-30 bg-hm-card/95 backdrop-blur-md border-b border-hm-border px-2 sm:px-3.5 py-2 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-3 min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
           <button
             type="button"
             onClick={() => setCerrado(!cerrado)}
             aria-label="Abrir menú"
-            className="p-1.5 -ml-1 text-hm-muted hover:text-hm-gold transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold rounded-lg"
+            className="p-1 -ml-1 text-hm-muted hover:text-hm-gold transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold rounded-lg"
           >
-            <MenuOpenIcon sx={{ fontSize: 22 }} />
+            <MenuOpenIcon sx={{ fontSize: 20 }} />
           </button>
-          <img src={logo} alt="HoneyMetrics Logo" className="w-6 h-6 object-contain shrink-0" />
-          <span className="font-display font-bold text-hm-gold text-sm sm:text-base truncate">
+          <img src={logo} alt="HoneyMetrics Logo" className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0" />
+          <span className="font-display font-bold text-hm-gold text-xs sm:text-base truncate">
             HoneyMetrics
           </span>
         </div>
@@ -105,10 +105,10 @@ export default function Navbar() {
           type="button"
           onClick={cerrarSesion}
           aria-label="Salir de la sesión"
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-hm-danger/30 text-hm-danger hover:bg-hm-danger/10 text-xs font-semibold transition-colors shrink-0 ml-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-danger"
+          className="flex items-center gap-1 px-2 min-[340px]:px-2.5 py-1.5 rounded-lg border border-hm-danger/30 text-hm-danger hover:bg-hm-danger/10 text-xs font-semibold transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-danger"
         >
           <LogoutIcon sx={{ fontSize: 16 }} aria-hidden="true" />
-          <span>Salir</span>
+          <span className="hidden min-[340px]:inline">Salir</span>
         </button>
       </header>
 
