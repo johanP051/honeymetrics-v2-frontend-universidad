@@ -1,5 +1,5 @@
 .body {
-    min-height: 100vh; width: 100%; position: relative; overflow-x: hidden; overflow-y: auto;
+    height: 100vh; width: 100vw; margin: 0; position: relative; overflow: hidden;
     display: flex; align-items: center; justify-content: center; padding: 1.5rem 1rem; box-sizing: border-box;
     background-color: rgb(72, 62, 4);
 }
@@ -18,26 +18,38 @@
     align-items: center; z-index: 2; margin: 0 auto; overflow: visible;
 }
 .hexOuter {
-    position: relative; width: 100%; height: auto; min-height: 480px;
+    position: relative; width: 100%; height: auto;
     background: linear-gradient(135deg, #f59e0b, #d4a62a, #b45309); padding: 5px;
     clip-path: polygon(16% 0%, 84% 0%, 100% 50%, 84% 100%, 16% 100%, 0% 50%);
     box-sizing: border-box; display: flex; align-items: stretch; justify-content: center; z-index: 1;
 }
-.hexInner {
-    background: #141923; clip-path: polygon(16% 0%, 84% 0%, 100% 50%, 84% 100%, 16% 100%, 0% 50%);
-    width: 100%; min-height: 100%; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 2.25rem 17% 2.5rem 17%; box-sizing: border-box;
+
+.gotaTopLeft,
+.gotaBottomLeft,
+.gotaRight {
+    position: absolute; width: 34px; height: 50px; pointer-events: none; z-index: 10;
+    filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+}
+.gotaTopLeft {
+    top: -28px; left: 16%;
+}
+.gotaBottomLeft {
+    bottom: -28px; left: 12%;
+}
+.gotaRight {
+    top: 52%; right: -16px;
+}
+.gotaImg {
+    width: 34px; height: 50px; object-fit: contain; pointer-events: none; display: block;
 }
 
-.gotaMiel, .gotaMielDerecha, .gotaMielIzquierda {
-    position: absolute; width: 25%; height: 110%; overflow: visible; pointer-events: none; z-index: 3;
+.hexInner {
+    background: #141923; clip-path: polygon(16% 0%, 84% 0%, 100% 50%, 84% 100%, 16% 100%, 0% 50%);
+    width: 100%; flex: 1 1 auto; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 2.25rem 17% 2.5rem 17%; box-sizing: border-box; position: relative; z-index: 2;
 }
-.gotaMiel { top: -8%; left: 12%; }
-.gotaMielDerecha { top: auto; right: -4%; bottom: -68%; }
-.gotaMielIzquierda { top: auto; left: 8%; bottom: -98%; }
-.gotaMiel object, .gotaMielDerecha object, .gotaMielIzquierda object {
-    display: block; width: 100%; height: 100%; overflow: visible; pointer-events: none;
-}
+
+
 
 .loginForm {
     width: 100%; max-width: 320px; display: flex; flex-direction: column; align-items: stretch;
@@ -116,13 +128,13 @@
 @media (max-width: 480px) {
     .hexOuter {
         clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
-        padding: 4px; min-height: 460px;
+        padding: 4px;
     }
+
     .hexInner {
         clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
         padding: 2rem 10% 2.25rem 10%;
     }
-    .gotaMiel, .gotaMielDerecha, .gotaMielIzquierda { width: 20%; }
 }
 
 @keyframes fadeIn {

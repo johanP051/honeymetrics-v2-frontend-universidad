@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "./login.module.css";
-import animation from "../../assets/animations/GotaMiel.svg";
 import logoCircled from "../../assets/HoneyMetrics_logo_circled.png";
+import gotaMielAnim from "../../assets/animations/GotaMiel.svg";
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../api/authService";
 import LoginMfaStep from "./LoginMfaStep";
@@ -71,14 +71,14 @@ export default function Login() {
   return (
     <div className={styles.body}>
       <div className={styles.hexWrapper}>
-        <div className={styles.gotaMiel}>
-          <object data={animation} type="image/svg+xml" aria-label="Gota de Miel" />
+        <div className={styles.gotaTopLeft} aria-hidden="true">
+          <img src={gotaMielAnim} alt="" className={styles.gotaImg} />
         </div>
-        <div className={styles.gotaMielDerecha}>
-          <object data={animation} type="image/svg+xml" aria-label="Gota de Miel" />
+        <div className={styles.gotaBottomLeft} aria-hidden="true">
+          <img src={gotaMielAnim} alt="" className={styles.gotaImg} />
         </div>
-        <div className={styles.gotaMielIzquierda}>
-          <object data={animation} type="image/svg+xml" aria-label="Gota de Miel" />
+        <div className={styles.gotaRight} aria-hidden="true">
+          <img src={gotaMielAnim} alt="" className={styles.gotaImg} />
         </div>
 
         <div className={styles.hexOuter}>
@@ -109,8 +109,9 @@ export default function Login() {
                   </span>
                 </div>
 
-                <label className={styles.labels}>Correo Electrónico</label>
+                <label htmlFor="login-email" className={styles.labels}>Correo Electrónico</label>
                 <input
+                  id="login-email"
                   className={styles.inputs}
                   placeholder="Digite su correo electrónico"
                   type="email"
@@ -120,7 +121,7 @@ export default function Login() {
                   required
                 />
 
-                <label className={styles.labels}>Contraseña</label>
+                <label htmlFor="login-password" className={styles.labels}>Contraseña</label>
                 <div className={styles.passwordWrapper}>
                   <input
                     id="login-password"
@@ -139,6 +140,7 @@ export default function Login() {
                     className={styles.eyeButton}
                   />
                 </div>
+
 
                 <div className={styles.forgotPasswordWrapper}>
                   <Link

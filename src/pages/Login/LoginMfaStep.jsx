@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 
 export default function LoginMfaStep({
   mfaCode,
@@ -9,6 +9,12 @@ export default function LoginMfaStep({
   errorMsg,
   styles,
 }) {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!mfaCode.trim() || isSubmitting) return;
@@ -32,6 +38,7 @@ export default function LoginMfaStep({
         </label>
         <input
           id="mfa-code-input"
+          ref={inputRef}
           className={styles.inputs}
           type="text"
           inputMode="numeric"
@@ -41,10 +48,10 @@ export default function LoginMfaStep({
           onChange={(e) => setMfaCode(e.target.value.toUpperCase())}
           maxLength={9}
           disabled={isSubmitting}
-          autoFocus
           required
         />
       </div>
+
 
       {errorMsg && (
         <div className={styles.errorMessage} role="alert">
