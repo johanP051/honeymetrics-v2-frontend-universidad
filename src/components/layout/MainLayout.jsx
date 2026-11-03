@@ -26,29 +26,31 @@ export default function MainLayout({ children }) {
         Saltar al contenido principal
       </a>
 
-      {/* Barra superior móvil sticky visible SOLO en móvil */}
-      <header className="md:hidden sticky top-0 z-30 bg-hm-card/95 backdrop-blur-md border-b border-hm-border px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
+      {/* Barra superior móvil sticky visible SOLO en móvil - adaptado a pantallas ultra-angostas 273px */}
+      <header className="md:hidden sticky top-0 z-30 bg-hm-card/95 backdrop-blur-md border-b border-hm-border px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-1.5 min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1 overflow-hidden">
           <button
             type="button"
             onClick={() => setIsMobileDrawerOpen(true)}
             aria-label="Abrir menú"
-            className="p-1.5 -ml-1 text-hm-muted hover:text-hm-gold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold rounded-lg"
+            className="p-1 sm:p-1.5 text-hm-muted hover:text-hm-gold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold rounded-lg shrink-0"
           >
-            <Menu size={22} aria-hidden="true" />
+            <Menu size={20} aria-hidden="true" />
           </button>
-          <img src="/images/logo.png" alt="HoneyMetrics Logo" className="w-7 h-7 object-contain" />
-          <span className="font-display font-bold text-hm-gold text-base">HoneyMetrics</span>
+          <img src="/images/logo.png" alt="HoneyMetrics Logo" className="w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0" />
+          <span className="font-display font-bold text-hm-gold text-xs sm:text-base truncate">
+            HoneyMetrics
+          </span>
         </div>
 
         <button
           type="button"
           onClick={handleLogout}
           aria-label="Salir de la sesión"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-hm-danger/30 text-hm-danger hover:bg-hm-danger/10 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-danger"
+          className="flex items-center gap-1 px-2 min-[340px]:px-3 py-1.5 rounded-lg border border-hm-danger/30 text-hm-danger hover:bg-hm-danger/10 text-xs font-semibold transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-danger"
         >
-          <LogOut size={18} aria-hidden="true" />
-          <span>Salir</span>
+          <LogOut size={16} aria-hidden="true" />
+          <span className="hidden min-[340px]:inline">Salir</span>
         </button>
       </header>
 
