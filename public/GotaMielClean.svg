@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -130 220 320" width="34" height="50">
+  <defs>
+    <radialGradient id="honey-fill" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </radialGradient>
+    <radialGradient id="highlight-fill" cx="50%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path d="M121.86,94.74c0,41.82-35.69,81.69-93.17,81.69s-96.7-39.87-96.7-81.69c0-47.69,16.16-82.49,52.93-134.97c31.88-53.85,34.51-83.4,43.77-83.4c8.47,0,9.78,32.17,44.26,83.4C106.69,9.88,121.86,49.12,121.86,94.74Z" fill="url(#honey-fill)" filter="drop-shadow(0 4px 10px rgba(245, 158, 11, 0.6))"/>
+  <path d="M4.58,21.95c-2.99,22.88,2.3,73.25,0,73.25c-8.99,0-25.55-4.41-25.55-36.94s35.56-88.38,35.56-88.38s-3.89,25.42-10.01,52.07Z" fill="url(#highlight-fill)"/>
+</svg>

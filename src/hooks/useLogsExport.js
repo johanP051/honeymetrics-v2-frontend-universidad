@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../api/client';
+import { downloadLogExport } from '../api/logsApi';
 import { generarReportePdf } from '../utils/pdf/PdfGenerator';
 
 const DEFAULT_LOGS = [
@@ -61,34 +62,7 @@ export function useLogsExport() {
     try {
       setDescargandoId(exportId);
       setAnuncioAccesible(`Descargando archivo de exportación ${exportId}...`);
-      let data = null;
-      let contentType = 'application/x-ndjson';
-      try {
-        const response = await api.get(`/logs/download/${exportId}`, { responseType: 'blob' });
-        data = response.data;
-        contentType = response.headers['content-type'] || 'application/x-ndjson';
-      } catch (apiErr) {
-        console.warn('Descarga API offline, generando JSONL de contingencia:', apiErr);
-      }
-
-      if (!data || (data instanceof Blob && data.size === 0) || (typeof data === 'string' && !data.trim())) {
-        const sampleLogs = [
-          JSON.stringify({ timestamp: new Date().toISOString(), event: 'LOG_EXPORT', export_id: exportId, status: 'Listo' }),
-          JSON.stringify({ timestamp: new Date().toISOString(), event: 'HONEYPOT_TELEMETRY', src_ip: '45.148.10.151', decoder: 'cowrie' }), // NOSONAR
-
-        ].join('\n');
-        data = new Blob([sampleLogs], { type: 'application/x-ndjson' });
-      }
-
-      const blob = data instanceof Blob ? data : new Blob([data], { type: contentType });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${exportId}.jsonl`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await downloadLogExport(exportId);
       setAnuncioAccesible(`Descarga de exportación ${exportId} completada.`);
     } catch (err) {
       console.error('Error al descargar el archivo:', err);
