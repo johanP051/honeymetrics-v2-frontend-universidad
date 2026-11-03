@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "./login.module.css";
 import logoCircled from "../../assets/HoneyMetrics_logo_circled.png";
-import gotaMielAnim from "../../assets/animations/GotaMiel.svg";
+import gotaMielAnim from "../../assets/animations/GotaMielClean.svg";
 import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../api/authService";
 import LoginMfaStep from "./LoginMfaStep";
