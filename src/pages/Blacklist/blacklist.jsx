@@ -127,7 +127,7 @@ export default function Blacklist() {
                 className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-sm px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/20 whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Añadir Amenaza</span>
+                <span>Añadir Amenaza</span>
               </button>
             )}
           </div>
@@ -135,14 +135,14 @@ export default function Blacklist() {
 
         {activeTab === 'active' ? (
           <>
-            <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto">
               <table className="w-full min-w-[720px] text-left border-collapse" aria-label="Amenazas Activas">
                 <thead className="bg-slate-900/70 border-b border-slate-700/60 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   <tr>
                     <th scope="col" className="p-4">IP / TIPO</th>
                     <th scope="col" className="p-4">PAÍS</th>
                     <th scope="col" className="p-4">CATEGORÍA</th>
-                    <th scope="col" className="p-4">THREAT SCORE</th>
+                    <th scope="col" className="p-4 min-w-[120px]">THREAT SCORE</th>
                     <th scope="col" className="p-4">ESTADO</th>
                     <th scope="col" className="p-4 text-right">ACCIONES</th>
                   </tr>

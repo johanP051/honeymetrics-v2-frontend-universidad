@@ -122,7 +122,7 @@ export default function Logs() {
       )}
 
       <div className="bg-[#161f30]/90 backdrop-blur-md border border-slate-700/60 rounded-xl shadow-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[720px] text-left border-collapse" aria-label="Historial de exportaciones de logs">
             <thead className="bg-slate-800/70 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700/60">
               <tr>

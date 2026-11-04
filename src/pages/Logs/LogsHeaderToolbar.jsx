@@ -143,7 +143,7 @@ export default function LogsHeaderToolbar({
           className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-sm px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-amber-500/20 whitespace-nowrap"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
-          <span>+ Nuevo Export</span>
+          <span>Nuevo Export</span>
         </button>
       </div>
     </div>

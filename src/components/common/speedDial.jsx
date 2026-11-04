@@ -15,7 +15,7 @@ function SpeedDialComponent({ onNewExport, onRefresh, onScrollTop }) {
 
   const actions = [
     {
-      label: '+ Nuevo Export',
+      label: 'Nuevo Export',
       icon: Plus,
       onClick: () => {
         onNewExport?.();

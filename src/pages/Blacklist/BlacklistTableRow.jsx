@@ -47,7 +47,7 @@ export default function BlacklistTableRow({ row, onEdit, onDelete, canEdit = tru
           {row.category || 'General'}
         </span>
       </td>
-      <td className="p-4">
+      <td className="p-4 min-w-[120px]">
         <div className="flex items-center gap-2">
           <span className={`font-mono text-sm font-bold w-6 text-right ${score > 70 ? 'text-red-400' : 'text-amber-400'}`}>
             {score}

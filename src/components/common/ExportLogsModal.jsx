@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Calendar, AlertTriangle, X, Send, Loader2 } from 'lucide-react';
-import api from '../../api/client';
+import api, { formatApiErrorDetail } from '../../api/client';
 import useModalA11y from '../../hooks/useModalA11y';
 
 export default function ExportLogsModal({ open, onClose, onSubmit, onExportSuccess }) {
@@ -25,14 +25,20 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
 
   if (!open) return null;
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const solicitarLogs = async () => {
     if (!fechaInicio || !fechaFinal) {
       setErrorValidacion('Completa tanto la fecha de inicio como la de fin.');
-      return;
+      return false;
+    }
+    if (fechaInicio > todayStr || fechaFinal > todayStr) {
+      setErrorValidacion('Las fechas no pueden ser posteriores a hoy.');
+      return false;
     }
     if (fechaInicio > fechaFinal) {
       setErrorValidacion('La fecha de inicio no puede ser posterior a la de fin.');
-      return;
+      return false;
     }
     setErrorValidacion('');
     setCargando(true);
@@ -42,23 +48,19 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
       if (onExportSuccess) onExportSuccess(data);
       setFechaInicio(''); setFechaFinal('');
       setTimeout(handleClose, 600);
+      return true;
     } catch (error) {
-      console.warn('Fallback al solicitar logs:', error);
-      const randArr = new Uint32Array(1);
-      if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
-        window.crypto.getRandomValues(randArr);
+      console.warn('Error al solicitar exportación de logs:', error);
+      if (error?.response) {
+        const errorMsg = formatApiErrorDetail(
+          error.response?.data?.detail,
+          'Error al procesar la exportación de logs.'
+        );
+        setErrorValidacion(errorMsg);
+        return false;
       }
-      const randNum = 1000 + (randArr[0] % 9000);
-      const fallbackNuevo = {
-        id: `EXP-${randNum}`,
-        date_range: `${fechaInicio} al ${fechaFinal}`,
-        count: 12500,
-        status: 'Procesando',
-      };
-      setMensajeExito('Solicitud enviada a la cola Celery.');
-      if (onExportSuccess) onExportSuccess(fallbackNuevo);
-      setFechaInicio(''); setFechaFinal('');
-      setTimeout(handleClose, 600);
+      setErrorValidacion(error?.message || 'Error de conexión al procesar la exportación.');
+      return false;
     } finally {
       setCargando(false);
     }
@@ -66,8 +68,8 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await solicitarLogs();
-    if (onSubmit) onSubmit({ fechaInicio, fechaFinal });
+    const ok = await solicitarLogs();
+    if (ok && onSubmit) onSubmit({ fechaInicio, fechaFinal });
   };
 
 
@@ -120,6 +122,7 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
               id="fecha-inicio"
               type="date"
               required
+              max={todayStr}
               style={{ colorScheme: 'dark' }}
               value={fechaInicio}
               onChange={(e) => { setFechaInicio(e.target.value); if (errorValidacion) setErrorValidacion(''); }}
@@ -135,6 +138,7 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
               id="fecha-fin"
               type="date"
               required
+              max={todayStr}
               style={{ colorScheme: 'dark' }}
               value={fechaFinal}
               onChange={(e) => { setFechaFinal(e.target.value); if (errorValidacion) setErrorValidacion(''); }}
