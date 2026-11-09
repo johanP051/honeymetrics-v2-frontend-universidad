@@ -46,9 +46,9 @@ function SpeedDialComponent({ onNewExport, onRefresh, onScrollTop }) {
               key={label}
               type="button"
               onClick={onClick}
-              className="pointer-events-auto flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-100 border border-amber-500/40 shadow-xl text-xs font-semibold transition-all cursor-pointer"
+              className="pointer-events-auto flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-hm-card hover:bg-hm-elevated text-hm-text border border-hm-gold/40 shadow-xl text-xs font-semibold transition-all cursor-pointer"
             >
-              <Icon className="w-4 h-4 text-amber-400" aria-hidden="true" />
+              <Icon className="w-4 h-4 text-hm-gold" aria-hidden="true" />
               <span>{label}</span>
             </button>
           ))}

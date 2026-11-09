@@ -43,7 +43,7 @@ export default function ChartExportButton({
       canvas.height = height * scale;
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.fillStyle = '#161f30';
+        ctx.fillStyle = '#161b22';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         const link = document.createElement('a');
@@ -63,7 +63,7 @@ export default function ChartExportButton({
       onClick={handleExport}
       title={title}
       aria-label={title}
-      className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-amber-400 border border-slate-700/60 transition-colors shrink-0"
+      className="p-1.5 rounded-lg bg-hm-elevated hover:bg-hm-border/60 text-hm-muted hover:text-hm-gold border border-hm-border transition-colors shrink-0"
     >
       <Camera size={16} aria-hidden="true" />
     </button>
