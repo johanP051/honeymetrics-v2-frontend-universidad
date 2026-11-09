@@ -89,12 +89,6 @@ export default function Logs() {
         {anuncioAccesible}
       </div>
 
-      {cargando && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" role="status" aria-label="Cargando historial de exportaciones">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500" />
-        </div>
-      )}
-
       <div>
         <LogsHeaderToolbar
           onOpenExportModal={() => setIsExportModalOpen(true)}
@@ -111,35 +105,37 @@ export default function Logs() {
           filterButtonRef={filterButtonRef}
         />
         <div className="mt-4">
-          <StatusBanner isFallback={isFallback} error={error} />
+          <StatusBanner isFallback={isFallback} error={error} endpoint="/api/v1/logs/history" />
         </div>
       </div>
 
       {errorReporte && (
-        <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg" role="alert" aria-live="assertive">
+        <div className="p-3 bg-hm-danger/10 border border-hm-danger/30 text-hm-danger text-sm rounded-lg" role="alert" aria-live="assertive">
           {errorReporte}
         </div>
       )}
 
-      <div className="bg-[#161f30]/90 backdrop-blur-md border border-slate-700/60 rounded-xl shadow-xl overflow-hidden">
+      <div className="glass-card overflow-hidden">
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[720px] text-left border-collapse" aria-label="Historial de exportaciones de logs">
-            <thead className="bg-slate-800/70 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700/60">
+            <thead className="bg-hm-elevated/80 text-hm-muted text-xs uppercase tracking-wider border-b border-hm-border">
               <tr>
                 <SortableHeader etiqueta="ID" columna="id" orden={orden} onOrdenar={handleOrdenar} />
                 <SortableHeader etiqueta="Rango de Logs" columna="date_range" align="left" orden={orden} onOrdenar={handleOrdenar} />
                 <SortableHeader etiqueta="Cantidad" columna="count" align="right" orden={orden} onOrdenar={handleOrdenar} />
                 <SortableHeader etiqueta="Fecha de Solicitud" columna="created_at" align="right" orden={orden} onOrdenar={handleOrdenar} />
-                <th scope="col" className="p-4 text-xs font-semibold uppercase tracking-wider text-center text-slate-400">
+                <th scope="col" className="p-4 text-xs font-semibold uppercase tracking-wider text-center text-hm-muted">
                   Estado
                 </th>
-                <th scope="col" className="p-4 text-xs font-semibold uppercase tracking-wider text-right text-slate-400">
+                <th scope="col" className="p-4 text-xs font-semibold uppercase tracking-wider text-right text-hm-muted">
                   Acción
                 </th>
               </tr>
             </thead>
 
             <LogsTableBody
+              cargando={cargando}
+              totalRows={rows.length}
               error={error}
               estadosSeleccionados={estadosSeleccionados}
               rowsVisibles={rowsVisibles}

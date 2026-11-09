@@ -62,10 +62,10 @@ export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onC
                 to={item.path}
                 title={isCollapsed ? item.name : undefined}
                 aria-label={isCollapsed ? item.name : undefined}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold ${
                   active
                     ? 'bg-hm-gold/10 text-hm-gold border border-hm-gold/20 shadow-[0_0_15px_rgba(212,175,55,0.1)]'
-                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text'
+                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text border border-transparent'
                 } ${isCollapsed ? 'justify-center' : ''}`}
               >
                 <item.icon size={20} aria-hidden="true" className="flex-shrink-0" />
@@ -126,10 +126,10 @@ export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onC
                 key={`mobile-${item.path}`}
                 to={item.path}
                 onClick={onCloseMobile}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold ${
                   active
                     ? 'bg-hm-gold/15 text-hm-gold font-semibold border border-hm-gold/30 shadow-[0_0_15px_rgba(212,175,55,0.15)]'
-                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text'
+                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text border border-transparent'
                 }`}
               >
                 <item.icon size={20} aria-hidden="true" className="flex-shrink-0" />
