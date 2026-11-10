@@ -4,18 +4,18 @@ import { Edit3, Trash2, ShieldCheck, ShieldAlert, CheckCircle, XCircle } from 'l
 const getRoleBadge = (roleName) => {
   const normalized = (roleName || '').toLowerCase().trim();
   if (normalized === 'admin' || normalized === 'administrador') {
-    return { name: 'Administrador', className: 'bg-purple-500/20 text-purple-400 border-purple-500/30' };
+    return { name: 'Administrador', className: 'bg-hm-gold/20 text-hm-gold border-hm-gold/30' };
   }
   if (normalized === 'analyst' || normalized === 'analista' || normalized.includes('analist')) {
-    return { name: 'Analista', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' };
+    return { name: 'Analista', className: 'bg-sky-500/20 text-sky-300 border-sky-500/30' };
   }
   if (normalized === 'executive' || normalized === 'directivo' || normalized.includes('directiv')) {
-    return { name: 'Directivo', className: 'bg-hm-gold/20 text-hm-gold border-hm-gold/30' };
+    return { name: 'Directivo', className: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
   }
   if (normalized === 'consultant' || normalized === 'consultor' || normalized.includes('consult')) {
     return { name: 'Consultor', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' };
   }
-  return { name: roleName || 'Usuario', className: 'bg-slate-500/20 text-slate-300 border-slate-500/30' };
+  return { name: roleName || 'Usuario', className: 'bg-hm-elevated text-hm-muted border-hm-border' };
 };
 
 export default function UserTableRow({

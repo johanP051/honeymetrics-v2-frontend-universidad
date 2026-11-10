@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShieldAlert, FileText, Settings, ShieldCheck, LogOut, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import SidebarRoleBadge from './SidebarRoleBadge';
 
 export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onCloseMobile }) {
   const { logout, hasScope, role, user } = useAuth();
@@ -52,6 +53,8 @@ export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onC
             <span className="text-xl font-display font-bold text-hm-gold m-0 whitespace-nowrap overflow-hidden">HoneyMetrics</span>
           )}
         </div>
+
+        <SidebarRoleBadge roleName={effectiveRole} userEmail={user?.email} isCollapsed={isCollapsed} />
 
         <nav aria-label="Navegación Principal" className="flex-1 py-6 px-4 space-y-2 overflow-x-hidden">
           {navItems.map((item) => {

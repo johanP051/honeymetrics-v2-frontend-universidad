@@ -67,17 +67,27 @@ export const purgeAllAuthStorage = () => {
 export const ROLES_TO_SCOPES = {
   Administrador: [
     'dashboard:read', 'logs:read', 'logs:export', 'threats:read',
-    'threats:write', 'threats:delete', 'ml:predict', 'ingest:write', 'admin:all',
+    'threats:write', 'threats:delete', 'blacklist:read', 'blacklist:write',
+    'users:profile', 'admin:users', 'admin:audit', 'admin:all',
   ],
   Superusuario: [
     'dashboard:read', 'logs:read', 'logs:export', 'threats:read',
-    'threats:write', 'threats:delete', 'ml:predict', 'ingest:write', 'admin:all',
+    'threats:write', 'threats:delete', 'blacklist:read', 'blacklist:write',
+    'users:profile', 'admin:users', 'admin:audit', 'admin:all',
   ],
-  Analista: ['dashboard:read', 'logs:read', 'logs:export', 'ml:predict'],
-  'Analista de datos': ['dashboard:read', 'logs:read', 'logs:export', 'ml:predict'],
-  Operador: ['dashboard:read', 'logs:read'],
-  Guest: ['dashboard:read'],
-  Consultor: ['dashboard:read', 'logs:read', 'logs:export', 'threats:read', 'threats:write'],
+  Consultor: [
+    'dashboard:read', 'threats:read', 'threats:write', 'threats:delete',
+    'blacklist:read', 'blacklist:write', 'users:profile',
+  ],
+  'Consultor de Ciberseguridad': [
+    'dashboard:read', 'threats:read', 'threats:write', 'threats:delete',
+    'blacklist:read', 'blacklist:write', 'users:profile',
+  ],
+  Analista: ['dashboard:read', 'logs:read', 'logs:export', 'users:profile'],
+  'Analista de datos': ['dashboard:read', 'logs:read', 'logs:export', 'users:profile'],
+  Directivo: ['dashboard:read', 'threats:read', 'blacklist:read', 'users:profile'],
+  'Directivo de T.I.': ['dashboard:read', 'threats:read', 'blacklist:read', 'users:profile'],
+  'Directivo de TI': ['dashboard:read', 'threats:read', 'blacklist:read', 'users:profile'],
 };
 
 export const getScopesForRole = (roleName = 'Analista') => {

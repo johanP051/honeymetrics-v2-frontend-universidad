@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ShieldAlert, Shield, Archive, Search, Plus } from 'lucide-react';
+import { ShieldAlert, Shield, Archive, Search, Plus, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import useThreatCRUD from '../../hooks/useThreatCRUD';
 import StatusBanner from '../../components/layout/StatusBanner';
@@ -16,15 +16,13 @@ export default function Blacklist() {
   const [modalOpen, setModalOpen] = useState(false);
   const [threatToEdit, setThreatToEdit] = useState(null);
 
-  const { hasScope } = useAuth();
+  const { hasScope, role } = useAuth();
   const { data: threats, vaultData, isLoading, error, isFallback, addThreat, updateThreat, deleteThreat } = useThreatCRUD();
 
-  const hasPermission = (perm) => {
-    if (!hasScope) return true;
-    if (perm === 'threats:audit_view') return hasScope('threats:audit_view') || hasScope('threats:read') || hasScope('admin:all');
-    if (perm === 'threats:create') return hasScope('threats:create') || hasScope('threats:write') || hasScope('admin:all');
-    return hasScope(perm) || hasScope('admin:all');
-  };
+  const canWrite = Boolean(hasScope('threats:write') || hasScope('admin:all'));
+  const canDelete = Boolean(hasScope('threats:delete') || hasScope('admin:all'));
+  const canViewVault = Boolean(hasScope('blacklist:read') || hasScope('threats:read') || hasScope('admin:all'));
+  const isConsultor = String(role || '').toLowerCase().startsWith('consultor');
 
   const filteredThreats = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -82,7 +80,7 @@ export default function Blacklist() {
               </span>
             </button>
 
-            {hasPermission('threats:audit_view') && (
+            {canViewVault && (
               <button
                 type="button"
                 onClick={() => { setActiveTab('vault'); setPage(0); }}
@@ -113,15 +111,27 @@ export default function Blacklist() {
               />
             </div>
 
-            {hasPermission('threats:create') && (
+            {canWrite ? (
               <button
                 type="button"
                 onClick={() => { setThreatToEdit(null); setModalOpen(true); }}
-                className="bg-hm-gold hover:bg-hm-goldHover text-slate-950 font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-hm-gold/15 whitespace-nowrap"
+                className={`${
+                  isConsultor
+                    ? 'bg-emerald-500 hover:bg-emerald-400 shadow-emerald-500/20'
+                    : 'bg-hm-gold hover:bg-hm-goldHover shadow-hm-gold/15'
+                } text-slate-950 font-bold text-xs sm:text-sm px-4 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-lg whitespace-nowrap`}
               >
                 <Plus className="w-4 h-4" />
                 <span>Añadir Amenaza</span>
               </button>
+            ) : (
+              <div
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 whitespace-nowrap"
+                title="Su rol tiene acceso de consulta (Solo Lectura) según CU03"
+              >
+                <Lock className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>Modo Lectura</span>
+              </div>
             )}
           </div>
         </div>
@@ -163,8 +173,8 @@ export default function Blacklist() {
                         row={row}
                         onEdit={handleOpenEdit}
                         onDelete={handleDelete}
-                        canEdit={hasPermission('threats:create')}
-                        canDelete={hasPermission('threats:create')}
+                        canEdit={canWrite}
+                        canDelete={canDelete}
                       />
                     ))
                   )}

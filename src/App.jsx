@@ -33,7 +33,7 @@ export default function App() {
             <Route
               path="/dashboard"
               element={
-                <RoleGuard requiredScope="dashboard:read" allowedRoles={['Administrador', 'Analista', 'Superusuario', 'Consultor']}>
+                <RoleGuard requiredScope="dashboard:read">
                   <MainLayout>
                     <Dashboard />
                   </MainLayout>
@@ -44,7 +44,7 @@ export default function App() {
             <Route
               path="/blacklist"
               element={
-                <RoleGuard requiredScope="threats:read" allowedRoles={['Administrador', 'Superusuario', 'Consultor']}>
+                <RoleGuard requiredScope="threats:read">
                   <MainLayout>
                     <Blacklist />
                   </MainLayout>
@@ -55,7 +55,7 @@ export default function App() {
             <Route
               path="/threat-center"
               element={
-                <RoleGuard requiredScope="threats:read" allowedRoles={['Administrador', 'Superusuario', 'Consultor']}>
+                <RoleGuard requiredScope="threats:read">
                   <MainLayout>
                     <Blacklist />
                   </MainLayout>
@@ -66,7 +66,7 @@ export default function App() {
             <Route
               path="/logs"
               element={
-                <RoleGuard requiredScope="logs:read" allowedRoles={['Administrador', 'Analista', 'Superusuario', 'Consultor']}>
+                <RoleGuard requiredScope="logs:read">
                   <MainLayout>
                     <Logs />
                   </MainLayout>
@@ -77,7 +77,7 @@ export default function App() {
             <Route
               path="/admin"
               element={
-                <RoleGuard requiredScope="admin:all" allowedRoles={['Administrador', 'Superusuario']}>
+                <RoleGuard requiredScope="admin:all">
                   <MainLayout>
                     <AdminHub />
                   </MainLayout>
