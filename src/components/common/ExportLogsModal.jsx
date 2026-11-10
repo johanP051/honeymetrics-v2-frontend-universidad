@@ -74,36 +74,36 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
 
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm overflow-y-auto animate-fade-in">
       <div
         ref={modalRef}
         tabIndex="-1"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-export-logs-title"
-        className="w-full max-w-md bg-[#161f30] border border-slate-700/80 rounded-xl shadow-2xl p-6 text-slate-100 relative outline-none"
+        className="w-full max-w-md bg-hm-card border border-hm-border rounded-xl shadow-2xl p-6 text-hm-text relative outline-none"
       >
-        <div className="flex items-center justify-between pb-3 border-b border-slate-700/60 mb-4">
+        <div className="flex items-center justify-between pb-3 border-b border-hm-border/60 mb-4">
           <div className="flex items-center gap-2.5">
-            <Calendar className="w-5 h-5 text-amber-400" aria-hidden="true" />
-            <h2 id="modal-export-logs-title" className="text-xl font-bold font-display text-slate-100">
+            <Calendar className="w-5 h-5 text-hm-gold" aria-hidden="true" />
+            <h2 id="modal-export-logs-title" className="text-xl font-bold font-display text-hm-text">
               Nuevo Export de Logs
             </h2>
           </div>
-          <button type="button" onClick={handleClose} aria-label="Cerrar modal" className="text-slate-400 hover:text-slate-100 p-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+          <button type="button" onClick={handleClose} aria-label="Cerrar modal" className="text-hm-muted hover:text-hm-text p-1.5 rounded-lg hover:bg-hm-elevated transition-colors">
             <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
 
-        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs mb-4">
-          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" aria-hidden="true" />
-          <p id="modal-security-text">
-            <strong className="text-amber-400">Nota de Seguridad:</strong> Solicitudes mayores a <strong className="text-slate-200">50,000 registros</strong> requieren confirmación vía <strong className="text-amber-400">Telegram</strong>.
+        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-hm-gold/10 border border-hm-gold/30 text-hm-gold text-xs mb-4">
+          <AlertTriangle className="w-4 h-4 text-hm-gold shrink-0 mt-0.5" aria-hidden="true" />
+          <p id="modal-security-text" className="text-hm-text/90">
+            <strong className="text-hm-gold">Nota de Seguridad:</strong> Solicitudes mayores a <strong className="text-hm-text">50,000 registros</strong> requieren confirmación vía <strong className="text-hm-gold">Telegram</strong>.
           </p>
         </div>
 
         {errorValidacion && (
-          <div role="alert" className="mb-4 bg-red-500/10 border border-red-500/30 text-red-400 p-2.5 rounded-lg text-xs">
+          <div role="alert" className="mb-4 bg-hm-danger/10 border border-hm-danger/30 text-hm-danger p-2.5 rounded-lg text-xs">
             {errorValidacion}
           </div>
         )}
@@ -115,8 +115,8 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label htmlFor="fecha-inicio" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
-              Fecha Inicio <span className="text-amber-400">*</span>
+            <label htmlFor="fecha-inicio" className="block text-xs font-semibold uppercase tracking-wider text-hm-muted mb-1">
+              Fecha Inicio <span className="text-hm-gold">*</span>
             </label>
             <input
               id="fecha-inicio"
@@ -126,13 +126,13 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
               style={{ colorScheme: 'dark' }}
               value={fechaInicio}
               onChange={(e) => { setFechaInicio(e.target.value); if (errorValidacion) setErrorValidacion(''); }}
-              className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500 transition-colors"
+              className="w-full bg-hm-elevated border border-hm-border rounded-lg px-3 py-2 text-hm-text text-sm focus:outline-none focus:border-hm-gold transition-colors"
             />
           </div>
 
           <div>
-            <label htmlFor="fecha-fin" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1">
-              Fecha Fin <span className="text-amber-400">*</span>
+            <label htmlFor="fecha-fin" className="block text-xs font-semibold uppercase tracking-wider text-hm-muted mb-1">
+              Fecha Fin <span className="text-hm-gold">*</span>
             </label>
             <input
               id="fecha-fin"
@@ -142,15 +142,15 @@ export default function ExportLogsModal({ open, onClose, onSubmit, onExportSucce
               style={{ colorScheme: 'dark' }}
               value={fechaFinal}
               onChange={(e) => { setFechaFinal(e.target.value); if (errorValidacion) setErrorValidacion(''); }}
-              className="w-full bg-slate-900/80 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-amber-500 transition-colors"
+              className="w-full bg-hm-elevated border border-hm-border rounded-lg px-3 py-2 text-hm-text text-sm focus:outline-none focus:border-hm-gold transition-colors"
             />
           </div>
 
-          <div className="pt-2 flex items-center justify-end gap-3">
-            <button type="button" onClick={handleClose} disabled={cargando} className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors disabled:opacity-50">
+          <div className="pt-3 border-t border-hm-border/60 flex items-center justify-end gap-3">
+            <button type="button" onClick={handleClose} disabled={cargando} className="px-4 py-2 rounded-lg text-sm font-medium border border-hm-border text-hm-muted hover:text-hm-text hover:bg-hm-elevated transition-colors disabled:opacity-50">
               Cancelar
             </button>
-            <button type="submit" disabled={cargando} className="px-4 py-2 rounded-lg text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-slate-900 transition-colors shadow-lg shadow-amber-500/20 flex items-center gap-2 disabled:opacity-50">
+            <button type="submit" disabled={cargando} className="px-4 py-2 rounded-lg text-sm font-bold bg-hm-gold hover:bg-hm-goldHover text-slate-950 transition-colors shadow-lg shadow-hm-gold/20 flex items-center gap-2 disabled:opacity-50">
               {cargando ? (
                 <><Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /><span>Solicitando...</span></>
               ) : (

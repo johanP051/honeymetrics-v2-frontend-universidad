@@ -112,26 +112,19 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 pb-10">
-      <StatusBanner
-        error={error}
-        isLoading={loading}
-        onRetry={() => fetchSummary(activePreset)}
-        isMockFallback={isFallback}
-      />
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-hm-border/70 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-100 flex items-center gap-3">
-            <Activity className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400" aria-hidden="true" />
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-hm-gold flex items-center gap-2.5">
+            <Activity size={28} aria-hidden="true" />
             Dashboard
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-hm-muted mt-1">
             Monitoreo en tiempo real de actividad maliciosa en la red de honeypots.
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex items-center gap-1 bg-[#161f30]/90 border border-slate-700/60 p-1 rounded-xl shadow-inner backdrop-blur-md flex-wrap">
+          <div className="inline-flex items-center gap-1 bg-hm-card/90 border border-hm-border p-1 rounded-xl shadow-md flex-wrap">
             {TIME_PRESETS.map((preset) => {
               const isActive = activePreset === preset.key;
               return (
@@ -140,10 +133,10 @@ export default function Dashboard() {
                   type="button"
                   disabled={loading}
                   onClick={() => setActivePreset(preset.key)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                     isActive
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                      ? 'bg-hm-gold/15 text-hm-gold border border-hm-gold/30 shadow-sm'
+                      : 'text-hm-muted hover:text-hm-text hover:bg-hm-elevated/60 border border-transparent'
                   } disabled:opacity-50`}
                 >
                   {preset.label}
@@ -158,12 +151,20 @@ export default function Dashboard() {
             disabled={loading}
             title="Actualizar métricas"
             aria-label="Actualizar métricas"
-            className="p-2 rounded-xl bg-[#161f30]/90 border border-slate-700/60 text-slate-400 hover:text-blue-400 hover:border-blue-500/40 transition-colors disabled:opacity-50"
+            className="p-2 rounded-xl bg-hm-card/90 border border-hm-border text-hm-muted hover:text-hm-gold hover:border-hm-gold/40 transition-colors disabled:opacity-50"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} aria-hidden="true" />
           </button>
         </div>
       </div>
+
+      <StatusBanner
+        error={error}
+        isLoading={loading}
+        onRetry={() => fetchSummary(activePreset)}
+        isMockFallback={isFallback}
+        endpoint="/api/v1/threats/summary"
+      />
 
       <DashboardMetricsGrid metrics={metrics} />
 

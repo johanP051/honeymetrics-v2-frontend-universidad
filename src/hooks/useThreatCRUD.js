@@ -21,10 +21,12 @@ const DEFAULT_VAULT = [
 ];
 
 const normalizeThreat = (t) => {
-  const score = Number(t?.threat_score ?? 0);
-  const ipType = t?.ip_type || t?.type || (t?.ip?.includes(':') ? 'IPv6' : 'IPv4');
+  const score = Number(t?.threat_score ?? t?.full_record_json?.threat_score ?? 0);
+  const ip = t?.ip || t?.original_ip || t?.full_record_json?.ip || '';
+  const ipType = t?.ip_type || t?.type || (ip.includes(':') ? 'IPv6' : 'IPv4');
   return {
     ...t,
+    ip,
     ip_type: ipType,
     threat_score: score,
     status: t?.status || (score > 70 ? 'Bloqueada' : 'Monitoreada'),

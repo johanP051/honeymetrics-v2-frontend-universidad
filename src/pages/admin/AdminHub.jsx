@@ -71,18 +71,23 @@ export default function AdminHub() {
           </div>
 
           {/* Navegación por Pestañas */}
-          <div role="tablist" aria-label="Secciones de Administración" className="flex flex-wrap items-center p-1 bg-hm-elevated/80 border border-hm-border rounded-xl gap-1 w-full sm:w-auto">
+          <div role="tablist" aria-label="Secciones de Administración" className="inline-flex flex-wrap items-center p-1.5 bg-hm-card/90 border border-hm-border rounded-xl gap-1.5 w-full sm:w-fit shadow-md">
             <button
               type="button"
               role="tab"
               aria-selected={activeTab === 'USERS'}
               onClick={() => setActiveTab('USERS')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'USERS' ? 'bg-hm-gold text-slate-950 font-bold shadow-md' : 'text-hm-muted hover:text-hm-text'
+                activeTab === 'USERS'
+                  ? 'bg-hm-gold/15 text-hm-gold border border-hm-gold/30 shadow-sm'
+                  : 'text-hm-muted hover:text-hm-text hover:bg-hm-elevated/60 border border-transparent'
               }`}
             >
               <Users size={15} aria-hidden="true" />
-              <span>Usuarios ({users.length})</span>
+              <span>Usuarios</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-mono ${activeTab === 'USERS' ? 'bg-hm-gold/20 text-hm-gold font-bold' : 'bg-hm-elevated text-hm-muted'}`}>
+                {users.length}
+              </span>
             </button>
 
             <button
@@ -91,11 +96,16 @@ export default function AdminHub() {
               aria-selected={activeTab === 'ROLES'}
               onClick={() => setActiveTab('ROLES')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'ROLES' ? 'bg-hm-gold text-slate-950 font-bold shadow-md' : 'text-hm-muted hover:text-hm-text'
+                activeTab === 'ROLES'
+                  ? 'bg-hm-gold/15 text-hm-gold border border-hm-gold/30 shadow-sm'
+                  : 'text-hm-muted hover:text-hm-text hover:bg-hm-elevated/60 border border-transparent'
               }`}
             >
               <Shield size={15} aria-hidden="true" />
-              <span>Roles ({roles.length})</span>
+              <span>Roles</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-mono ${activeTab === 'ROLES' ? 'bg-hm-gold/20 text-hm-gold font-bold' : 'bg-hm-elevated text-hm-muted'}`}>
+                {roles.length}
+              </span>
             </button>
 
             <button
@@ -104,11 +114,16 @@ export default function AdminHub() {
               aria-selected={activeTab === 'AUDIT'}
               onClick={() => setActiveTab('AUDIT')}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTab === 'AUDIT' ? 'bg-hm-gold text-slate-950 font-bold shadow-md' : 'text-hm-muted hover:text-hm-text'
+                activeTab === 'AUDIT'
+                  ? 'bg-hm-gold/15 text-hm-gold border border-hm-gold/30 shadow-sm'
+                  : 'text-hm-muted hover:text-hm-text hover:bg-hm-elevated/60 border border-transparent'
               }`}
             >
               <FileText size={15} aria-hidden="true" />
-              <span>Auditoría del Sistema ({auditLogs.length})</span>
+              <span>Auditoría del Sistema</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-mono ${activeTab === 'AUDIT' ? 'bg-hm-gold/20 text-hm-gold font-bold' : 'bg-hm-elevated text-hm-muted'}`}>
+                {auditLogs.length}
+              </span>
             </button>
           </div>
 

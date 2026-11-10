@@ -28,7 +28,7 @@ export default {
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],
         display: ['"Space Grotesk"', 'sans-serif'],
-        mono: ['"Courier New"', 'Courier', 'monospace'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       backgroundImage: {
         'radial-glow': 'radial-gradient(1200px 500px at 10% -10%, rgba(212, 175, 55, 0.12), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(75, 139, 191, 0.08), transparent 55%)',

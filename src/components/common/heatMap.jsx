@@ -73,16 +73,16 @@ function ColorConfig() {
           </p>
           <div className="mt-2 min-h-[24px]">
             {hoveredCell ? (
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-900/90 border border-amber-500/40 text-xs font-mono text-slate-200">
-                <span className="text-amber-400 font-semibold">{hoveredCell.day}</span>
-                <span className="text-slate-500">•</span>
-                <span className="text-slate-300">{hoveredCell.hour}</span>
-                <span className="text-slate-500">:</span>
-                <span className="text-amber-300 font-semibold">{hoveredCell.count.toLocaleString()} alertas</span>
-                <span className="text-slate-400">({hoveredCell.prob}% prob.)</span>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-hm-elevated border border-hm-gold/40 text-xs font-mono text-hm-text">
+                <span className="text-hm-gold font-semibold">{hoveredCell.day}</span>
+                <span className="text-hm-muted">•</span>
+                <span className="text-hm-text">{hoveredCell.hour}</span>
+                <span className="text-hm-muted">:</span>
+                <span className="text-hm-gold font-semibold">{hoveredCell.count.toLocaleString()} alertas</span>
+                <span className="text-hm-muted">({hoveredCell.prob}% prob.)</span>
               </div>
             ) : (
-              <span className="text-[11px] text-slate-500 font-mono">
+              <span className="text-[11px] text-hm-muted font-mono">
                 Pase el cursor sobre las celdas para ver el detalle horario
               </span>
             )}
@@ -123,12 +123,12 @@ function ColorConfig() {
                 sx: {
                   zIndex: 9999,
                   '& .MuiChartsTooltip-paper': {
-                    backgroundColor: '#0f172a',
-                    color: '#f8fafc',
-                    border: '1px solid #334155',
+                    backgroundColor: '#161b22',
+                    color: '#e6edf3',
+                    border: '1px solid #2a3440',
                     boxShadow: '0 10px 15px -3px rgba(0,0,0,0.5)',
                   },
-                  '& .MuiChartsTooltip-cell, & .MuiChartsTooltip-table': { color: '#f8fafc' },
+                  '& .MuiChartsTooltip-cell, & .MuiChartsTooltip-table': { color: '#e6edf3' },
                 },
               },
             }}
