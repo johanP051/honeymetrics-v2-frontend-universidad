@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, ShieldAlert, FileText, Settings, ShieldCheck, LogOut, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import SidebarRoleBadge from './SidebarRoleBadge';
 
 export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onCloseMobile }) {
   const { logout, hasScope, role, user } = useAuth();
@@ -53,6 +54,8 @@ export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onC
           )}
         </div>
 
+        <SidebarRoleBadge roleName={effectiveRole} userEmail={user?.email} isCollapsed={isCollapsed} />
+
         <nav aria-label="Navegación Principal" className="flex-1 py-6 px-4 space-y-2 overflow-x-hidden">
           {navItems.map((item) => {
             const active = isItemActive(item.path);
@@ -62,10 +65,10 @@ export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onC
                 to={item.path}
                 title={isCollapsed ? item.name : undefined}
                 aria-label={isCollapsed ? item.name : undefined}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold ${
                   active
                     ? 'bg-hm-gold/10 text-hm-gold border border-hm-gold/20 shadow-[0_0_15px_rgba(212,175,55,0.1)]'
-                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text'
+                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text border border-transparent'
                 } ${isCollapsed ? 'justify-center' : ''}`}
               >
                 <item.icon size={20} aria-hidden="true" className="flex-shrink-0" />
@@ -126,10 +129,10 @@ export default function Sidebar({ isCollapsed, toggleCollapse, isMobileOpen, onC
                 key={`mobile-${item.path}`}
                 to={item.path}
                 onClick={onCloseMobile}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-hm-gold ${
                   active
                     ? 'bg-hm-gold/15 text-hm-gold font-semibold border border-hm-gold/30 shadow-[0_0_15px_rgba(212,175,55,0.15)]'
-                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text'
+                    : 'text-hm-muted hover:bg-hm-elevated hover:text-hm-text border border-transparent'
                 }`}
               >
                 <item.icon size={20} aria-hidden="true" className="flex-shrink-0" />

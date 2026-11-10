@@ -15,12 +15,12 @@ export default function HoneypotAdvisor({ totalEvents = 0 }) {
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-base font-display font-semibold text-slate-200">
+          <h3 className="text-base font-display font-semibold text-hm-text">
             Honeypot Advisor
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5 break-words">Top diccionarios SSH probados</p>
+          <p className="text-xs text-hm-muted mt-0.5 break-words">Top diccionarios SSH probados</p>
         </div>
-        <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 shrink-0">
+        <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-hm-gold/10 text-hm-gold border border-hm-gold/30 shrink-0">
           CTI RECON
         </span>
       </div>
@@ -35,34 +35,34 @@ export default function HoneypotAdvisor({ totalEvents = 0 }) {
           return (
             <div
               key={name}
-              className="p-2.5 rounded-lg bg-slate-900/60 border border-slate-700/60 hover:border-amber-500/40 transition-colors"
+              className="p-2.5 rounded-lg bg-hm-elevated/60 border border-hm-border hover:border-hm-gold/40 transition-colors"
             >
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="p-1 rounded bg-slate-800 border border-slate-700">
+                  <div className="p-1 rounded bg-hm-card border border-hm-border">
                     <Icon size={14} className={color} aria-hidden="true" />
                   </div>
                   <div className="flex items-baseline gap-1.5">
-                    <span className="font-mono text-xs font-semibold text-amber-300">{name}</span>
-                    <span className="text-[10px] text-slate-400">({type})</span>
+                    <span className="font-mono text-xs font-semibold text-hm-gold">{name}</span>
+                    <span className="text-[10px] text-hm-muted">({type})</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-semibold text-slate-200">
+                  <span className="text-xs font-semibold text-hm-text">
                     {attempts.toLocaleString('es-CO')}
                   </span>
-                  <span className="text-[10px] text-slate-400 ml-1">intentos</span>
+                  <span className="text-[10px] text-hm-muted ml-1">intentos</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden border border-slate-700/60">
+                <div className="w-full bg-hm-card h-1.5 rounded-full overflow-hidden border border-hm-border">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${barColor}`}
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <span className="text-[10px] font-mono text-slate-400 shrink-0 w-9 text-right">
+                <span className="text-[10px] font-mono text-hm-muted shrink-0 w-9 text-right">
                   {percentage}%
                 </span>
               </div>

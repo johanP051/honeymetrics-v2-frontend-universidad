@@ -26,14 +26,16 @@ export default function Login() {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!email.trim() || !password) {
+    const normalizedEmail = email.trim().toLowerCase() === "root" ? "root@root.com" : email.trim();
+
+    if (!normalizedEmail || !password) {
       setErrorMsg("Por favor ingrese correo y contraseña");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const res = await login(email, password);
+      const res = await login(normalizedEmail, password);
       if (res?.mfa_required) {
         setMfaToken(res.mfa_token);
         setMfaRequired(true);
@@ -113,8 +115,8 @@ export default function Login() {
                 <input
                   id="login-email"
                   className={styles.inputs}
-                  placeholder="Digite su correo electrónico"
-                  type="email"
+                  placeholder="Digite su correo electrónico o usuario"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubmitting}

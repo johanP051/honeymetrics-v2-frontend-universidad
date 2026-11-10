@@ -44,6 +44,8 @@ export function LogsStatusBadge({ status }) {
 }
 
 export default function LogsTableBody({
+  cargando = false,
+  totalRows = 0,
   error,
   estadosSeleccionados,
   rowsVisibles,
@@ -58,25 +60,39 @@ export default function LogsTableBody({
     ? rowsVisibles.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : rowsVisibles;
 
-  if (error && rowsVisibles.length === 0) {
+  if (cargando && rowsVisibles.length === 0) {
     return (
-      <tbody className="divide-y divide-slate-800/60">
+      <tbody className="divide-y divide-hm-border/40">
         <tr>
-          <td colSpan={6} className="p-8 text-center text-red-400 text-sm font-medium">
-            <div role="alert">{error}</div>
+          <td colSpan={6} className="p-10 text-center text-hm-muted text-sm">
+            <div className="inline-flex items-center gap-3" role="status" aria-label="Cargando historial de exportaciones">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-hm-gold border-t-transparent" />
+              <span>Sincronizando historial de exportaciones...</span>
+            </div>
           </td>
         </tr>
-
       </tbody>
     );
   }
 
-  if (!estadosSeleccionados.length) {
+  if (error && rowsVisibles.length === 0) {
     return (
-      <tbody className="divide-y divide-slate-800/60">
+      <tbody className="divide-y divide-hm-border/40">
         <tr>
-          <td colSpan={6} className="p-8 text-center text-amber-400 text-sm font-medium">
-            Aplique al menos un filtro de estado.
+          <td colSpan={6} className="p-8 text-center text-hm-danger text-sm font-medium">
+            <div role="alert">{error}</div>
+          </td>
+        </tr>
+      </tbody>
+    );
+  }
+
+  if (totalRows > 0 && !estadosSeleccionados.length) {
+    return (
+      <tbody className="divide-y divide-hm-border/40">
+        <tr>
+          <td colSpan={6} className="p-8 text-center text-hm-gold text-sm font-medium">
+            Aplique al menos un filtro de estado para visualizar registros.
           </td>
         </tr>
       </tbody>
@@ -85,9 +101,9 @@ export default function LogsTableBody({
 
   if (rowsVisibles.length === 0) {
     return (
-      <tbody className="divide-y divide-slate-800/60">
+      <tbody className="divide-y divide-hm-border/40">
         <tr>
-          <td colSpan={6} className="p-8 text-center text-slate-400 text-sm">
+          <td colSpan={6} className="p-8 text-center text-hm-muted text-sm">
             No se encontraron exportaciones con los criterios especificados.
           </td>
         </tr>
@@ -96,15 +112,15 @@ export default function LogsTableBody({
   }
 
   return (
-    <tbody className="divide-y divide-slate-800/60">
+    <tbody className="divide-y divide-hm-border/40">
       {paginatedRows.map((row) => (
-        <tr key={row.id} className="hover:bg-slate-800/40 transition-colors">
-          <td className="p-4 font-mono font-bold text-amber-400 text-sm">{row.id}</td>
-          <td className="p-4 text-sm text-slate-300 font-mono">{row.date_range}</td>
-          <td className="p-4 text-sm text-slate-200 text-right font-mono">
-            {Number(row.count || 0).toLocaleString()}
+        <tr key={row.id} className="hover:bg-hm-elevated/40 transition-colors">
+          <td className="p-4 font-mono font-bold text-hm-gold text-xs sm:text-sm">{row.id}</td>
+          <td className="p-4 text-xs sm:text-sm text-hm-text font-mono">{row.date_range}</td>
+          <td className="p-4 text-xs sm:text-sm text-hm-text text-right font-mono">
+            {Number(row.count || 0).toLocaleString('es-CO')}
           </td>
-          <td className="p-4 text-sm text-slate-400 text-right">{row.created_at}</td>
+          <td className="p-4 text-xs sm:text-sm text-hm-muted text-right">{row.created_at}</td>
           <td className="p-4 text-center">
             <LogsStatusBadge status={row.status} />
           </td>

@@ -8,14 +8,14 @@ export function LogsPaginationActions({ count, page, rowsPerPage, onPageChange, 
   const to = Math.min((page + 1) * rowsPerPage, count);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-slate-700/60 bg-slate-800/40 text-xs sm:text-sm text-slate-400">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3.5 border-t border-hm-border/70 bg-hm-elevated/40 text-xs sm:text-sm text-hm-muted">
       <div className="flex items-center gap-2">
         <span>Filas por página:</span>
         <select
           value={rowsPerPage}
           onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
           aria-label="Filas por página"
-          className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-amber-500 transition-colors"
+          className="bg-hm-card border border-hm-border rounded-lg px-2.5 py-1 text-hm-text text-xs font-mono focus:outline-none focus:border-hm-gold transition-colors"
         >
           {[5, 10, 25, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
@@ -26,7 +26,7 @@ export function LogsPaginationActions({ count, page, rowsPerPage, onPageChange, 
       </div>
 
       <div className="flex items-center gap-4">
-        <span className="text-slate-300 font-mono">
+        <span className="text-hm-text font-mono text-xs">
           {from}–{to} de {count}
         </span>
         <div className="flex items-center gap-1">
@@ -35,7 +35,7 @@ export function LogsPaginationActions({ count, page, rowsPerPage, onPageChange, 
             onClick={() => onPageChange(0)}
             disabled={page === 0}
             aria-label="Primera página"
-            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg border border-hm-border bg-hm-card text-hm-text hover:text-hm-gold hover:border-hm-gold/40 disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronsLeft className="w-4 h-4" />
           </button>
@@ -44,16 +44,19 @@ export function LogsPaginationActions({ count, page, rowsPerPage, onPageChange, 
             onClick={() => onPageChange(page - 1)}
             disabled={page === 0}
             aria-label="Página anterior"
-            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg border border-hm-border bg-hm-card text-hm-text hover:text-hm-gold hover:border-hm-gold/40 disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
+          <span className="text-[11px] text-hm-muted px-2 font-mono">
+            Pág. {page + 1}/{totalPages}
+          </span>
           <button
             type="button"
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages - 1}
             aria-label="Página siguiente"
-            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg border border-hm-border bg-hm-card text-hm-text hover:text-hm-gold hover:border-hm-gold/40 disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -62,7 +65,7 @@ export function LogsPaginationActions({ count, page, rowsPerPage, onPageChange, 
             onClick={() => onPageChange(totalPages - 1)}
             disabled={page >= totalPages - 1}
             aria-label="Última página"
-            className="p-1.5 rounded-lg border border-slate-700/60 bg-slate-900/60 text-slate-300 hover:text-slate-100 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 rounded-lg border border-hm-border bg-hm-card text-hm-text hover:text-hm-gold hover:border-hm-gold/40 disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronsRight className="w-4 h-4" />
           </button>
@@ -94,12 +97,12 @@ export function SortableHeader({ etiqueta, columna, align = 'left', orden, onOrd
       <button
         type="button"
         onClick={() => onOrdenar(columna)}
-        className={`inline-flex items-center gap-1.5 hover:text-slate-200 transition-colors ${alignClass} ${activa ? 'text-amber-400 font-bold' : 'text-slate-400'}`}
+        className={`inline-flex items-center gap-1.5 hover:text-hm-text transition-colors ${alignClass} ${activa ? 'text-hm-gold font-bold' : 'text-hm-muted'}`}
         aria-label={`Ordenar por ${etiqueta}`}
       >
         <span>{etiqueta}</span>
         {activa ? (
-          descendente ? <ArrowDown className="w-3.5 h-3.5 text-amber-400" /> : <ArrowUp className="w-3.5 h-3.5 text-amber-400" />
+          descendente ? <ArrowDown className="w-3.5 h-3.5 text-hm-gold" /> : <ArrowUp className="w-3.5 h-3.5 text-hm-gold" />
         ) : (
           <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
         )}

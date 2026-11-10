@@ -100,12 +100,12 @@ function TitanicPie({ totalEvents = 165247 }) {
               sx: {
                 zIndex: 9999,
                 '& .MuiChartsTooltip-paper': {
-                  backgroundColor: '#0f172a',
-                  color: '#f8fafc',
-                  border: '1px solid #334155',
+                  backgroundColor: '#161b22',
+                  color: '#e6edf3',
+                  border: '1px solid #2a3440',
                 },
                 '& .MuiChartsTooltip-cell': {
-                  color: '#f8fafc',
+                  color: '#e6edf3',
                 },
               },
             },
