@@ -5,6 +5,9 @@ import {
   parseJwtPayload,
   getScopesForRole,
   purgeAllAuthStorage,
+  sanitizeRole,
+  sanitizeScopes,
+  sanitizeUserProfile,
 } from "./authSecurity";
 
 const AuthContext = createContext(null);
@@ -16,18 +19,28 @@ export function AuthProvider({ children }) {
     const t = authService.getToken();
     if (!t) return null;
     const payload = parseJwtPayload(t);
-    return payload?.role || payload?.role_name || localStorage.getItem("hm_role") || null;
+    return (
+      sanitizeRole(payload?.role) ||
+      sanitizeRole(payload?.role_name) ||
+      sanitizeRole(localStorage.getItem("hm_role")) ||
+      null
+    );
   });
   const [scopes, setScopes] = useState(() => {
     const t = authService.getToken();
     if (!t) return [];
     const payload = parseJwtPayload(t);
-    if (Array.isArray(payload?.scopes) && payload.scopes.length > 0) return payload.scopes;
+    const tokenScopes = sanitizeScopes(payload?.scopes);
+    if (tokenScopes.length > 0) return tokenScopes;
     try {
-      const stored = JSON.parse(localStorage.getItem("hm_scopes") || "[]");
-      if (Array.isArray(stored) && stored.length > 0) return stored;
+      const stored = sanitizeScopes(JSON.parse(localStorage.getItem("hm_scopes") || "[]"));
+      if (stored.length > 0) return stored;
     } catch {}
-    const r = payload?.role || payload?.role_name || localStorage.getItem("hm_role") || "Analista";
+    const r =
+      sanitizeRole(payload?.role) ||
+      sanitizeRole(payload?.role_name) ||
+      sanitizeRole(localStorage.getItem("hm_role")) ||
+      "Analista";
     return getScopesForRole(r);
   });
   const [loading, setLoading] = useState(true);
@@ -35,16 +48,21 @@ export function AuthProvider({ children }) {
   const applyAuthSuccess = useCallback((tokenValue, userObject, scopesArray = null) => {
     purgeAllAuthStorage();
     const payload = parseJwtPayload(tokenValue);
-    const resolvedRole = userObject?.role_name || payload?.role || payload?.role_name || "Analista";
-    const resolvedScopes = Array.isArray(scopesArray) && scopesArray.length > 0
+    const safeUser = sanitizeUserProfile(userObject) || {};
+    const resolvedRole =
+      sanitizeRole(safeUser.role_name) ||
+      sanitizeRole(payload?.role) ||
+      sanitizeRole(payload?.role_name) ||
+      "Analista";
+    const requestedScopes = Array.isArray(scopesArray) && scopesArray.length > 0
       ? scopesArray
       : (Array.isArray(payload?.scopes) && payload.scopes.length > 0
           ? payload.scopes
-          : (Array.isArray(userObject?.scopes) && userObject.scopes.length > 0
-              ? userObject.scopes
+          : (Array.isArray(safeUser.scopes) && safeUser.scopes.length > 0
+              ? safeUser.scopes
               : getScopesForRole(resolvedRole)));
-
-    const serializedUser = JSON.stringify(userObject || {});
+    const resolvedScopes = sanitizeScopes(requestedScopes);
+    const serializedUser = JSON.stringify(safeUser);
     const serializedScopes = JSON.stringify(resolvedScopes);
     [localStorage, sessionStorage].forEach((storage) => {
       storage.setItem("access_token", tokenValue);
@@ -56,7 +74,7 @@ export function AuthProvider({ children }) {
     });
 
     setToken(tokenValue);
-    setUser(userObject);
+    setUser(safeUser);
     setRole(resolvedRole);
     setScopes(resolvedScopes);
   }, []);
@@ -129,7 +147,10 @@ export function AuthProvider({ children }) {
   const hasScope = useCallback(
     (requiredScope) => {
       if (!requiredScope) return true;
-      const effectiveRole = role || user?.role_name || (typeof localStorage !== 'undefined' ? localStorage.getItem("hm_role") : null);
+      const effectiveRole =
+        sanitizeRole(role) ||
+        sanitizeRole(user?.role_name) ||
+        (typeof localStorage !== 'undefined' ? sanitizeRole(localStorage.getItem("hm_role")) : null);
       if (effectiveRole && (effectiveRole.toLowerCase() === "administrador" || effectiveRole.toLowerCase() === "superusuario")) return true;
       if (scopes.includes(requiredScope) || scopes.includes("admin:all")) return true;
       const fallback = getScopesForRole(effectiveRole || 'Analista');
@@ -140,9 +161,10 @@ export function AuthProvider({ children }) {
 
   const updateProfileData = useCallback(
     (updatedProfile) => {
-      if (!updatedProfile) return;
+      const safeProfile = sanitizeUserProfile(updatedProfile);
+      if (!safeProfile || Object.keys(safeProfile).length === 0) return;
       setUser((prev) => {
-        const merged = { ...(prev || {}), ...updatedProfile };
+        const merged = { ...(sanitizeUserProfile(prev) || {}), ...safeProfile };
         const serialized = JSON.stringify(merged);
         if (prev && JSON.stringify(prev) === serialized) return prev;
         localStorage.setItem("user_data", serialized);
@@ -151,18 +173,18 @@ export function AuthProvider({ children }) {
         sessionStorage.setItem("hm_user", serialized);
         return merged;
       });
-      if (updatedProfile.role_name) {
-        setRole((prev) => (prev === updatedProfile.role_name ? prev : updatedProfile.role_name));
-        localStorage.setItem("hm_role", updatedProfile.role_name);
-        sessionStorage.setItem("hm_role", updatedProfile.role_name);
+      if (safeProfile.role_name) {
+        setRole((prev) => (prev === safeProfile.role_name ? prev : safeProfile.role_name));
+        localStorage.setItem("hm_role", safeProfile.role_name);
+        sessionStorage.setItem("hm_role", safeProfile.role_name);
       }
-      if (Array.isArray(updatedProfile.scopes) && updatedProfile.scopes.length > 0) {
+      if (Array.isArray(safeProfile.scopes) && safeProfile.scopes.length > 0) {
         setScopes((prev) => {
-          const json = JSON.stringify(updatedProfile.scopes);
+          const json = JSON.stringify(safeProfile.scopes);
           if (JSON.stringify(prev) === json) return prev;
           localStorage.setItem("hm_scopes", json);
           sessionStorage.setItem("hm_scopes", json);
-          return updatedProfile.scopes;
+          return safeProfile.scopes;
         });
       }
     },
