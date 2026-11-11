@@ -1,5 +1,5 @@
 import api from "./client";
-import { purgeAllAuthStorage } from "../context/authSecurity";
+import { purgeAllAuthStorage, sanitizeUserProfile } from "../context/authSecurity";
 
 export const authService = {
   async login(email, password) {
@@ -43,7 +43,7 @@ export const authService = {
       localStorage.getItem("user_data");
     if (!userStr || userStr === "undefined" || userStr === "null") return null;
     try {
-      return JSON.parse(userStr);
+      return sanitizeUserProfile(JSON.parse(userStr));
     } catch {
       return null;
     }
