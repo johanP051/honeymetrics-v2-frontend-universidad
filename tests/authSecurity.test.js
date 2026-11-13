@@ -7,6 +7,7 @@ import {
   isTokenValid,
   parseJwtPayload,
   purgeAllAuthStorage,
+  sanitizeUserProfile,
 } from '../src/context/authSecurity.js';
 import { formatApiErrorDetail } from '../src/api/client.js';
 
@@ -115,6 +116,31 @@ test('purgeAllAuthStorage cleans all auth tokens and metadata from storage', () 
   assert.equal(sessionStore.hm_access_token, undefined);
   assert.equal(sessionStore.hm_user, undefined);
   assert.equal(sessionStore.custom_key, 'keep_me');
+});
+
+test('sanitizeUserProfile keeps the allowed schema and rejects injected fields', () => {
+  assert.deepEqual(
+    sanitizeUserProfile({
+      id: 7,
+      email: 'user@example.test',
+      first_names: 'Ana',
+      role_id: 2,
+      role_name: 'Analista',
+      scopes: ['dashboard:read', 'unknown:admin'],
+      is_active: true,
+      injected_html: '<img src=x onerror=alert(1)>',
+      injected_object: { malicious: true },
+    }),
+    {
+      id: 7,
+      email: 'user@example.test',
+      first_names: 'Ana',
+      role_id: 2,
+      role_name: 'Analista',
+      scopes: ['dashboard:read'],
+      is_active: true,
+    }
+  );
 });
 
 test('getDefaultRoute routes securely based on authentication and password flags', () => {

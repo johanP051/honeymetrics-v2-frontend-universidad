@@ -90,6 +90,52 @@ export const ROLES_TO_SCOPES = {
   'Directivo de TI': ['dashboard:read', 'threats:read', 'blacklist:read', 'users:profile'],
 };
 
+const USER_TEXT_FIELDS = {
+  email: 254,
+  first_names: 150,
+  last_names: 150,
+  created_at: 64,
+  updated_at: 64,
+};
+const USER_BOOLEAN_FIELDS = ['is_active', 'must_change_password', 'is_mfa_enabled', 'mfa_enabled'];
+const USER_NUMBER_FIELDS = ['id', 'role_id'];
+const ALL_SCOPES = new Set(Object.values(ROLES_TO_SCOPES).flat());
+
+const isSafeText = (value, maxLength) =>
+  typeof value === 'string' &&
+  value.length <= maxLength &&
+  !/[\u0000-\u001f\u007f]/.test(value);
+
+export const sanitizeRole = (role) =>
+  typeof role === 'string' && Object.prototype.hasOwnProperty.call(ROLES_TO_SCOPES, role)
+    ? role
+    : null;
+
+export const sanitizeScopes = (scopes) => {
+  if (!Array.isArray(scopes)) return [];
+  return scopes.filter((scope) => isSafeText(scope, 100) && ALL_SCOPES.has(scope));
+};
+
+export const sanitizeUserProfile = (profile) => {
+  if (!profile || typeof profile !== 'object' || Array.isArray(profile)) return null;
+
+  const sanitized = {};
+  Object.entries(USER_TEXT_FIELDS).forEach(([field, maxLength]) => {
+    if (isSafeText(profile[field], maxLength)) sanitized[field] = profile[field];
+  });
+  const role = sanitizeRole(profile.role_name);
+  if (role) sanitized.role_name = role;
+  USER_BOOLEAN_FIELDS.forEach((field) => {
+    if (typeof profile[field] === 'boolean') sanitized[field] = profile[field];
+  });
+  USER_NUMBER_FIELDS.forEach((field) => {
+    if (Number.isSafeInteger(profile[field]) && profile[field] >= 0) sanitized[field] = profile[field];
+  });
+  if (Array.isArray(profile.scopes)) sanitized.scopes = sanitizeScopes(profile.scopes);
+
+  return sanitized;
+};
+
 export const getScopesForRole = (roleName = 'Analista') => {
   if (!roleName) return ['dashboard:read'];
   if (ROLES_TO_SCOPES[roleName]) return [...ROLES_TO_SCOPES[roleName]];
