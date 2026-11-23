@@ -95,7 +95,12 @@ export function useThreatCRUD() {
       setData((prev) => [normalized, ...prev]);
       return normalized;
     } catch (err) {
-      console.warn('Fallback local al añadir amenaza:', err.message);
+      // Si el backend respondió con un error HTTP (ej. 422 IP privada RFC 1918 / DNS, 409 duplicada, 403),
+      // NUNCA insertarla falsamente en el estado local: propagar el rechazo al modal.
+      if (err?.response) {
+        throw err;
+      }
+      console.warn('Fallback local al añadir amenaza (sin conexión):', err.message);
       const localThreat = normalizeThreat({ ...payload, id: Date.now() });
       setData((prev) => [localThreat, ...prev]);
       return localThreat;
@@ -118,7 +123,10 @@ export function useThreatCRUD() {
       setData((prev) => prev.map((item) => (String(item.id) === String(id) ? normalized : item)));
       return normalized;
     } catch (err) {
-      console.warn('Fallback local al actualizar amenaza:', err.message);
+      if (err?.response) {
+        throw err;
+      }
+      console.warn('Fallback local al actualizar amenaza (sin conexión):', err.message);
       const localUpdated = normalizeThreat({ ...payload, id });
       setData((prev) => prev.map((item) => (String(item.id) === String(id) ? { ...item, ...localUpdated } : item)));
       return localUpdated;
