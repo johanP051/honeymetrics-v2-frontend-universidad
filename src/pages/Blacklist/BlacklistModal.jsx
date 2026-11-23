@@ -23,6 +23,7 @@ export default function BlacklistModal({ open, onClose, onSubmit, threatToEdit =
   const [threatScore, setThreatScore] = useState(50);
   const [notes, setNotes] = useState('');
   const [formError, setFormError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (threatToEdit) {
@@ -35,12 +36,14 @@ export default function BlacklistModal({ open, onClose, onSubmit, threatToEdit =
       setIp(''); setCountry(''); setCategory('Botnet'); setThreatScore(50); setNotes('');
     }
     setFormError(null);
+    setIsSubmitting(false);
   }, [threatToEdit, open]);
 
   if (!open) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError(null);
     const cleanIp = ip.trim();
     const ipType = getIpType(cleanIp);
     if (!ipType) {
@@ -48,16 +51,27 @@ export default function BlacklistModal({ open, onClose, onSubmit, threatToEdit =
       return;
     }
 
-    onSubmit({
-      id: threatToEdit?.id,
-      ip: cleanIp,
-      ip_type: ipType,
-      country: country.trim(),
-      category: category || 'Botnet',
-      threat_score: Number(threatScore),
-      notes: notes.trim(),
-    });
-    onClose();
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        id: threatToEdit?.id,
+        ip: cleanIp,
+        ip_type: ipType,
+        country: country.trim(),
+        category: category || 'Botnet',
+        threat_score: Number(threatScore),
+        notes: notes.trim(),
+      });
+      onClose();
+    } catch (err) {
+      setFormError(
+        err?.response?.data?.detail ||
+          err?.message ||
+          'No se pudo guardar la amenaza. Verifica los datos e intenta de nuevo.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return createPortal(
@@ -182,9 +196,10 @@ export default function BlacklistModal({ open, onClose, onSubmit, threatToEdit =
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-lg text-sm font-bold bg-hm-gold hover:bg-hm-goldHover text-slate-950 transition-colors shadow-lg shadow-hm-gold/20"
+              disabled={isSubmitting}
+              className="px-5 py-2 rounded-lg text-sm font-bold bg-hm-gold hover:bg-hm-goldHover text-slate-950 transition-colors shadow-lg shadow-hm-gold/20 disabled:opacity-50"
             >
-              Guardar
+              {isSubmitting ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
         </form>
