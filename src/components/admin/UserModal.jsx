@@ -35,22 +35,47 @@ export default function UserModal({
         setFirstNames(userToEdit.first_names || '');
         setLastNames(userToEdit.last_names || '');
         setEmail(userToEdit.email || '');
-        setRoleId(userToEdit.role_id ? String(userToEdit.role_id) : roles[0]?.id ? String(roles[0].id) : '1');
+        setRoleId(userToEdit.role_id != null ? String(userToEdit.role_id) : '');
         setTempPassword('');
         setSendEmail(false);
       } else {
         setFirstNames('');
         setLastNames('');
         setEmail('');
-        setRoleId(roles[0]?.id ? String(roles[0].id) : '1');
+        setRoleId('');
         setTempPassword(generateTempPassword());
         setSendEmail(true);
       }
       setErrorLocal('');
     }
+  }, [isOpen, userToEdit]);
+
+  useEffect(() => {
+    if (!isOpen || !Array.isArray(roles) || roles.length === 0) return;
+
+    setRoleId((prev) => {
+      if (prev && roles.some((r) => String(r.id) === String(prev))) {
+        return prev;
+      }
+      if (userToEdit?.role_id != null && roles.some((r) => String(r.id) === String(userToEdit.role_id))) {
+        return String(userToEdit.role_id);
+      }
+      if (userToEdit?.role_name) {
+        const byName = roles.find((r) => String(r.name).toLowerCase() === String(userToEdit.role_name).toLowerCase());
+        if (byName?.id != null) return String(byName.id);
+      }
+      return roles[0]?.id != null ? String(roles[0].id) : '';
+    });
   }, [isOpen, userToEdit, roles]);
 
   if (!isOpen) return null;
+
+  const effectiveRoleId =
+    roleId && roles.some((r) => String(r.id) === String(roleId))
+      ? String(roleId)
+      : roles[0]?.id != null
+        ? String(roles[0].id)
+        : '';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,12 +88,17 @@ export default function UserModal({
       setErrorLocal('La contraseña temporal es obligatoria.');
       return;
     }
+    const parsedRoleId = Number.parseInt(effectiveRoleId, 10);
+    if (!Number.isInteger(parsedRoleId)) {
+      setErrorLocal('No se pudieron cargar los roles del sistema. Actualiza la vista e intenta de nuevo.');
+      return;
+    }
     try {
       const payload = {
         first_names: firstNames.trim(),
         last_names: lastNames.trim(),
         email: email.trim(),
-        role_id: Number.parseInt(roleId, 10),
+        role_id: parsedRoleId,
 
         ...(tempPassword.trim() ? { [isEditing ? 'password' : 'temp_password']: tempPassword.trim() } : {}),
         ...(!isEditing ? { send_email: sendEmail } : {}),
@@ -121,9 +151,9 @@ export default function UserModal({
 
           <div>
             <label htmlFor="user-role-select" className="block font-semibold text-hm-muted mb-1">Rol en el Sistema</label>
-            <select id="user-role-select" value={roleId} onChange={(e) => setRoleId(e.target.value)} className="w-full px-3 py-2 bg-hm-elevated border border-hm-border rounded-lg text-hm-text text-xs focus:outline-none focus:border-hm-gold">
+            <select id="user-role-select" value={effectiveRoleId} onChange={(e) => setRoleId(e.target.value)} disabled={roles.length === 0} className="w-full px-3 py-2 bg-hm-elevated border border-hm-border rounded-lg text-hm-text text-xs focus:outline-none focus:border-hm-gold disabled:opacity-60">
               {roles.map((r) => (
-                <option key={r.id} value={r.id}>{r.name}</option>
+                <option key={r.id} value={String(r.id)}>{r.name}</option>
               ))}
             </select>
           </div>
@@ -157,7 +187,7 @@ export default function UserModal({
 
           <div className="flex justify-end gap-2 pt-3 border-t border-hm-border/60">
             <button type="button" onClick={onClose} disabled={isLoading} className="px-3.5 py-1.5 rounded-lg border border-hm-border text-hm-muted hover:text-hm-text">Cancelar</button>
-            <button type="submit" disabled={isLoading} className="px-4 py-1.5 rounded-lg bg-hm-gold text-slate-950 font-bold hover:bg-hm-goldHover disabled:opacity-50">
+            <button type="submit" disabled={isLoading || !effectiveRoleId} className="px-4 py-1.5 rounded-lg bg-hm-gold text-slate-950 font-bold hover:bg-hm-goldHover disabled:opacity-50">
               {isLoading ? (isEditing ? 'Guardando...' : 'Registrando...') : (isEditing ? 'Guardar Cambios' : 'Registrar Usuario')}
             </button>
           </div>
